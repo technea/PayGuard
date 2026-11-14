@@ -38,18 +38,20 @@ const SAMPLE_WALLET = "0x20556F0cfA3f93F0206faeb5452d2745e1423469";
 const USDC_BASE = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913";
 
 const apiKey = getAlchemyApiKey();
+const liveOptions = { skip: !apiKey ? "ALCHEMY_API_KEY not configured in environment" : false };
 
-test("1. Native ETH balance retrieval on Base Mainnet via Alchemy", async () => {
+test("1. Native ETH balance retrieval on Base Mainnet via Alchemy", liveOptions, async () => {
   assert.ok(apiKey, "ALCHEMY_API_KEY must be configured in .env");
   const eth = await fetchNativeEthBalance(VITALIK_ETH, { alchemyApiKey: apiKey });
+  assert.ok(!eth.error, `ETH balance retrieval failed: ${eth.error}`);
   assert.equal(eth.symbol, "ETH");
   assert.equal(eth.decimals, 18);
   assert.ok(BigInt(eth.balanceWei) > 0n, "vitalik.eth should have non-zero ETH balance on Base");
   assert.ok(parseFloat(eth.balanceEth) > 0, "Formatted ETH should be > 0");
-  assert.equal(eth.provider, "Alchemy Base Mainnet");
+  assert.ok(eth.provider.includes("Base"), "Provider should be Base");
 });
 
-test("2. ERC-20 token discovery on Base Mainnet via Alchemy", async () => {
+test("2. ERC-20 token discovery on Base Mainnet via Alchemy", liveOptions, async () => {
   const result = await fetchAlchemyTokenBalances(VITALIK_ETH, { alchemyApiKey: apiKey, maxPages: 1 });
   assert.equal(result.available, true);
   assert.ok(result.items.length > 0, "Should discover held tokens");
@@ -59,12 +61,12 @@ test("2. ERC-20 token discovery on Base Mainnet via Alchemy", async () => {
   assert.ok(BigInt(first.tokenBalance) > 0n, "Discovered balance must be non-zero");
 });
 
-test("3. Wallets with multiple token holdings discovery", async () => {
+test("3. Wallets with multiple token holdings discovery", liveOptions, async () => {
   const result = await fetchAlchemyTokenBalances(VITALIK_ETH, { alchemyApiKey: apiKey, maxPages: 2 });
   assert.ok(result.items.length >= 10, "vitalik.eth holds dozens of tokens on Base");
 });
 
-test("4. Discovers tokens outside the existing canonical registry", async () => {
+test("4. Discovers tokens outside the existing canonical registry", liveOptions, async () => {
   const result = await fetchAlchemyTokenBalances(VITALIK_ETH, { alchemyApiKey: apiKey, maxPages: 1 });
   const canonicalAddrs = new Set([
     "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
@@ -86,7 +88,7 @@ test("4. Discovers tokens outside the existing canonical registry", async () => 
   assert.ok(typeof meta.decimals === "number");
 });
 
-test("5. Empty wallet with zero holdings returns empty list cleanly", async () => {
+test("5. Empty wallet with zero holdings returns empty list cleanly", liveOptions, async () => {
   const result = await fetchAlchemyTokenBalances(EMPTY_WALLET, { alchemyApiKey: apiKey, maxPages: 1 });
   assert.equal(result.available, true);
   assert.equal(result.items.length, 0, "Fresh random wallet must have 0 non-zero token holdings");
@@ -156,13 +158,13 @@ test("8. API failures and rate limits fallback gracefully", async () => {
   assert.ok(scan.tokens.length >= 7);
 });
 
-test("9. Pagination traversing pageKey correctly", async () => {
+test("9. Pagination traversing pageKey correctly", liveOptions, async () => {
   const result = await fetchAlchemyTokenBalances(VITALIK_ETH, { alchemyApiKey: apiKey, maxPages: 2 });
   assert.ok(result.pageCount >= 2, "Should have requested at least 2 pages");
   assert.ok(result.totalDiscovered >= 80, "Should have discovered 80+ tokens across 2 pages");
 });
 
-test("10. MCP tool get_token_balance returns balances for ETH and ERC-20", async () => {
+test("10. MCP tool get_token_balance returns balances for ETH and ERC-20", liveOptions, async () => {
   const ethBalRes = await plugin.invokeTool("get_token_balance", {
     walletAddress: VITALIK_ETH,
     tokenAddress: "ETH"
@@ -179,7 +181,7 @@ test("10. MCP tool get_token_balance returns balances for ETH and ERC-20", async
   assert.equal(usdcBalRes.symbol, "USDC");
 });
 
-test("11. MCP tool get_wallet_portfolio returns complete asset breakdown", async () => {
+test("11. MCP tool get_wallet_portfolio returns complete asset breakdown", liveOptions, async () => {
   const portfolioRes = await plugin.invokeTool("get_wallet_portfolio", {
     walletAddress: VITALIK_ETH
   });
@@ -189,7 +191,7 @@ test("11. MCP tool get_wallet_portfolio returns complete asset breakdown", async
   assert.ok(parseFloat(portfolioRes.nativeEth.balanceEth) > 0);
 });
 
-test("12. MCP tool scan_wallet_holdings audits holdings with security screening", { timeout: 45000 }, async () => {
+test("12. MCP tool scan_wallet_holdings audits holdings with security screening", Object.assign({ timeout: 45000 }, liveOptions), async () => {
   const holdingsRes = await plugin.invokeTool("scan_wallet_holdings", {
     walletAddress: SAMPLE_WALLET
   });

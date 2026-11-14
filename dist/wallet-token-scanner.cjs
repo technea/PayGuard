@@ -17,20 +17,80 @@ const BASE_CHAIN_ID = "8453";
 const BASE_RPC_URL = "https://mainnet.base.org";
 const BLOCKSCOUT_BASE_API = "https://base.blockscout.com/api/v2";
 const ALCHEMY_BASE_RPC = "https://base-mainnet.g.alchemy.com/v2";
+const DEFAULT_MAX_PAGES = 5;
+const MAX_ALLOWED_PAGES = 50;
+
+/**
+ * Safely normalize maxPages parameter to prevent unbounded execution,
+ * infinite loops, or negative/invalid values.
+ * Clamps valid positive integers to [1, MAX_ALLOWED_PAGES].
+ * Clamps Infinity or excessively large numbers to MAX_ALLOWED_PAGES.
+ * Falls back to default if invalid, NaN, negative, zero, or non-numeric.
+ */
+function normalizeMaxPages(val, fallback = DEFAULT_MAX_PAGES) {
+  if (val === Infinity || val === "+Infinity") {
+    return MAX_ALLOWED_PAGES;
+  }
+  if (typeof val === "number") {
+    if (!Number.isFinite(val) || Number.isNaN(val) || val <= 0) {
+      return fallback;
+    }
+    return Math.min(Math.max(1, Math.floor(val)), MAX_ALLOWED_PAGES);
+  }
+  if (typeof val === "string" && val.trim().length > 0) {
+    const trimmed = val.trim();
+    if (trimmed === "Infinity" || trimmed === "+Infinity") {
+      return MAX_ALLOWED_PAGES;
+    }
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed) || Number.isNaN(parsed) || parsed <= 0) {
+      return fallback;
+    }
+    return Math.min(Math.max(1, Math.floor(parsed)), MAX_ALLOWED_PAGES);
+  }
+  return fallback;
+}
 
 /**
  * Try to load .env safely if ALCHEMY_API_KEY is not already present in process.env
+ * Never exposes or logs the API key value.
  */
 function getAlchemyApiKey() {
   if (typeof process !== "undefined" && process?.env?.ALCHEMY_API_KEY) {
     return process.env.ALCHEMY_API_KEY.trim();
   }
   if (typeof process !== "undefined" && typeof process.loadEnvFile === "function") {
+    // 1. Try default cwd
     try {
       process.loadEnvFile();
-    } catch {}
+    } catch { }
     if (process.env.ALCHEMY_API_KEY) {
       return process.env.ALCHEMY_API_KEY.trim();
+    }
+
+    // 2. Try candidate locations relative to cwd and standard project paths
+    const candidates = [
+      ".env",
+      "../.env",
+      "./PayGuard-New/.env",
+      "../PayGuard-New/.env"
+    ];
+    if (typeof process.cwd === "function") {
+      try {
+        const cwd = process.cwd();
+        candidates.push(`${cwd}/.env`);
+        candidates.push(`${cwd}/PayGuard-New/.env`);
+        candidates.push(`${cwd}/../PayGuard-New/.env`);
+      } catch {}
+    }
+
+    for (const candidate of candidates) {
+      try {
+        process.loadEnvFile(candidate);
+        if (process.env.ALCHEMY_API_KEY) {
+          return process.env.ALCHEMY_API_KEY.trim();
+        }
+      } catch {}
     }
   }
   return "";
@@ -218,6 +278,22 @@ async function fetchNativeEthBalance(walletAddress, options = {}) {
       provider: key ? "Alchemy Base Mainnet" : "Base Public RPC"
     };
   } catch (err) {
+    if (key && !rpcUrl) {
+      try {
+        const rawHex = await rpcCall("eth_getBalance", [walletAddress, "latest"], fetchImpl, BASE_RPC_URL);
+        const wei = BigInt(rawHex || "0x0");
+        const ethFormatted = formatTokenUnits(wei, 18);
+        return {
+          balanceHex: rawHex || "0x0",
+          balanceWei: wei.toString(),
+          balanceEth: ethFormatted,
+          symbol: "ETH",
+          name: "Ether",
+          decimals: 18,
+          provider: "Base Public RPC (Alchemy Fallback)"
+        };
+      } catch {}
+    }
     return {
       balanceHex: "0x0",
       balanceWei: "0",
@@ -232,10 +308,17 @@ async function fetchNativeEthBalance(walletAddress, options = {}) {
 
 /**
  * Discover ERC-20 token balances for a wallet via Alchemy Base API
- * Supports pagination via pageKey, deduplication, and zero-balance filtering.
+ * Supports pagination via pageKey, deduplication, cycle detection, and zero-balance filtering.
  */
 async function fetchAlchemyTokenBalances(walletAddress, options = {}) {
-  const { fetchImpl = globalThis.fetch, alchemyApiKey, maxPages = 5 } = options;
+  const {
+    fetchImpl = globalThis.fetch,
+    alchemyApiKey,
+    maxPages = DEFAULT_MAX_PAGES,
+    pageKey: initialPageKey,
+    maxCount
+  } = options;
+
   const key = alchemyApiKey || getAlchemyApiKey();
   if (!key) {
     return { items: [], available: false, error: "Alchemy API key not configured." };
@@ -246,14 +329,33 @@ async function fetchAlchemyTokenBalances(walletAddress, options = {}) {
 
   const endpoint = `${ALCHEMY_BASE_RPC}/${key}`;
   const discoveredMap = new Map(); // lowercase address -> { contractAddress, tokenBalance }
-  let currentPageKey = null;
+  const seenPageKeys = new Set();
+  const safeMaxPages = normalizeMaxPages(maxPages, DEFAULT_MAX_PAGES);
+
+  let currentPageKey = (typeof initialPageKey === "string" && initialPageKey.trim().length > 0)
+    ? initialPageKey.trim()
+    : null;
+  if (currentPageKey) {
+    seenPageKeys.add(currentPageKey);
+  }
   let pageCount = 0;
+  let cycleDetected = false;
+  let cyclePageKey = null;
 
   try {
     do {
       pageCount++;
-      const params = currentPageKey
-        ? [walletAddress, "erc20", { pageKey: currentPageKey }]
+
+      const pageOpts = {};
+      if (currentPageKey) {
+        pageOpts.pageKey = currentPageKey;
+      }
+      if (typeof maxCount === "number" && maxCount > 0) {
+        pageOpts.maxCount = maxCount;
+      }
+
+      const params = Object.keys(pageOpts).length > 0
+        ? [walletAddress, "erc20", pageOpts]
         : [walletAddress, "erc20"];
 
       const res = await fetchImpl(endpoint, {
@@ -266,6 +368,13 @@ async function fetchAlchemyTokenBalances(walletAddress, options = {}) {
         return {
           items: Array.from(discoveredMap.values()),
           available: discoveredMap.size > 0,
+          pageCount,
+          totalDiscovered: discoveredMap.size,
+          partial: true,
+          status: "PARTIAL",
+          hasMorePages: Boolean(currentPageKey),
+          nextPageKey: currentPageKey || null,
+          cycleDetected: false,
           error: `Alchemy HTTP ${res.status}`
         };
       }
@@ -275,6 +384,13 @@ async function fetchAlchemyTokenBalances(walletAddress, options = {}) {
         return {
           items: Array.from(discoveredMap.values()),
           available: discoveredMap.size > 0,
+          pageCount,
+          totalDiscovered: discoveredMap.size,
+          partial: true,
+          status: "PARTIAL",
+          hasMorePages: Boolean(currentPageKey),
+          nextPageKey: currentPageKey || null,
+          cycleDetected: false,
           error: json.error.message || "Alchemy RPC error"
         };
       }
@@ -294,23 +410,58 @@ async function fetchAlchemyTokenBalances(walletAddress, options = {}) {
                 });
               }
             }
-          } catch {}
+          } catch { }
         }
       }
 
-      currentPageKey = json.result?.pageKey || null;
-    } while (currentPageKey && pageCount < maxPages);
+      const rawNextKey = json.result?.pageKey;
+      if (typeof rawNextKey === "string" && rawNextKey.trim().length > 0) {
+        const nextCandidate = rawNextKey.trim();
+        if (seenPageKeys.has(nextCandidate)) {
+          // Cycle detected in provider pagination; terminate cleanly and flag as partial
+          cycleDetected = true;
+          cyclePageKey = nextCandidate;
+          currentPageKey = null;
+        } else {
+          currentPageKey = nextCandidate;
+          seenPageKeys.add(nextCandidate);
+        }
+      } else {
+        currentPageKey = null;
+      }
+    } while (currentPageKey && pageCount < safeMaxPages);
 
-    return {
+    const hasMore = Boolean(currentPageKey);
+    const isPartial = Boolean(hasMore || cycleDetected);
+
+    const result = {
       items: Array.from(discoveredMap.values()),
       available: true,
       pageCount,
-      totalDiscovered: discoveredMap.size
+      totalDiscovered: discoveredMap.size,
+      hasMorePages: hasMore,
+      nextPageKey: hasMore ? currentPageKey : null,
+      cycleDetected,
+      partial: isPartial,
+      status: isPartial ? "PARTIAL" : "COMPLETE"
     };
+
+    if (cycleDetected) {
+      result.warning = `Pagination cycle detected: Alchemy provider repeated pageKey "${cyclePageKey}". Terminated pagination early; results may be incomplete.`;
+    }
+
+    return result;
   } catch (err) {
     return {
       items: Array.from(discoveredMap.values()),
       available: discoveredMap.size > 0,
+      pageCount,
+      totalDiscovered: discoveredMap.size,
+      partial: true,
+      status: "PARTIAL",
+      hasMorePages: Boolean(currentPageKey),
+      nextPageKey: currentPageKey || null,
+      cycleDetected: false,
       error: err.message || "Failed to reach Alchemy Base endpoint."
     };
   }
@@ -366,7 +517,7 @@ async function fetchTokenMetadata(contractAddress, options = {}) {
           return meta;
         }
       }
-    } catch {}
+    } catch { }
   }
 
   // Fallback to on-chain RPC getErc20Metadata
@@ -685,6 +836,7 @@ async function scanBaseWalletTokens(input = {}, options = {}) {
   let dataProvider = "Alchemy Base API + GoPlus Security";
   let scanCompletionStatus = "COMPLETE";
   let discoveryUsed = false;
+  let paginationWarning = null;
 
   const key = alchemyApiKey || getAlchemyApiKey();
 
@@ -694,6 +846,12 @@ async function scanBaseWalletTokens(input = {}, options = {}) {
       const alchemyRes = await fetchAlchemyTokenBalances(normWallet, { fetchImpl, alchemyApiKey: key });
       if (alchemyRes.available) {
         discoveryUsed = true;
+        if (alchemyRes.cycleDetected) {
+          scanCompletionStatus = "PARTIAL";
+          paginationWarning = alchemyRes.warning;
+        } else if (alchemyRes.partial) {
+          scanCompletionStatus = "PARTIAL";
+        }
         for (const item of alchemyRes.items) {
           const addr = item.contractAddress.toLowerCase();
           if (isValidEvmAddress(addr)) {
@@ -736,21 +894,17 @@ async function scanBaseWalletTokens(input = {}, options = {}) {
           }
         }
       }
-    } catch {}
+    } catch { }
   }
 
-  // Fallback 2: Notice if no indexer succeeded
-  if (!discoveryUsed) {
-    discoveryMode = "REGISTRY_AND_CUSTOM_PARTIAL";
-    dataProvider = "Base RPC Registry + GoPlus Security";
-    scanCompletionStatus = "PARTIAL";
-  }
-
-  // Always include canonical Base ecosystem registry tokens
+  // Always merge authoritative Base official ecosystem registry tokens
+  // Preserves canonical ecosystem coverage while ensuring Alchemy-discovered assets
+  // take precedence with their discovered balances (no duplicate entries).
   for (const [addr, info] of Object.entries(OFFICIAL_BASE_TOKENS)) {
-    if (!tokenMap.has(addr)) {
-      tokenMap.set(addr, {
-        address: addr,
+    const normAddr = addr.toLowerCase();
+    if (!tokenMap.has(normAddr)) {
+      tokenMap.set(normAddr, {
+        address: normAddr,
         name: info.name,
         symbol: info.symbol,
         decimals: info.decimals,
@@ -758,6 +912,12 @@ async function scanBaseWalletTokens(input = {}, options = {}) {
         logo: null
       });
     }
+  }
+
+  if (!discoveryUsed) {
+    discoveryMode = "REGISTRY_AND_CUSTOM_PARTIAL";
+    dataProvider = "Base RPC Registry + GoPlus Security";
+    scanCompletionStatus = "PARTIAL";
   }
 
   // 3. Add any user-specified custom token addresses
@@ -805,7 +965,7 @@ async function scanBaseWalletTokens(input = {}, options = {}) {
     else unverifiedCount++;
   }
 
-  return {
+  const scanReport = {
     status: "SUCCESS",
     scanCompletionStatus,
     dataProvider,
@@ -825,10 +985,16 @@ async function scanBaseWalletTokens(input = {}, options = {}) {
     advisoryNotice: discoveryMode === "ALCHEMY_INDEXER"
       ? "Complete wallet portfolio indexed via Alchemy Base Mainnet API. Threat analysis evaluated via GoPlus Security and Base Official Asset Registry."
       : discoveryMode === "BLOCKSCOUT_INDEXER"
-      ? "Wallet token holdings indexed via Blockscout API. Threat screening evaluated via GoPlus Security."
-      : "Partial discovery mode active: Audited canonical Base ecosystem registry and caller-specified custom tokens via Base on-chain RPC. Unsolicited tokens outside this scope require explicit contract input.",
+        ? "Wallet token holdings indexed via Blockscout API. Threat screening evaluated via GoPlus Security."
+        : "Partial discovery mode active: Audited canonical Base ecosystem registry and caller-specified custom tokens via Base on-chain RPC. Unsolicited tokens outside this scope require explicit contract input.",
     timestamp: new Date().toISOString()
   };
+
+  if (paginationWarning) {
+    scanReport.paginationWarning = paginationWarning;
+  }
+
+  return scanReport;
 }
 
 /**
@@ -916,10 +1082,52 @@ async function getWalletPortfolio(input = {}, options = {}) {
   let discoveredTokens = [];
   let scanCompletionStatus = "COMPLETE";
   let dataProvider = key ? "Alchemy Base Mainnet" : "Base Registry RPC";
+  let hasMorePages = false;
+  let nextPageKey = null;
+  let paginationWarning = null;
+
+  const maxPagesOption = options.maxPages !== undefined ? options.maxPages : input.maxPages;
+  const pageKeyOption = options.pageKey !== undefined ? options.pageKey : input.pageKey;
+  const maxCountOption = options.maxCount !== undefined ? options.maxCount : input.maxCount;
+
+  const maxPages = normalizeMaxPages(maxPagesOption, DEFAULT_MAX_PAGES);
 
   if (key) {
-    const alchemyRes = await fetchAlchemyTokenBalances(normWallet, { fetchImpl, alchemyApiKey: key });
-    if (alchemyRes.available) {
+    let alchemyRes;
+    try {
+      alchemyRes = await fetchAlchemyTokenBalances(normWallet, {
+        fetchImpl,
+        alchemyApiKey: key,
+        maxPages,
+        pageKey: pageKeyOption,
+        maxCount: maxCountOption
+      });
+    } catch (err) {
+      alchemyRes = {
+        items: [],
+        available: false,
+        error: err.message || "Failed to reach Alchemy Base endpoint.",
+        partial: true,
+        status: "PARTIAL"
+      };
+    }
+
+    if (alchemyRes && alchemyRes.available) {
+      if (alchemyRes.hasMorePages) {
+        hasMorePages = true;
+        nextPageKey = alchemyRes.nextPageKey;
+        scanCompletionStatus = "PARTIAL";
+      }
+      if (alchemyRes.cycleDetected) {
+        scanCompletionStatus = "PARTIAL";
+        paginationWarning = alchemyRes.warning || "Pagination cycle detected";
+      } else if (alchemyRes.partial) {
+        scanCompletionStatus = "PARTIAL";
+        if (alchemyRes.warning) {
+          paginationWarning = alchemyRes.warning;
+        }
+      }
+
       const BATCH = 10;
       for (let i = 0; i < alchemyRes.items.length; i += BATCH) {
         const chunk = alchemyRes.items.slice(i, i + BATCH);
@@ -940,8 +1148,14 @@ async function getWalletPortfolio(input = {}, options = {}) {
         discoveredTokens.push(...chunkResults);
       }
     } else {
+      // Initial Alchemy failure or unavailable: must not report COMPLETE
       scanCompletionStatus = "PARTIAL";
+      dataProvider = "Base Registry RPC (Alchemy Fallback)";
+      const errorMsg = alchemyRes?.error || "Alchemy token indexing unavailable; fell back to official Base registry.";
+      paginationWarning = errorMsg;
     }
+  } else {
+    scanCompletionStatus = "PARTIAL";
   }
 
   // Fallback to official registry balances if no tokens found via indexer
@@ -960,7 +1174,7 @@ async function getWalletPortfolio(input = {}, options = {}) {
     }
   }
 
-  return {
+  const response = {
     status: "SUCCESS",
     scanCompletionStatus,
     dataProvider,
@@ -970,8 +1184,17 @@ async function getWalletPortfolio(input = {}, options = {}) {
     nativeEth,
     tokenHoldingsCount: discoveredTokens.length,
     tokens: discoveredTokens,
+    hasMorePages,
+    nextPageKey,
     timestamp: new Date().toISOString()
   };
+
+  if (paginationWarning) {
+    response.paginationWarning = paginationWarning;
+    response.warning = paginationWarning;
+  }
+
+  return response;
 }
 
 /**
@@ -1022,4 +1245,4 @@ async function verifyWalletScan(input = {}, options = {}) {
 
 
 
-module.exports = { BASE_CHAIN_ID, BASE_RPC_URL, BLOCKSCOUT_BASE_API, ALCHEMY_BASE_RPC, OFFICIAL_BASE_TOKENS, checkTokenImpersonation, formatTokenUnits, fetchNativeEthBalance, fetchAlchemyTokenBalances, fetchTokenMetadata, getErc20Balance, getErc20Metadata, fetchBlockscoutTokens, evaluateWalletToken, scanBaseWalletTokens, getWalletTokenBalance, getWalletPortfolio, verifyWalletScan, default: scanBaseWalletTokens };
+module.exports = { BASE_CHAIN_ID, BASE_RPC_URL, BLOCKSCOUT_BASE_API, ALCHEMY_BASE_RPC, OFFICIAL_BASE_TOKENS, DEFAULT_MAX_PAGES, MAX_ALLOWED_PAGES, normalizeMaxPages, checkTokenImpersonation, formatTokenUnits, fetchNativeEthBalance, fetchAlchemyTokenBalances, fetchTokenMetadata, getErc20Balance, getErc20Metadata, fetchBlockscoutTokens, evaluateWalletToken, scanBaseWalletTokens, getWalletTokenBalance, getWalletPortfolio, verifyWalletScan, default: scanBaseWalletTokens };

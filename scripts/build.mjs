@@ -143,7 +143,7 @@ function toWalletScannerCJS(esmCode) {
     .replace(/^export\s+function\s+([a-zA-Z0-9_$]+)/gm, 'function $1')
     .replace(/^export\s+const\s+([a-zA-Z0-9_$]+)/gm, 'const $1')
     .replace(/^export\s+default\s+([a-zA-Z0-9_$]+);?/gm, '');
-  cjs += `\nmodule.exports = { BASE_CHAIN_ID, BASE_RPC_URL, BLOCKSCOUT_BASE_API, ALCHEMY_BASE_RPC, OFFICIAL_BASE_TOKENS, checkTokenImpersonation, formatTokenUnits, fetchNativeEthBalance, fetchAlchemyTokenBalances, fetchTokenMetadata, getErc20Balance, getErc20Metadata, fetchBlockscoutTokens, evaluateWalletToken, scanBaseWalletTokens, getWalletTokenBalance, getWalletPortfolio, verifyWalletScan, default: scanBaseWalletTokens };\n`;
+  cjs += `\nmodule.exports = { BASE_CHAIN_ID, BASE_RPC_URL, BLOCKSCOUT_BASE_API, ALCHEMY_BASE_RPC, OFFICIAL_BASE_TOKENS, DEFAULT_MAX_PAGES, MAX_ALLOWED_PAGES, normalizeMaxPages, checkTokenImpersonation, formatTokenUnits, fetchNativeEthBalance, fetchAlchemyTokenBalances, fetchTokenMetadata, getErc20Balance, getErc20Metadata, fetchBlockscoutTokens, evaluateWalletToken, scanBaseWalletTokens, getWalletTokenBalance, getWalletPortfolio, verifyWalletScan, default: scanBaseWalletTokens };\n`;
   return cjs;
 }
 
