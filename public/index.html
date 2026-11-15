@@ -1454,6 +1454,10 @@ main, .tab-content, .glass-card { width:100%; max-width:100%; min-width:0; }
 .form-group, .form-label { min-width:0; max-width:100%; }
 .input-box { display:block; width:100%; min-width:0; max-width:100%; }
 .preset-bar { min-width:0; max-width:100%; }
+/* Token card: prevent symbol/name from wrapping or breaking */
+#wallet-tokens-list .glass-card { overflow: visible; }
+#wallet-tokens-list .token-symbol,
+#wallet-tokens-list span[style*="font-weight: 800"] { white-space: nowrap !important; word-break: keep-all !important; overflow-wrap: normal !important; }
 @media (max-width:768px) {
   main { width:100%; max-width:100%; padding-inline:clamp(12px,3.5vw,18px) !important; }
   .glass-card { padding:clamp(.85rem,3vw,1.1rem) !important; }
@@ -4320,22 +4324,22 @@ header .pill-secondary {
         return `
           <div class="glass-card" style="padding: 1.25rem; border: 1px solid ${cardBorder};">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
-              <div>
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                  <span style="font-weight: 800; font-size: 1.1rem; color: #ffffff;">${t.symbol}</span>
-                  <span style="font-size: 0.85rem; color: var(--text-dim);">(${t.name})</span>
-                  ${t.isVerifiedOfficial ? '<span class="pill-secondary" style="font-size: 0.7rem; color: var(--emerald); border-color: rgba(16, 185, 129, 0.3);"><i class="fa-solid fa-certificate"></i> Verified Official Base</span>' : ''}
-                  ${t.isImpersonation ? '<span class="verdict-risk-tag high" style="font-size: 0.7rem;"><i class="fa-solid fa-masks-theater"></i> Impersonator</span>' : ''}
+              <div style="min-width: 0; flex: 1 1 auto;">
+                <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                  <span style="font-weight: 800; font-size: 1.1rem; color: #ffffff; white-space: nowrap;">${t.symbol}</span>
+                  <span style="font-size: 0.85rem; color: var(--text-dim); white-space: nowrap;">(${t.name})</span>
+                  ${t.isVerifiedOfficial ? '<span class="pill-secondary" style="font-size: 0.7rem; color: var(--emerald); border-color: rgba(16, 185, 129, 0.3); white-space: nowrap;"><i class="fa-solid fa-certificate"></i> Verified Official Base</span>' : ''}
+                  ${t.isImpersonation ? '<span class="verdict-risk-tag high" style="font-size: 0.7rem; white-space: nowrap;"><i class="fa-solid fa-masks-theater"></i> Impersonator</span>' : ''}
                 </div>
                 <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); margin-top: 0.25rem;">
                   Contract: <a href="https://basescan.org/token/${t.contractAddress}" target="_blank" style="color: var(--cyan); text-decoration: none;">${t.contractAddress}</a>
                 </div>
               </div>
-              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
-                <span class="verdict-risk-tag ${statusBadgeClass}">
+              <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; flex-shrink: 0;">
+                <span class="verdict-risk-tag ${statusBadgeClass}" style="white-space: nowrap;">
                   <i class="${statusIcon}"></i> ${t.securityStatus}
                 </span>
-                <span style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);">
+                <span style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap;">
                   Balance: ${balanceDisplay} ${t.symbol}
                 </span>
               </div>
