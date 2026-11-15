@@ -8,7 +8,7 @@
   <meta name="description" content="PayGuard is a free, Base-first ecosystem security platform: identify phishing websites, fake tokens, lookalike project impersonations, honeypot contracts, and malicious calldata.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&family=Sora:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="/assets/css/tailwind.css">
   <link rel="stylesheet" href="/assets/css/product-system.css">
@@ -3002,32 +3002,219 @@ header.sec-header.scrolled {
   .hero-globe-col { display: flex; justify-content: center; order: -1; }
 }
 
-.hero-content-col { text-align: left; }
-.hero-content-col .hero-title { text-align: left; margin-left: 0; }
-.hero-content-col .hero-desc { text-align: left; margin-left: 0; margin-right: 0; }
-.hero-content-col .capability-sequence-box { margin-left: 0; }
-.hero-content-col .hero-cta-group { justify-content: flex-start; }
+.hero-content-col {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 5;
+  padding-top: 0.5rem;
+}
 
-/* Stats bar */
-.hero-stats-bar {
+/* 1. Main Heading */
+.hero-content-col .hero-title {
+  text-align: left;
+  margin-left: 0;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(3.4rem, 6vw, 5.1rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  color: #ffffff;
+}
+
+.hero-content-col .hero-title .brand-accent {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.06em;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 50%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  margin-bottom: 0.55rem;
+  letter-spacing: -0.03em;
+  filter: drop-shadow(0 0 32px rgba(0, 240, 255, 0.45));
+}
+
+/* 2. Integrated Security Intelligence Stream (Clean unboxed treatment) */
+.hero-content-col .security-capability-stream {
+  width: auto;
+  max-width: 540px;
+  margin: 0 0 2rem 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0.25rem 0;
+  min-height: 40px;
+}
+
+.hero-content-col .stream-bullet {
+  color: var(--cyan);
+  font-size: 1rem;
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.45));
+  display: inline-flex;
+  align-items: center;
+}
+
+.hero-content-col .seq-text-container {
+  position: relative;
+  min-width: 200px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hero-content-col .seq-text {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.015em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hero-content-col .stream-cursor {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+  animation: blinkCursor 0.9s infinite;
+  user-select: none;
+  margin-left: 2px;
+}
+
+.hero-content-col .seq-module-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.28rem 0.65rem;
+  border-radius: 9999px;
+  background: rgba(0, 240, 255, 0.08);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.12);
+  margin-left: 0.25rem;
+}
+
+/* 3. Description Paragraph */
+.hero-content-col .hero-desc {
+  text-align: left;
+  margin: 0 0 2.5rem 0;
+  font-size: 1.12rem;
+  line-height: 1.8;
+  color: #94a3b8;
+  max-width: 530px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* 4. CTA Buttons Group */
+.hero-content-col .hero-cta-group {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 1.25rem;
-  margin-top: 1.75rem;
+  margin-bottom: 2.75rem;
   flex-wrap: wrap;
 }
-.hero-stat {
+
+.hero-content-col .hero-cta-group .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.8rem 1.8rem;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.hero-content-col .hero-cta-group .btn-cyan {
+  background: linear-gradient(135deg, #00f0ff 0%, #0ea5e9 100%);
+  color: #030712;
+  border: 1px solid #00f0ff;
+  box-shadow: 0 0 26px rgba(0, 240, 255, 0.38), 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.hero-content-col .hero-cta-group .btn-cyan:hover {
+  background: linear-gradient(135deg, #38f4ff 0%, #38bdf8 100%);
+  box-shadow: 0 0 36px rgba(0, 240, 255, 0.6), 0 6px 18px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.hero-content-col .hero-cta-group .btn-surface {
+  background: rgba(15, 23, 42, 0.7);
+  color: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.hero-content-col .hero-cta-group .btn-surface:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(0, 240, 255, 0.45);
+  color: #ffffff;
+  box-shadow: 0 0 22px rgba(0, 240, 255, 0.18), 0 6px 18px rgba(0, 0, 0, 0.42);
+  transform: translateY(-2px);
+}
+
+/* 5. Metrics Row */
+.hero-content-col .hero-stats-bar {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 0.85rem;
+  gap: 1.75rem;
+  margin-top: 0;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  width: 100%;
+  max-width: 540px;
+  flex-wrap: wrap;
 }
-.hero-stat strong { display: block; font-size: 0.95rem; font-weight: 700; color: #fff; }
-.hero-stat small { display: block; font-size: 0.72rem; color: var(--text-muted); }
-.hero-stat-divider {
+
+.hero-content-col .hero-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hero-content-col .hero-stat i {
+  font-size: 1.25rem;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.4));
+}
+
+.hero-content-col .hero-stat strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.hero-content-col .hero-stat small {
+  display: block;
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.hero-content-col .hero-stat-divider {
   width: 1px;
   height: 32px;
-  background: var(--border-subtle);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* =========================================================
@@ -3321,26 +3508,17 @@ header.sec-header.scrolled {
       <div class="container hero-split-container">
         <!-- Left: Text content -->
         <div class="hero-content-col">
-          <div class="hero-status-pill">
-            <span class="sec-dot"></span>
-            <span>WEB3 SECURITY INTELLIGENCE</span>
-            <span style="color:var(--border-medium)">|</span>
-            <span>BASE MAINNET (8453)</span>
-          </div>
-
           <h1 class="hero-title">
             <span class="brand-accent">PayGuard</span><br>Verify Before You Trust.
           </h1>
 
-          <!-- Capability Sequence Terminal -->
-          <div class="capability-sequence-box" aria-label="Active Security Capability Readout">
-            <div class="seq-prompt-wrapper">
-              <span class="seq-prompt"><i class="fa-solid fa-terminal"></i> capability:~$</span>
-              <div class="seq-text-container">
-                <span class="seq-text" id="seqText">Verify Websites.</span>
-              </div>
-              <span class="seq-cursor">_</span>
+          <!-- Security Intelligence Stream (Word-by-word reveal) -->
+          <div class="security-capability-stream" aria-label="Active Security Capability Readout">
+            <span class="stream-bullet"><i class="fa-solid fa-shield-halved"></i></span>
+            <div class="seq-text-container">
+              <span class="seq-text" id="seqText">Verify Websites.</span>
             </div>
+            <span class="stream-cursor">_</span>
             <span class="seq-module-tag" id="seqModuleTag">URL SENTINEL ACTIVE</span>
           </div>
 
@@ -3599,6 +3777,34 @@ header.sec-header.scrolled {
         <div class="inv-footer-notice">
           <div><i class="fa-solid fa-circle-info" style="color:var(--cyan)"></i> <strong>LIVE CHECKS</strong> &mdash; URL, token, wallet and calldata requests use separate read-only APIs. Examples show sample data; submit a target for a live result.</div>
           <div><span style="color:var(--emerald)">&bull;</span> Non-Custodial Advisory Intelligence</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT WALKTHROUGH VIDEO SLOT -->
+    <section id="explainer-video" class="container">
+      <div class="section-header">
+        <span class="sec-eyebrow"><i class="fa-solid fa-film"></i> Product Walkthrough</span>
+        <h2 class="section-title">PayGuard Walkthrough</h2>
+        <p class="section-subtitle">
+          See how PayGuard helps identify Web3 risks before you interact.
+        </p>
+      </div>
+      <div class="video-card-container">
+        <div class="video-frame-wrapper" id="explainerVideoFrame">
+          <video
+            id="payguardExplainerVideo"
+            class="pg-video-player"
+            controls
+            playsinline
+            preload="metadata"
+            aria-label="PayGuard product walkthrough video"
+          >
+            <source src="/assets/videos/payguard-walkthrough.mp4" type="video/mp4">
+            <source src="https://d2ol7oe51mr4n9.cloudfront.net/user_3KzXr0LXs78DGbMl5vnd1u0gWsE/6c2634ef-da75-4f52-9e5b-b381c839f740.mp4" type="video/mp4">
+            Your browser does not support HTML5 video.
+            <a href="/assets/videos/payguard-walkthrough.mp4">Open the PayGuard walkthrough</a>.
+          </video>
         </div>
       </div>
     </section>
@@ -4139,7 +4345,7 @@ header.sec-header.scrolled {
     })();
 
     // =========================================================
-    // 2. COORDINATED CAPABILITY STATEMENT REVEAL (GSAP + FALLBACK)
+    // 2. COORDINATED CAPABILITY STATEMENT REVEAL (WORD-BY-WORD TYPING)
     // =========================================================
     (function initCapabilityRotator() {
       const items = [
@@ -4152,34 +4358,60 @@ header.sec-header.scrolled {
       const tagEl = document.getElementById('seqModuleTag');
       if (!textEl || !tagEl) return;
 
-      function updateItem() {
-        itemIdx = (itemIdx + 1) % items.length;
-        const cur = items[itemIdx];
+      function renderWordByWord(fullText, onComplete) {
+        const words = fullText.split(' ');
+        textEl.innerHTML = '';
+        
+        words.forEach((w, i) => {
+          const span = document.createElement('span');
+          span.className = 'word-reveal';
+          span.textContent = (i === 0 ? '' : ' ') + w;
+          span.style.opacity = '0';
+          span.style.transform = 'translateY(4px)';
+          span.style.display = 'inline-block';
+          span.style.transition = 'opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)';
+          textEl.appendChild(span);
+        });
 
-        if (window.gsap) {
-          gsap.timeline()
-            .to(textEl, { y: -16, opacity: 0, duration: 0.35, ease: "power2.in" })
-            .call(function() {
-              textEl.textContent = cur.text;
-              tagEl.textContent = cur.tag;
-            })
-            .fromTo(textEl, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" });
-        } else {
-          textEl.style.opacity = '0';
-          textEl.style.transform = 'translateY(-10px)';
-          setTimeout(function() {
-            textEl.textContent = cur.text;
-            tagEl.textContent = cur.tag;
-            textEl.style.transform = 'translateY(10px)';
-            setTimeout(function() {
-              textEl.style.opacity = '1';
-              textEl.style.transform = 'translateY(0)';
-            }, 30);
-          }, 300);
-        }
+        const wordSpans = textEl.querySelectorAll('.word-reveal');
+        wordSpans.forEach((span, i) => {
+          setTimeout(() => {
+            span.style.opacity = '1';
+            span.style.transform = 'translateY(0)';
+            if (i === wordSpans.length - 1 && typeof onComplete === 'function') {
+              setTimeout(onComplete, 2600); // Hold time when full phrase is typed
+            }
+          }, (i + 1) * 220); // Natural word typing cadence (220ms per word)
+        });
       }
 
-      setInterval(updateItem, 3500);
+      function cyclePhrase() {
+        // Smoothly fade out the current phrase
+        const currentWords = textEl.querySelectorAll('.word-reveal');
+        if (currentWords.length > 0) {
+          currentWords.forEach(s => {
+            s.style.opacity = '0';
+            s.style.transform = 'translateY(-4px)';
+          });
+        } else {
+          textEl.style.opacity = '0';
+        }
+
+        setTimeout(() => {
+          itemIdx = (itemIdx + 1) % items.length;
+          const cur = items[itemIdx];
+          textEl.style.opacity = '1';
+          if (tagEl) {
+            tagEl.style.opacity = '0.5';
+            tagEl.textContent = cur.tag;
+            setTimeout(() => { tagEl.style.opacity = '1'; }, 180);
+          }
+          renderWordByWord(cur.text, cyclePhrase);
+        }, 360);
+      }
+
+      // Initial word-by-word reveal
+      renderWordByWord(items[0].text, cyclePhrase);
     })();
 
     // =========================================================

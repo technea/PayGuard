@@ -1835,6 +1835,216 @@ main, .tab-content, .glass-card { width:100%; max-width:100%; min-width:0; }
       }
     }
 
+/* ── Canonical Header Styles (Identical to landing.html) ─────────────────── */
+header.sec-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(4, 7, 18, 0.92);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.25s ease;
+  width: 100%;
+}
+
+.nav-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.75rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.16) 0%, rgba(16, 185, 129, 0.1) 100%);
+  border: 1px solid var(--border-active);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+  font-size: 1.1rem;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.brand:hover .brand-icon {
+  border-color: var(--cyan);
+  transform: scale(1.03);
+}
+
+.brand-title {
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  letter-spacing: 0.05em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+@media (max-width: 960px) {
+  .nav-links { display: none !important; }
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--cyan);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 960px) {
+  .mobile-menu-toggle { display: inline-flex !important; }
+  .header-pills .pill-secondary,
+  .header-pills .live-status { display: none !important; }
+}
+
+.mobile-nav-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(4, 7, 18, 0.98);
+  border-bottom: 1px solid var(--border-medium);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+  z-index: 99;
+}
+
+.mobile-nav-panel[hidden] { display: none !important; }
+
+.mobile-nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mobile-nav-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--cyan);
+}
+
+.mobile-nav-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mobile-nav-kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--cyan);
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.mobile-nav-heading strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.mobile-nav-network {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #6ee7b7;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mobile-nav-copy strong { display: block; font-size: 0.88rem; color: #fff; }
+.mobile-nav-copy small { display: block; font-size: 0.72rem; color: var(--text-muted); }
+.mobile-nav-arrow { margin-left: auto; font-size: 0.75rem; color: var(--text-dim); }
+
+.mobile-nav-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
 /* ── Dashboard Navbar Alignment Fix ─────────────────────── */
 header {
   display: flex !important;
@@ -1906,35 +2116,75 @@ header .pill-secondary {
 <body>
   <div id="wallet-connect-status" class="wallet-connect-status" role="status" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Header -->
-  <header>
-    <a href="/" class="brand">
-      <div class="logo-badge"><img src="/assets/payguard-mark.svg" alt="" width="31" height="31" /></div>
-      <div>
-        <div class="brand-title">PayGuard</div>
-      </div>
-      <span class="brand-tag">Verify Before You Trust</span>
-    </a>
+  <!-- Header (Identical to homepage navbar) -->
+  <header class="sec-header" id="mainHeader">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <div class="brand-icon">
+          <img src="/assets/payguard-mark.svg" alt="" width="27" height="27" />
+        </div>
+        <div class="brand-title">
+          <span>PayGuard</span>
+          <span class="brand-badge">v0.1.0</span>
+        </div>
+      </a>
 
-    <!-- Navigation Links -->
-    <nav class="top-nav-links" style="display: flex; align-items: center; gap: 1.25rem;">
-      <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem; font-weight: 600;"><i class="fa-solid fa-house"></i> Home</a>
-      <a href="/dashboard" style="color: var(--cyan); text-decoration: none; font-size: 0.875rem; font-weight: 600;"><i class="fa-solid fa-gauge-high"></i> Security Tools</a>
-      <a href="/whitepaper" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem; font-weight: 600;"><i class="fa-solid fa-file-contract"></i> Whitepaper</a>
-      <a href="/docs" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem; font-weight: 600;"><i class="fa-solid fa-book"></i> Technical Docs</a>
-      <a href="/faq" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem; font-weight: 600;"><i class="fa-solid fa-circle-question"></i> FAQ</a>
-    </nav>
+      <!-- Primary navigation links matching homepage -->
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="/" class="nav-link">Product</a>
+        <a href="/dashboard" class="nav-link active" aria-current="page">Security</a>
+        <a href="/docs" class="nav-link">Developers</a>
+        <a href="/whitepaper" class="nav-link">Docs</a>
+      </nav>
 
-    <div class="header-pills">
-      <div class="live-status">
-        <div class="pulse-dot"></div>
-        <span id="service-status-text"><i class="fa-solid fa-circle-check" style="margin-right: 0.25rem;"></i> Active • Read-Only Mode</span>
+      <!-- Nav actions matching homepage + dashboard controls -->
+      <div class="nav-actions">
+        <div class="header-pills" style="display:inline-flex; align-items:center; gap:0.5rem;">
+          <div class="live-status">
+            <div class="pulse-dot"></div>
+            <span id="service-status-text"><i class="fa-solid fa-circle-check" style="margin-right: 0.25rem;"></i> Active • Read-Only Mode</span>
+          </div>
+          <div class="pill-secondary"><i class="fa-solid fa-shield-halved" style="color: var(--cyan); margin-right: 0.35rem;"></i> 8 MCP Tools Active</div>
+          <span id="wallet-network-badge"><i class="fa-solid fa-circle-nodes"></i> Base Mainnet</span>
+          <button id="wallet-connect-btn" class="btn btn-connect-wallet" onclick="walletConnect()" style="font-size:0.82rem; padding:0.42rem 0.95rem; border-radius:6px;">
+            <i class="fa-solid fa-wallet"></i> <span id="wallet-btn-label">Connect Wallet</span>
+          </button>
+        </div>
+        <button class="mobile-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileNavPanel">
+          <span class="menu-toggle-icon"><i class="fa-solid fa-bars" aria-hidden="true"></i></span>
+        </button>
       </div>
-      <div class="pill-secondary"><i class="fa-solid fa-shield-halved" style="color: var(--cyan); margin-right: 0.35rem;"></i> 8 MCP Tools Active</div>
-      <span id="wallet-network-badge"><i class="fa-solid fa-circle-nodes"></i> Base Mainnet</span>
-      <button id="wallet-connect-btn" onclick="walletConnect()">
-        <i class="fa-solid fa-wallet"></i> <span id="wallet-btn-label">Connect Wallet</span>
-      </button>
+
+      <!-- Mobile Navigation Panel -->
+      <nav class="mobile-nav-panel" id="mobileNavPanel" aria-label="Mobile navigation" hidden>
+        <div class="mobile-nav-heading">
+          <div><span class="mobile-nav-kicker">PAYGUARD NAVIGATION</span><strong>Explore the platform</strong></div>
+          <span class="mobile-nav-network"><span class="net-pulse-dot"></span> BASE 8453</span>
+        </div>
+        <div class="mobile-nav-links">
+          <a href="/" class="mobile-nav-link">
+            <span class="mobile-nav-icon"><i class="fa-solid fa-house"></i></span>
+            <span class="mobile-nav-copy"><strong>Product</strong><small>PayGuard overview</small></span>
+            <i class="fa-solid fa-arrow-up-right-from-square mobile-nav-arrow"></i>
+          </a>
+          <a href="/dashboard" class="mobile-nav-link" aria-current="page">
+            <span class="mobile-nav-icon"><i class="fa-solid fa-shield-halved"></i></span>
+            <span class="mobile-nav-copy"><strong>Security</strong><small>Run scans and inspect risks</small></span>
+            <i class="fa-solid fa-arrow-up-right-from-square mobile-nav-arrow"></i>
+          </a>
+          <a href="/docs" class="mobile-nav-link">
+            <span class="mobile-nav-icon"><i class="fa-solid fa-code"></i></span>
+            <span class="mobile-nav-copy"><strong>Developers</strong><small>APIs and agent integration</small></span>
+            <i class="fa-solid fa-arrow-up-right-from-square mobile-nav-arrow"></i>
+          </a>
+          <a href="/whitepaper" class="mobile-nav-link">
+            <span class="mobile-nav-icon"><i class="fa-solid fa-file-contract"></i></span>
+            <span class="mobile-nav-copy"><strong>Docs</strong><small>Product architecture and scope</small></span>
+            <i class="fa-solid fa-arrow-up-right-from-square mobile-nav-arrow"></i>
+          </a>
+        </div>
+        <div class="mobile-nav-footer"><i class="fa-solid fa-shield-halved"></i><span>Verify Before You Trust.</span><span>FREE · NON-CUSTODIAL</span></div>
+      </nav>
     </div>
   </header>
 
@@ -4520,6 +4770,73 @@ header .pill-secondary {
           return `<span style="display:inline-flex;align-items:center;gap:0.3rem;margin-right:1rem;margin-bottom:0.35rem"><i class="fa-solid ${ic}" style="color:${col}"></i> ${k}</span>`;
         }).join('');
     }
+
+    // Accessible mobile navigation toggle for Security page
+    (function initDashboardMobileNav() {
+      const header = document.querySelector('.sec-header');
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      const panel = document.getElementById('mobileNavPanel');
+      if (!header || !toggle || !panel) return;
+
+      function setMenuOpen(open, returnFocus) {
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+        const icon = toggle.querySelector('.menu-toggle-icon');
+        const links = Array.from(panel.querySelectorAll('.mobile-nav-link'));
+        const canAnimate = Boolean(window.gsap) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (icon) {
+          icon.innerHTML = open
+            ? '<i class="fa-solid fa-xmark" aria-hidden="true"></i>'
+            : '<i class="fa-solid fa-bars" aria-hidden="true"></i>';
+        }
+
+        if (window.gsap) window.gsap.killTweensOf([panel, ...links]);
+
+        if (open) {
+          panel.hidden = false;
+          if (canAnimate) {
+            window.gsap.set(panel, { transformOrigin: 'top center' });
+            window.gsap.fromTo(panel,
+              { autoAlpha: 0, y: -10, scaleY: 0.97 },
+              { autoAlpha: 1, y: 0, scaleY: 1, duration: 0.35, ease: 'back.out(1.35)', clearProps: 'opacity,visibility,transform' }
+            );
+            window.gsap.fromTo(links,
+              { autoAlpha: 0, y: -7 },
+              { autoAlpha: 1, y: 0, duration: 0.24, stagger: 0.04, ease: 'power2.out', delay: 0.03, clearProps: 'opacity,visibility,transform' }
+            );
+          }
+          const firstLink = panel.querySelector('a');
+          if (firstLink) firstLink.setAttribute('tabindex', '0');
+          return;
+        }
+
+        if (!canAnimate) {
+          panel.hidden = true;
+          if (returnFocus) toggle.focus();
+          return;
+        }
+
+        window.gsap.timeline({
+          onComplete: function() {
+            if (toggle.getAttribute('aria-expanded') !== 'true') panel.hidden = true;
+            if (returnFocus) toggle.focus();
+          }
+        })
+          .to(links, { autoAlpha: 0, y: -4, duration: 0.12, stagger: { each: 0.015, from: 'end' }, ease: 'power1.in' }, 0)
+          .to(panel, { autoAlpha: 0, y: -8, scaleY: 0.985, duration: 0.16, ease: 'power2.in', clearProps: 'opacity,visibility,transform' }, 0);
+      }
+
+      toggle.addEventListener('click', function() {
+        setMenuOpen(toggle.getAttribute('aria-expanded') !== 'true');
+      });
+
+      panel.querySelectorAll('a').forEach(function(link) {
+        link.addEventListener('click', function() {
+          setMenuOpen(false, false);
+        });
+      });
+    })();
 
     // Progressive dashboard entrance motion. Core UI remains usable if GSAP is unavailable.
     window.addEventListener('load', function () {
