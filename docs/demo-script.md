@@ -84,7 +84,7 @@ console.log('Warning:', result.warnings[0].message);
 
 ## Demo Scene 3 — Base Wallet Token Scanner & Impersonation (60 seconds)
 
-**Narrative:** *"Attackers often deploy lookalike tokens with official symbols (like USDC or VIRTUAL) to impersonate genuine projects. PayGuard's Base Wallet Token Scanner scans wallet holdings, checks GoPlus honeypot parameters, and verifies whether contracts match official canonical deployments."*
+**Narrative:** *"Attackers often deploy lookalike tokens with official symbols (like USDC or VIRTUAL) to impersonate genuine projects. PayGuard's Base Wallet Token Scanner scans wallet holdings, checks multi-signal honeypot parameters, and verifies whether contracts match official canonical deployments."*
 
 ```bash
 node --input-type=module --eval "

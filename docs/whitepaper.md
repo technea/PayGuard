@@ -149,13 +149,13 @@ URL Sentinel analyzes a URL as text. It never opens or fetches the target.
 - Punycode (`xn--`) label detection.
 - Edit-distance comparison against a registry of official Base domains (`BASE_OFFICIAL_DOMAINS`) and any `expectedDomain` or `trustedDomains` the caller supplies.
 - Redaction of credentials and sensitive query values before reporting.
-- Optional Google Web Risk lookup, only when the request sets `checkReputation: true` and the server has a key. Path segments are redacted and query parameters are not sent.
+- Optional external threat intelligence lookup, only when the request sets `checkReputation: true` and the server has a key. Path segments are redacted and query parameters are not sent.
 
 A result of `NO_KNOWN_THREAT` does not prove a site is legitimate, and an unknown site is not automatically malicious.
 
 ### 6.2 Token and smart-contract security — Partially Supported
 
-Token checks query the GoPlus token-security API for Base Mainnet and map flags to findings:
+Token checks query multi-signal threat intelligence for Base Mainnet and map flags to findings:
 
 | Flag | Condition | Effect |
 | :--- | :--- | :--- |
@@ -172,8 +172,8 @@ This is provider reputation data. It is not an independent smart-contract audit,
 
 ### 6.3 Wallet and address security — Partially Supported
 
-- **Address screening** uses GoPlus address security for phishing, sanctions, cybercrime and similar records.
-- **Wallet token scanner** discovers ERC-20 holdings in two tiers. Tier 1 uses the Blockscout API v2 indexer. If the indexer is unavailable (for example, bot protection), Tier 2 calls `eth_call` on Base RPC for seven canonical tokens plus any `customTokenAddresses` and reports `discoveryMode: REGISTRY_AND_CUSTOM_PARTIAL`.
+- **Address screening** uses external address threat intelligence for phishing, sanctions, cybercrime and similar records.
+- **Wallet token scanner** discovers ERC-20 holdings in two tiers. Tier 1 uses an on-chain asset indexer. If the indexer is unavailable (for example, bot protection), Tier 2 calls `eth_call` on Base RPC for seven canonical tokens plus any `customTokenAddresses` and reports `discoveryMode: REGISTRY_AND_CUSTOM_PARTIAL`.
 
 Wallet discovery can be incomplete. A partial scan cannot see unsolicited tokens, and the response says so.
 
@@ -206,7 +206,7 @@ flowchart TD
 
 **Layer 1, local and deterministic.** URL analysis, calldata decoding, x402 policy comparison and the canonical token registry. No third party is contacted.
 
-**Layer 2, provider evidence.** GoPlus (token and address reputation), Base public RPC (`eth_call`), Blockscout (holdings discovery) and optionally Google Web Risk. Providers are fixed, operator-chosen endpoints. Failures return `UNVERIFIED`.
+**Layer 2, provider evidence.** Multi-signal threat intelligence (token and address reputation), Base public RPC (`eth_call`), on-chain holdings discovery and optionally external web reputation. Providers are fixed, operator-chosen endpoints. Failures return `UNVERIFIED`.
 
 **Verdict builder.** Combines checks into one verdict and always returns the individual checks, so a reader can see why.
 
@@ -302,8 +302,8 @@ PayGuard exposes seven tools over MCP (JSON-RPC 2.0 on stdio). The stdio server 
 | `payguard_analyze_url` | URL phishing and impersonation signals |
 | `payguard_prepare_threat_report` | Draft incident report with sensitive data redacted; not transmitted |
 | `payguard_inspect_calldata` | ERC-20 calldata and policy inspection |
-| `payguard_check_token_security` | Token risk from GoPlus (Base 8453) |
-| `payguard_check_address_security` | Address reputation from GoPlus (Base 8453) |
+| `payguard_check_token_security` | Token risk via threat intelligence (Base 8453) |
+| `payguard_check_address_security` | Address reputation via threat intelligence (Base 8453) |
 | `payguard_scan_wallet_tokens` | Wallet token scan with impersonation detection |
 
 Schemas and examples are in [MCP Tools](mcp-tools.md). Because tools are read-only and return structured JSON with a `limitations` field, an agent framework can treat them as a policy gate: call the tool, then continue only if the verdict meets the framework's own rule.
@@ -332,7 +332,7 @@ Schemas and examples are in [MCP Tools](mcp-tools.md). Because tools are read-on
 | Capability | Status | Notes |
 | :--- | :--- | :--- |
 | URL Sentinel (local analysis) | Implemented | Heuristic; false positives and negatives are possible |
-| URL reputation (Google Web Risk) | Partially Supported | Opt-in; needs server key |
+| URL reputation (external threat intelligence) | Partially Supported | Opt-in; needs server key |
 | x402 payment-policy guard | Implemented | Checks supplied data against supplied policy |
 | x402 client hook | Implemented | Attaches to `onBeforePaymentCreation` |
 | Calldata inspector | Partially Supported | Three ERC-20 selectors only |
@@ -354,7 +354,7 @@ Schemas and examples are in [MCP Tools](mcp-tools.md). Because tools are read-on
 
 - Base Mainnet only for provider-backed checks.
 - No authentication or per-user quota. The API applies a per-IP rate limit (default 120 requests per 60 seconds), a concurrency cap (default 100) and a 64 KB body limit. The limiter reads the client address from forwarded headers, so it is reliable only behind a trusted proxy.
-- Provider verdicts depend on GoPlus data and on public RPC and indexer availability, and PayGuard does not audit that data.
+- Provider verdicts depend on upstream threat intelligence and on public RPC and indexer availability, and PayGuard does not audit that data.
 - Brand-new contracts may be unindexed and return `UNVERIFIED`.
 - The test suite is run with `npm test` and in CI. This paper does not quote a test count because it changes with each commit.
 - Public pages load fonts and icons from third-party CDNs.

@@ -101,7 +101,7 @@ PayGuard's URL Sentinel does not fetch user-supplied URLs, so it adds no SSRF su
 - The URL analysis runs locally and in memory.
 - It uses the standard WHATWG URL parser and lexical pattern matchers locally.
 - PayGuard **never fetches, opens, pings, or resolves** the target host.
-- Other tools call fixed provider endpoints (GoPlus, Base RPC, Blockscout) and, only when you request it, Google Web Risk.
+- Other tools call fixed provider endpoints (such as external threat intelligence, Base RPC, and on-chain indexers) and, only when you request it, optional external reputation checks.
 - High-entropy tokens, API keys, passwords, and sensitive query strings are scrubbed locally before any optional reputation check.
 
 ---
@@ -111,7 +111,7 @@ PayGuard's URL Sentinel does not fetch user-supplied URLs, so it adds no SSRF su
 ### How does token verification work?
 PayGuard provides a dual-layer approach to token verification on Base Mainnet (Chain ID 8453):
 1. **Canonical Registry & Impersonation Engine:** Compares the asset contract address and symbol against an authoritative registry of official Base tokens (e.g., canonical WETH, native USDC, cbETH, VIRTUAL, DAI, USDbC, AERO). If an unknown contract uses the ticker "USDC", PayGuard flags it immediately as an **IMPERSONATION** risk.
-2. **GoPlus Security Intelligence:** Evaluates over 30 on-chain security parameters, including:
+2. **Multi-Signal Threat Intelligence:** Evaluates over 30 on-chain security parameters, including:
    - Honeypot status (`is_honeypot` — whether buyers are prevented from selling).
    - Arbitrary balance modification (`owner_change_balance` — whether the contract creator can mint to themselves or wipe user balances).
    - Excessive buy or sell taxes (slippage traps).
@@ -154,8 +154,8 @@ Limitations to keep in mind:
 The Base Wallet Token Scanner (`payguard_scan_wallet_tokens` / `/api/scan-wallet-tokens`) inspects ERC-20 assets associated with a Base Mainnet wallet address.
 
 It uses a two-tier discovery architecture:
-1. **Tier 1 (Full Indexer):** Queries the Blockscout Base API v2 (`GET https://base.blockscout.com/api/v2/addresses/{addr}/tokens?type=ERC-20`). If accessible, it returns all discovered ERC-20 tokens.
-2. **Tier 2 (RPC Fallback):** When automated requests encounter indexer protections (such as Cloudflare bot management), PayGuard falls back to direct `eth_call` multicall queries against the official Base RPC (`https://mainnet.base.org`). The fallback queries the curated canonical Base token registry plus any optional `customTokenAddresses` supplied by the user.
+1. **Tier 1 (On-Chain Indexer):** Queries on-chain indexer APIs for Base Mainnet. If accessible, it returns all discovered ERC-20 tokens.
+2. **Tier 2 (RPC Fallback):** When automated requests encounter indexer protections (such as bot management), PayGuard falls back to direct `eth_call` multicall queries against the official Base RPC (`https://mainnet.base.org`). The fallback queries the curated canonical Base token registry plus any optional `customTokenAddresses` supplied by the user.
 
 Every discovered token with a non-zero balance is audited for honeypot mechanics and symbol impersonation. The response includes an explicit `discoveryMode` (`FULL_INDEXER` or `REGISTRY_AND_CUSTOM_PARTIAL`) so users are always aware of scan coverage.
 
@@ -207,7 +207,7 @@ PayGuard exports **7 Model Context Protocol tools**:
 2. `payguard_analyze_url` — Inspects URLs locally for homoglyphs, Bidi overrides, and impersonation.
 3. `payguard_prepare_threat_report` — Generates privacy-redacted security drafts for human or team review.
 4. `payguard_inspect_calldata` — Decodes EVM calldata (`approve`, `transfer`, `transferFrom`) and flags unlimited approvals or untrusted spenders.
-5. `payguard_check_token_security` — Audits Base Mainnet ERC-20 contracts using GoPlus intelligence for honeypots and trading taxes.
+5. `payguard_check_token_security` — Audits Base Mainnet ERC-20 contracts using multi-signal threat intelligence for honeypots and trading taxes.
 6. `payguard_check_address_security` — Screens Base addresses against known phishing, sanction, and cybercrime registries.
 7. `payguard_scan_wallet_tokens` — Scans Base Mainnet wallet holdings to surface honeypots, balance-drain risks, and impersonated tokens.
 
@@ -215,7 +215,7 @@ PayGuard exports **7 Model Context Protocol tools**:
 
 ### What are the current limitations of PayGuard?
 In keeping with our transparency principles, PayGuard's current limitations include:
-- **Base Mainnet Only for GoPlus:** GoPlus intelligence is active on Base Mainnet (8453). Base Sepolia (84532) returns `UNVERIFIED / UNSUPPORTED_CHAIN`.
+- **Base Mainnet Only for Threat Intelligence:** Real-time threat intelligence is active on Base Mainnet (8453). Base Sepolia (84532) returns `UNVERIFIED / UNSUPPORTED_CHAIN`.
 - **Three Core EVM Selectors:** Calldata inspection decodes standard ERC-20 methods (`approve`, `transfer`, `transferFrom`). Complex DEX aggregators or custom multicalls return advisory `REVIEW`.
 - **Static Analysis Only:** PayGuard does not execute on-chain sandbox simulations (debug trace calls).
 - **Partial Wallet Scan on RPC Fallback:** When external indexers are unreachable due to bot protection, the wallet scanner checks the 7 canonical Base tokens and caller-specified addresses rather than the entire universe of unsolicited tokens.

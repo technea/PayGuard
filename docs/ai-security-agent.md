@@ -76,7 +76,7 @@ The report would reuse PayGuard's existing conventions so downstream consumers n
   "confidence": "LOW",
   "findings": [
     { "id": "f1", "source": "url-sentinel", "check": "possible_lookalike_domain", "status": "warning" },
-    { "id": "f2", "source": "goplus", "check": "address_reputation", "status": "unavailable" }
+    { "id": "f2", "source": "threat-intelligence", "check": "address_reputation", "status": "unavailable" }
   ],
   "uncertainty": ["Address reputation provider did not respond", "Site content was not inspected"],
   "recommendation": "Do not connect a wallet until the domain is verified through an independent source.",

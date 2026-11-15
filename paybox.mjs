@@ -45,7 +45,7 @@ export const BAZAAR_DISCOVERY_METADATA = {
             properties: {
               url: { type: "string", description: "Target URL to inspect" },
               expectedDomain: { type: "string", description: "Optional trusted domain" },
-              checkReputation: { type: "boolean", description: "Enable Google Web Risk check" }
+              checkReputation: { type: "boolean", description: "Enable external threat intelligence check" }
             }
           }
         }

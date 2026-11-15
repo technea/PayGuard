@@ -1,6 +1,6 @@
 # API Reference
 
-PayGuard's HTTP API is served by `server.mjs`. Every example below was run against the local server (`PORT=18080 node server.mjs`). Responses are trimmed with `...` for length; field names and values are real. Provider-backed endpoints (token, address, wallet) were run in an environment without access to GoPlus, Blockscout or Base RPC, so their examples show the fail-closed `UNVERIFIED` behavior rather than live data.
+PayGuard's HTTP API is served by `server.mjs`. Every example below was run against the local server (`PORT=18080 node server.mjs`). Responses are trimmed with `...` for length; field names and values are real. Provider-backed endpoints (token, address, wallet) were run in an environment without external network access to threat intelligence, indexers or Base RPC, so their examples show the fail-closed `UNVERIFIED` behavior rather than live data.
 
 Related: [MCP Tools](mcp-tools.md) (same checks as agent tools), [Architecture](architecture.md), [Security Model](security-model.md), [Getting Started](getting-started.md).
 
@@ -43,8 +43,8 @@ Invalid input to a check is usually reported inside a normal 200 response as a f
 | `POST /api/check-payment` | x402 payment requirement vs. policy | `payguard_check_payment_intent` |
 | `POST /api/threat-report` | Draft report for a suspicious URL | `payguard_prepare_threat_report` |
 | `POST /api/inspect-calldata` | ERC-20 calldata inspection | `payguard_inspect_calldata` |
-| `POST /api/token-security` | Token risk via GoPlus | `payguard_check_token_security` |
-| `POST /api/address-security` | Address reputation via GoPlus | `payguard_check_address_security` |
+| `POST /api/token-security` | Token risk screening | `payguard_check_token_security` |
+| `POST /api/address-security` | Address reputation screening | `payguard_check_address_security` |
 | `POST /api/scan-wallet-tokens` | Wallet token scan | `payguard_scan_wallet_tokens` |
 | `GET /api/capabilities` | Service and provider configuration | none |
 | `GET /health` | Liveness | none |

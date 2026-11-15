@@ -34,7 +34,7 @@ PayGuard never:
 - Freezes, burns, or quarantines on-chain assets (it has zero administrative privileges).
 
 ### 2. Fail Closed
-Every external API integration (GoPlus, Blockscout, Base RPC) fails closed:
+Every external API integration (threat intelligence, on-chain indexers, Base RPC) fails closed:
 - An upstream HTTP 500, 429 rate limit, network timeout, or unindexed asset returns `UNVERIFIED` — **never `PASS`**.
 - Missing data is never treated as proof of safety. Absence of evidence is not evidence of absence.
 
@@ -63,11 +63,11 @@ Every external API integration (GoPlus, Blockscout, Base RPC) fails closed:
 | **Bidi Unicode Attacks** | Invisible right-to-left override characters (U+202E) hiding extensions | Pre-parser Unicode bidirectional control scan (fails closed with `BLOCK`) |
 | **Punycode Deception** | `xn--` IDN labels spoofing Latin characters | Punycode label identification and raw script validation |
 | **Unlimited Token Approvals** | dApps requesting `approve(spender, 2^256 - 1)` | Calldata inspector decodes allowance; flags `uint256.max` as `UNLIMITED_ALLOWANCE` |
-| **Honeypot Tokens** | Contract allowing buys but blocking sells | GoPlus `is_honeypot` and `cannot_sell_all` evaluation |
-| **Arbitrary Balance Modification** | Owner can arbitrarily edit holder balances | GoPlus `owner_change_balance` evaluation (flags `BLOCK / CRITICAL`) |
-| **Excessive Trading Taxes** | Hidden 50% or 99% buy/sell tax traps | GoPlus buy/sell tax threshold evaluation |
+| **Honeypot Tokens** | Contract allowing buys but blocking sells | Multi-signal `is_honeypot` and `cannot_sell_all` evaluation |
+| **Arbitrary Balance Modification** | Owner can arbitrarily edit holder balances | Multi-signal `owner_change_balance` evaluation (flags `BLOCK / CRITICAL`) |
+| **Excessive Trading Taxes** | Hidden 50% or 99% buy/sell tax traps | Multi-signal buy/sell tax threshold evaluation |
 | **Token Impersonation** | Lookalike contract copying canonical symbols (`USDC`, `VIRTUAL`) | `checkTokenImpersonation` compares contract address against Base canonical registry |
-| **Suspicious Counterparties** | Transfers to sanctioned or phishing addresses | GoPlus Address Security screening (flags `BLOCK / CRITICAL`) |
+| **Suspicious Counterparties** | Transfers to sanctioned or phishing addresses | Address security threat intelligence screening (flags `BLOCK / CRITICAL`) |
 | **x402 Intent Manipulation** | Rogue merchant demanding excess payment or unapproved assets | Strict pre-payment comparison against user-defined intent policy |
 | **SSRF Attacks** | Attacker supplying `http://169.254.169.254` or internal LAN IPs | The URL Sentinel parses text only and never fetches the submitted URL. Outbound calls go only to fixed provider endpoints |
 | **DoS via Giant Payloads** | Massive calldata or oversized API responses | 64 KB hard request ceiling and 3-second network timeouts |
@@ -81,7 +81,7 @@ Every external API integration (GoPlus, Blockscout, Base RPC) fails closed:
 | **EIP-7702 Delegation** | Account delegation authorizations are not inspected |
 | **Multicall and Batched Calls** | Return advisory `REVIEW`; inner calls are not decoded |
 | **Prompt Injection of Agents** | Detecting hostile instructions needs reputation data and an investigation layer (planned) |
-| **Cross-Chain Attacks** | GoPlus and RPC checks currently target Base Mainnet (Chain ID 8453) only |
+| **Cross-Chain Attacks** | Threat intelligence and RPC checks currently target Base Mainnet (Chain ID 8453) only |
 | **MEV & Sandwich Exploits** | Mempool transaction ordering and slippage attacks are out of scope |
 | **External Wallet Enforcement** | PayGuard cannot prevent a user from manually signing inside MetaMask or other third-party wallets |
 | **On-Chain State Freezing** | PayGuard cannot modify blockchain state, freeze tokens, or quarantine wallets |
@@ -95,7 +95,7 @@ The Base Wallet Token Scanner (`payguard_scan_wallet_tokens`) is designed with e
 ### Two-Tier Discovery Architecture
 
 1. **Tier 1 — Full Indexer (`FULL_INDEXER`):**
-   Calls the public Blockscout API v2. When accessible, it discovers all arbitrary ERC-20 tokens held by the address.
+   Calls on-chain indexer APIs. When accessible, it discovers all arbitrary ERC-20 tokens held by the address.
 2. **Tier 2 — RPC Multicall Fallback (`REGISTRY_AND_CUSTOM_PARTIAL`):**
    In automated environments where indexers trigger Cloudflare bot protection, PayGuard falls back to on-chain `eth_call` queries on Base Mainnet (`https://mainnet.base.org`).
    **Boundary:** The fallback inspects the 7 curated Base canonical tokens (WETH, USDC, cbETH, VIRTUAL, DAI, USDbC, AERO) plus any caller-specified `customTokenAddresses`. It **cannot** discover arbitrary unsolicited tokens without an external indexer or explicit contract addresses.
@@ -147,7 +147,7 @@ The code reviewed for this page does not write submitted inputs to disk. Operato
 | Request body limit | 64 KB |
 | Concurrency cap | 100 in-flight requests by default |
 | Rate limit | 120 requests per 60 seconds per client IP by default; the address is read from `x-forwarded-for` or `x-real-ip` |
-| Upstream timeout | 3 seconds for GoPlus calls; 64 KB response cap |
+| Upstream timeout | 3 seconds for upstream threat intelligence calls; 64 KB response cap |
 | Authentication and quotas | None. Planned |
 | CORS | `*` |
 | Errors | Internal details hidden unless `NODE_ENV=development` |

@@ -181,7 +181,7 @@ Decodes EVM transaction calldata for ERC-20 `approve`, `transfer`, and `transfer
 
 ## 5. `payguard_check_token_security`
 
-Queries the GoPlus Security API for Base Mainnet (Chain ID 8453) token contract intelligence. Evaluates honeypot mechanics, buy/sell taxes, arbitrary owner balance privileges, and proxy implementation risks.
+Queries multi-signal threat intelligence for Base Mainnet (Chain ID 8453) token contracts. Evaluates honeypot mechanics, buy/sell taxes, arbitrary owner balance privileges, and proxy implementation risks.
 
 ### Input Schema
 
@@ -206,7 +206,7 @@ Queries the GoPlus Security API for Base Mainnet (Chain ID 8453) token contract 
 
 ## 6. `payguard_check_address_security`
 
-Queries the GoPlus Address Security API for Base Mainnet (Chain ID 8453) account intelligence. Checks for associations with phishing, sanctions, cybercrime, darkweb marketplaces, or mixer usage.
+Queries multi-signal address security intelligence for Base Mainnet (Chain ID 8453) accounts. Checks for associations with phishing, sanctions, cybercrime, darkweb marketplaces, or mixer usage.
 
 ### Input Schema
 
@@ -246,7 +246,7 @@ Automatically scans ERC-20 token holdings in a Base Mainnet (Chain ID 8453) wall
 ### Discovery Architecture
 
 The scanner operates in two discovery tiers:
-1. **Tier 1 — Full Indexer (`FULL_INDEXER`):** Calls Blockscout Base API v2 (`GET https://base.blockscout.com/api/v2/addresses/{addr}/tokens?type=ERC-20`). If successful, retrieves all arbitrary ERC-20 tokens held by the address.
+1. **Tier 1 — Full Indexer (`FULL_INDEXER`):** Queries on-chain indexer APIs for Base Mainnet. If successful, retrieves all arbitrary ERC-20 tokens held by the address.
 2. **Tier 2 — On-Chain RPC Multicall Fallback (`REGISTRY_AND_CUSTOM_PARTIAL`):** When automated requests face indexer rate limits or Cloudflare bot challenges, PayGuard falls back to on-chain `eth_call` queries on Base Mainnet. The fallback checks the 7 canonical Base ecosystem tokens (WETH, USDC, cbETH, VIRTUAL, DAI, USDbC, AERO) plus any optional `customTokenAddresses` provided in the request.
 
 ### Token Impersonation Detection

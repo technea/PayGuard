@@ -18,9 +18,9 @@ PayGuard exposes **seven Model Context Protocol (MCP) tools** that any AI agent 
 ### Capabilities Expanded During the Vibeathon:
 
 1. **Official Base Smart Wallet Integration:** Integrated `@coinbase/wallet-sdk@4.4.0` with pre-signing advisory guards that abort on `BLOCK` or `REVIEW` verdicts.
-2. **GoPlus Token Security (Base Mainnet 8453):** Integrated comprehensive honeypot detection, buy/sell tax auditing, and arbitrary owner balance privileges.
-3. **GoPlus Address Security (Base Mainnet 8453):** Integrated entity reputation screening (phishing records, sanctions, cybercrime, mixer usage).
-4. **Base Wallet Token Scanner & Impersonation Engine:** Added the 7th MCP tool (`payguard_scan_wallet_tokens`) featuring a two-tier discovery architecture (Blockscout API v2 with on-chain RPC fallback) and lookalike token impersonation detection against canonical Base assets.
+2. **Base Token Security (Base Mainnet 8453):** Integrated comprehensive honeypot detection, buy/sell tax auditing, and arbitrary owner balance privileges.
+3. **Base Address Security (Base Mainnet 8453):** Integrated entity reputation screening (phishing records, sanctions, cybercrime, mixer usage).
+4. **Base Wallet Token Scanner & Impersonation Engine:** Added the 7th MCP tool (`payguard_scan_wallet_tokens`) featuring a two-tier discovery architecture (on-chain asset indexer with on-chain RPC fallback) and lookalike token impersonation detection against canonical Base assets.
 5. **Calldata Inspector:** Decodes EVM calldata (`approve`, `transfer`, `transferFrom`) and flags unlimited token allowances (`uint256.max`).
 6. **Production Build & Test Suite Expansion:** Expanded the automated test suite and added a build that bundles ESM, CJS, type declarations and the stdio MCP server. Run `npm test` and check the latest CI run for the current result; the CJS bundle has a known issue (see [Limitations and Roadmap](limitations-roadmap.md)).
 
@@ -50,7 +50,7 @@ Modern AI agents are granted financial autonomy to hire compute, execute swaps, 
 | `payguard_analyze_url` | Local anti-phishing analysis (Bidi overrides, homoglyphs); never fetches the URL |
 | `payguard_prepare_threat_report` | Generates privacy-redacted security incident drafts without leaking secrets |
 | `payguard_inspect_calldata` | Decodes EVM calldata and detects unlimited `approve(spender, uint256.max)` |
-| `payguard_check_token_security` | Audits Base Mainnet contracts via GoPlus for honeypot traps and trading taxes |
+| `payguard_check_token_security` | Audits Base Mainnet contracts via multi-signal threat intelligence for honeypot traps and trading taxes |
 | `payguard_check_address_security` | Screens Base addresses for sanctions, cybercrime, and phishing records |
 | `payguard_scan_wallet_tokens` | Two-tier discovery scanning Base wallet holdings for honeypots and impersonators |
 

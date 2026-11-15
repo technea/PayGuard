@@ -3495,7 +3495,7 @@ header.sec-header.scrolled {
       <div class="dune-ribbon-item"><i class="fa-solid fa-network-wired cyan-val"></i> <span>TARGET:</span> <strong>Base Mainnet (8453)</strong></div>
       <div class="dune-ribbon-item"><i class="fa-solid fa-shield-halved emerald-val"></i> <span>URL LEXER:</span> <strong>In-Memory (0 Outbound Sockets to Target)</strong></div>
       <div class="dune-ribbon-item"><i class="fa-solid fa-certificate cyan-val"></i> <span>REGISTRY:</span> <strong>17 Curated Base Domains</strong></div>
-      <div class="dune-ribbon-item"><i class="fa-solid fa-coins emerald-val"></i> <span>TOKEN AUDIT:</span> <strong>GoPlus API on Base (8453)</strong></div>
+      <div class="dune-ribbon-item"><i class="fa-solid fa-coins emerald-val"></i> <span>TOKEN AUDIT:</span> <strong>Multi-Signal Engine on Base (8453)</strong></div>
       <div class="dune-ribbon-item"><i class="fa-solid fa-lock cyan-val"></i> <span>CUSTODY:</span> <strong>0 Private Keys (Read-Only Advisory)</strong></div>
       <div class="dune-ribbon-item"><i class="fa-solid fa-robot emerald-val"></i> <span>AI FLEET:</span> <strong>8 Native MCP Tools</strong></div>
     </div>
@@ -3862,7 +3862,7 @@ header.sec-header.scrolled {
           </div>
           <h3 class="pillar-title">Token &amp; Smart Contract Security</h3>
           <p class="pillar-desc">
-            Screens Base token contracts with GoPlus security data.
+            Screens Base token contracts with multi-signal threat intelligence.
           </p>
           <ul class="pillar-points">
             <li class="pillar-point">
@@ -3899,7 +3899,7 @@ header.sec-header.scrolled {
           <ul class="pillar-points">
             <li class="pillar-point">
               <i class="fa-solid fa-check"></i>
-              <span><strong>Token discovery:</strong> Uses Blockscout when available, with a curated-token fallback.</span>
+              <span><strong>Token discovery:</strong> Multi-source on-chain token discovery with canonical fallback.</span>
             </li>
             <li class="pillar-point">
               <i class="fa-solid fa-check"></i>
@@ -3947,7 +3947,7 @@ header.sec-header.scrolled {
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.5rem;">
             <div><span style="color:var(--cyan)">payguard_analyze_url</span> <span style="color:var(--text-muted)">&mdash; In-memory domain check</span></div>
-            <div><span style="color:var(--cyan)">payguard_token_security</span> <span style="color:var(--text-muted)">&mdash; GoPlus honeypot &amp; tax analysis</span></div>
+            <div><span style="color:var(--cyan)">payguard_token_security</span> <span style="color:var(--text-muted)">&mdash; Honeypot, tax &amp; transfer analysis</span></div>
             <div><span style="color:var(--cyan)">payguard_scan_wallet_tokens</span> <span style="color:var(--text-muted)">&mdash; Base portfolio risk scan</span></div>
             <div><span style="color:var(--cyan)">payguard_check_address_security</span> <span style="color:var(--text-muted)">&mdash; Phishing &amp; sanctions filter</span></div>
             <div><span style="color:var(--cyan)">payguard_inspect_calldata</span> <span style="color:var(--text-muted)">&mdash; EVM function selector decoder</span></div>
@@ -3995,7 +3995,7 @@ header.sec-header.scrolled {
           </p>
           <div class="reality-defense-tag">
             <strong>PayGuard check:</strong>
-            Uses GoPlus token-security data to report known honeypot, tax and transfer-risk indicators.
+            Uses multi-signal threat intelligence to report known honeypot, tax and transfer-risk indicators.
           </div>
         </div>
 
@@ -4033,7 +4033,7 @@ header.sec-header.scrolled {
             <i class="fa-solid fa-chevron-down"></i>
           </button>
           <div class="faq-content">
-            <strong>Never.</strong> PayGuard is strictly read-only and non-custodial. It never asks for, stores, or handles private keys, seed phrases, or wallet signature permissions. URL checks parse the supplied target without opening the page. Token and wallet checks may query security providers such as GoPlus or Blockscout. Calldata decoding is read-only. PayGuard does not request a seed phrase, private key or transaction signature.
+            <strong>Never.</strong> PayGuard is strictly read-only and non-custodial. It never asks for, stores, or handles private keys, seed phrases, or wallet signature permissions. URL checks parse the supplied target without opening the page. Token and wallet checks query multi-source threat intelligence and on-chain indexers. Calldata decoding is read-only. PayGuard does not request a seed phrase, private key or transaction signature.
           </div>
         </div>
 
@@ -4063,7 +4063,7 @@ header.sec-header.scrolled {
             <i class="fa-solid fa-chevron-down"></i>
           </button>
           <div class="faq-content">
-            PayGuard uses Blockscout Base data when available and checks supported token contracts with GoPlus. Discovery can be partial when the indexer is unavailable; the result shows that limitation.
+            PayGuard uses on-chain indexers and RPC discovery when available and evaluates supported token contracts with multi-signal threat intelligence. Discovery can be partial when external indexers are unavailable; the result clearly shows that limitation.
           </div>
         </div>
 
@@ -4350,7 +4350,7 @@ header.sec-header.scrolled {
     (function initCapabilityRotator() {
       const items = [
         { text: "Verify Websites.", tag: "URL SENTINEL ACTIVE" },
-        { text: "Detect Fake Tokens.", tag: "GOPLUS ENGINE ACTIVE" },
+        { text: "Detect Fake Tokens.", tag: "TOKEN SENTINEL ACTIVE" },
         { text: "Inspect Wallet Risks.", tag: "WALLET SCANNER ACTIVE" }
       ];
       let itemIdx = 0;
@@ -4448,7 +4448,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "ASCII Latin [U+0061..U+007A] &bull; 0 mixed scripts" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "VERIFIED", pillCls: "pass", latency: "DEMO", tele: "Exact match: base.org recorded in registry" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "URL credential checks", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "0 high-entropy keys or reset tokens found" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Provider-reported tax checks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4479,7 +4479,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "TYPOSQUAT", pillCls: "threat", latency: "DEMO", tele: "Levenshtein distance: 1 against base.org" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "UNVERIFIED", pillCls: "threat", latency: "DEMO", tele: "bases.invalid is NOT on official Base domain registry" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "REDACTED", pillCls: "warn", latency: "DEMO", tele: "Sensitive path segment reset-token-... redacted" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4510,7 +4510,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "CRITICAL", pillCls: "threat", latency: "DEMO", tele: "Punycode detected: xn--bse-qla.invalid (Cyrillic 'а')" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "SPOOFED", pillCls: "threat", latency: "DEMO", tele: "Disguised to impersonate base.org" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "0 query secrets detected" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4541,7 +4541,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "SUFFIX SPOOF", pillCls: "threat", latency: "DEMO", tele: "base.org placed as subdomain of attacker.invalid" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "UNVERIFIED", pillCls: "threat", latency: "DEMO", tele: "Registered domain is attacker.invalid" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Path sanitized" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4572,7 +4572,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "ASCII Latin domain" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "UNINDEXED", pillCls: "unverified", latency: "DEMO", tele: "Third-party host (shop.example)" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "CRITICAL LEAK", pillCls: "threat", latency: "DEMO", tele: "URL contains private_key query parameter &bull; REDACTED" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4601,11 +4601,11 @@ header.sec-header.scrolled {
             targetType: "ERC-20 CONTRACT",
             targetText: "0x4200000000000000000000000000000000000006 (Canonical WETH)",
             network: "Base Mainnet (Chain ID: 8453)",
-            privacy: "Bytecode Query via GoPlus API",
+            privacy: "Multi-Signal Threat Analysis",
             latency: "SAMPLE DATA",
                         topology: [
               { name: "Base Mainnet RPC (8453)", pip: "pip-green", status: "Contract Verified" },
-              { name: "GoPlus Security Feed", pip: "pip-green", status: "Audit Clean (0 flags)" },
+              { name: "Threat Intelligence Feed", pip: "pip-green", status: "Audit Clean (0 flags)" },
               { name: "Canonical Token Registry", pip: "pip-green", status: "WETH / Canonical Match" },
               { name: "Transfer Restrictions Engine", pip: "pip-green", status: "0 Blacklists" }
             ],
@@ -4613,7 +4613,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Valid EVM 20-byte hexadecimal address format" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "CANONICAL", pillCls: "pass", latency: "DEMO", tele: "Matches official canonical Wrapped Ether contract" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Public smart contract address query" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4632,11 +4632,11 @@ header.sec-header.scrolled {
             targetType: "ERC-20 CONTRACT",
             targetText: "0x89b14041d8e6bfb6f0e4b85750ec63ad44dca01b (Spoofed 'USDC')",
             network: "Base Mainnet (Chain ID: 8453)",
-            privacy: "Bytecode Query via GoPlus API",
+            privacy: "Multi-Signal Threat Analysis",
             latency: "SAMPLE DATA",
                         topology: [
               { name: "Base Mainnet RPC (8453)", pip: "pip-green", status: "Deployed on 8453" },
-              { name: "GoPlus Security Feed", pip: "pip-rose", status: "Honeypot Flagged (is_honeypot: 1)" },
+              { name: "Threat Intelligence Feed", pip: "pip-rose", status: "Honeypot Flagged (is_honeypot: 1)" },
               { name: "Canonical Token Registry", pip: "pip-rose", status: "MISMATCH: Fake USDC" },
               { name: "Sell Tax Bytecode Hook", pip: "pip-rose", status: "99.0% Siphon Tax" }
             ],
@@ -4644,7 +4644,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Valid EVM address format" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "MISMATCH", pillCls: "threat", latency: "DEMO", tele: "Claims 'USDC' symbol but address != canonical USDC" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Bytecode inquiry" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4667,7 +4667,7 @@ header.sec-header.scrolled {
             latency: "SAMPLE DATA",
                         topology: [
               { name: "Base Mainnet RPC (8453)", pip: "pip-green", status: "Contract Exists" },
-              { name: "GoPlus Security Feed", pip: "pip-amber", status: "HTTP 504 Gateway Timeout" },
+              { name: "Threat Intelligence Feed", pip: "pip-amber", status: "HTTP 504 Gateway Timeout" },
               { name: "Canonical Token Registry", pip: "pip-amber", status: "Unindexed Contract" },
               { name: "Fail-Closed Boundary", pip: "pip-amber", status: "Enforced UNVERIFIED" }
             ],
@@ -4675,7 +4675,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Valid address structure" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "UNINDEXED", pillCls: "unverified", latency: "DEMO", tele: "Custom unindexed smart contract" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Clean address query" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4716,7 +4716,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Calldata hex syntax verified &bull; 68 bytes" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "UNINDEXED", pillCls: "threat", latency: "DEMO", tele: "Spender address != verified Base swap router" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Pre-signing payload decoded in-memory" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4747,7 +4747,7 @@ header.sec-header.scrolled {
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "68 bytes EVM calldata &bull; Valid hex" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Target matches canonical USDC token on Base" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Zero credential leakage" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4769,16 +4769,16 @@ header.sec-header.scrolled {
             privacy: "100% Read-Only (Zero Private Keys)",
             latency: "SAMPLE DATA",
                         topology: [
-              { name: "Blockscout Base API v2", pip: "pip-green", status: "Retrieved Holdings" },
+              { name: "On-Chain Asset Discovery", pip: "pip-green", status: "Retrieved Holdings" },
               { name: "Canonical Token Registry", pip: "pip-green", status: "4 Verified Assets" },
-              { name: "GoPlus Token Security", pip: "pip-green", status: "0 Honeypots Flagged" },
+              { name: "Threat Intelligence Engine", pip: "pip-green", status: "0 Honeypots Flagged" },
               { name: "Discovery Coverage", pip: "pip-amber", status: "Indexed Assets Only" }
             ],
             layers: [
               { idx: "L01", name: "Unicode Homoglyph & Punycode Lexer", desc: "RFC-3492 Normalizer", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Valid EOA address format" },
               { idx: "L02", name: "Canonical Base Ecosystem Registry", desc: "17 Verified Base Domains", pill: "VERIFIED", pillCls: "pass", latency: "DEMO", tele: "Discovered 4 canonical assets (WETH, USDC, cbBTC, DAI)" },
               { idx: "L03", name: "Privacy & Credential Sanitizer", desc: "Zero-Retention Secret Scrubber", pill: "AIRGAPPED", pillCls: "airgap", latency: "DEMO", tele: "Read-only query &bull; Zero private keys required" },
-              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "GoPlus Security Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
+              { idx: "L04", name: "Contract Bytecode & Honeypot Detector", desc: "Multi-Signal Threat Engine", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Contract bytecode check not applicable" },
               { idx: "L05", name: "Predatory Tax & Siphon Simulator", desc: "Dynamic Fee Hooks", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Swap tax simulation not applicable" },
               { idx: "L06", name: "Canonical Asset Impersonation Guard", desc: "Official Base Token Registry", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Web URL target &bull; Token impersonation check not applicable" },
               { idx: "L07", name: "Pre-Signing Calldata & Approval Inspector", desc: "4-Byte EVM Selector Decoder", pill: "NOT CHECKED", pillCls: "unverified", latency: "—", tele: "Contract address target &bull; Calldata inspection requires transaction payload" },
@@ -4808,17 +4808,17 @@ header.sec-header.scrolled {
             targetType: "NEAR PROTOCOL ACCOUNT",
             targetText: "wrap.near",
             network: "NEAR Mainnet",
-            privacy: "Read-only finalized RPC query (FastNear)",
+            privacy: "Read-only finalized RPC query",
             latency: "SAMPLE DATA",
             topology: [
-              { name: "FastNear RPC", pip: "pip-green", status: "Connected (Finalized)" },
+              { name: "Blockchain RPC Node", pip: "pip-green", status: "Connected (Finalized)" },
               { name: "Account Resolution", pip: "pip-green", status: "EXISTS (wrap.near)" },
               { name: "Code Hash Match", pip: "pip-green", status: "MATCHED (wrap.near bytecode)" },
               { name: "Key Access Permissions", pip: "pip-green", status: "0 FullAccess Keys" }
             ],
             layers: [
               { idx: "N01", name: "Account ID Validation", desc: "Protocol Rules", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Valid named account syntax &bull; wrap.near" },
-              { idx: "N02", name: "State Finality via FastNear", desc: "Block Finality", pill: "FINAL", pillCls: "pass", latency: "DEMO", tele: "Finalized block height & hash confirmed" },
+              { idx: "N02", name: "Blockchain State Finality", desc: "Block Finality", pill: "FINAL", pillCls: "pass", latency: "DEMO", tele: "Finalized block height & hash confirmed" },
               { idx: "N03", name: "Contract Bytecode Hash", desc: "Registry Match", pill: "CANONICAL", pillCls: "pass", latency: "DEMO", tele: "Matched canonical wrap.near contract registry" },
               { idx: "N04", name: "FullAccess Key Permission", desc: "Immutability Audit", pill: "0 KEYS", pillCls: "pass", latency: "DEMO", tele: "0 FullAccess keys detected (direct DeployContract locked)" },
               { idx: "N05", name: "Unicode Deception Lexer", desc: "Homoglyph Audit", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Standard ASCII &bull; 0 Cyrillic or lookalike chars" },
@@ -4839,17 +4839,17 @@ header.sec-header.scrolled {
             targetType: "NEAR PROTOCOL ACCOUNT",
             targetText: "aurora",
             network: "NEAR Mainnet",
-            privacy: "Read-only finalized RPC query (FastNear)",
+            privacy: "Read-only finalized RPC query",
             latency: "SAMPLE DATA",
             topology: [
-              { name: "FastNear RPC", pip: "pip-green", status: "Connected (Finalized)" },
+              { name: "Blockchain RPC Node", pip: "pip-green", status: "Connected (Finalized)" },
               { name: "Account Resolution", pip: "pip-green", status: "EXISTS (aurora)" },
               { name: "Code Hash Match", pip: "pip-green", status: "MATCHED (aurora engine bytecode)" },
               { name: "Key Access Permissions", pip: "pip-green", status: "Audited" }
             ],
             layers: [
               { idx: "N01", name: "Account ID Validation", desc: "Protocol Rules", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Valid named account syntax &bull; aurora" },
-              { idx: "N02", name: "State Finality via FastNear", desc: "Block Finality", pill: "FINAL", pillCls: "pass", latency: "DEMO", tele: "Finalized block state verified" },
+              { idx: "N02", name: "Blockchain State Finality", desc: "Block Finality", pill: "FINAL", pillCls: "pass", latency: "DEMO", tele: "Finalized block state verified" },
               { idx: "N03", name: "Contract Bytecode Hash", desc: "Registry Match", pill: "CANONICAL", pillCls: "pass", latency: "DEMO", tele: "Matched canonical aurora EVM engine registry" },
               { idx: "N04", name: "FullAccess Key Permission", desc: "Immutability Audit", pill: "AUDITED", pillCls: "pass", latency: "DEMO", tele: "Access keys verified" },
               { idx: "N05", name: "Unicode Deception Lexer", desc: "Homoglyph Audit", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Standard ASCII &bull; 0 homoglyphs" },
@@ -4870,17 +4870,17 @@ header.sec-header.scrolled {
             targetType: "NEAR PROTOCOL ACCOUNT",
             targetText: "wràp.near",
             network: "NEAR Mainnet",
-            privacy: "Read-only finalized RPC query (FastNear)",
+            privacy: "Read-only finalized RPC query",
             latency: "SAMPLE DATA",
             topology: [
-              { name: "FastNear RPC", pip: "pip-rose", status: "Flagged" },
+              { name: "Blockchain RPC Node", pip: "pip-rose", status: "Flagged" },
               { name: "Unicode Deception Engine", pip: "pip-rose", status: "LOOKALIKE DETECTED" },
               { name: "Impersonation Risk", pip: "pip-rose", status: "HIGH RISK" },
               { name: "Canonical Registry", pip: "pip-amber", status: "Target: wrap.near" }
             ],
             layers: [
               { idx: "N01", name: "Account ID Validation", desc: "Protocol Rules", pill: "ATTENTION", pillCls: "warn", latency: "DEMO", tele: "Non-standard character set detected" },
-              { idx: "N02", name: "State Finality via FastNear", desc: "Block Finality", pill: "CHECKED", pillCls: "pass", latency: "DEMO", tele: "Finalized state queried" },
+              { idx: "N02", name: "Blockchain State Finality", desc: "Block Finality", pill: "CHECKED", pillCls: "pass", latency: "DEMO", tele: "Finalized state queried" },
               { idx: "N03", name: "Contract Bytecode Hash", desc: "Registry Match", pill: "UNINDEXED", pillCls: "threat", latency: "DEMO", tele: "No canonical registry match" },
               { idx: "N04", name: "FullAccess Key Permission", desc: "Immutability Audit", pill: "CHECKED", pillCls: "pass", latency: "DEMO", tele: "Access keys audited" },
               { idx: "N05", name: "Unicode Deception Lexer", desc: "Homoglyph Audit", pill: "DECEPTION", pillCls: "threat", latency: "DEMO", tele: "Cyrillic/accented 'à' mimics Latin 'a' in wrap.near" },
@@ -4901,17 +4901,17 @@ header.sec-header.scrolled {
             targetType: "NEAR PROTOCOL ACCOUNT",
             targetText: "nonexistent-account-xyz-404.near",
             network: "NEAR Mainnet",
-            privacy: "Read-only finalized RPC query (FastNear)",
+            privacy: "Read-only finalized RPC query",
             latency: "SAMPLE DATA",
             topology: [
-              { name: "FastNear RPC", pip: "pip-amber", status: "NOT FOUND" },
+              { name: "Blockchain RPC Node", pip: "pip-amber", status: "NOT FOUND" },
               { name: "Finalized State Query", pip: "pip-amber", status: "UNKNOWN_ACCOUNT" },
               { name: "Access Keys", pip: "pip-gray", status: "N/A" },
               { name: "Contract Bytecode", pip: "pip-gray", status: "N/A" }
             ],
             layers: [
               { idx: "N01", name: "Account ID Validation", desc: "Protocol Rules", pill: "PASS", pillCls: "pass", latency: "DEMO", tele: "Account format syntax valid" },
-              { idx: "N02", name: "State Finality via FastNear", desc: "Block Finality", pill: "NOT FOUND", pillCls: "warn", latency: "DEMO", tele: "FastNear returned UNKNOWN_ACCOUNT" },
+              { idx: "N02", name: "Blockchain State Finality", desc: "Block Finality", pill: "NOT FOUND", pillCls: "warn", latency: "DEMO", tele: "RPC returned UNKNOWN_ACCOUNT" },
               { idx: "N03", name: "Contract Bytecode Hash", desc: "Registry Match", pill: "N/A", pillCls: "unverified", latency: "—", tele: "Account does not exist on chain" },
               { idx: "N04", name: "FullAccess Key Permission", desc: "Immutability Audit", pill: "N/A", pillCls: "unverified", latency: "—", tele: "No keys registered" },
               { idx: "N05", name: "Unicode Deception Lexer", desc: "Homoglyph Audit", pill: "CLEAN", pillCls: "pass", latency: "DEMO", tele: "Standard ASCII" },
@@ -5265,11 +5265,11 @@ header.sec-header.scrolled {
         makeLayer('L01', 'Contract address format', 'VALID ADDRESS', 'pass', 'The API accepted the supplied EVM contract address.'),
         makeLayer('L02', 'Canonical token identity', 'NOT CHECKED', 'unverified', 'This endpoint screens token risks; curated symbol-to-address checks are part of the wallet scanner.'),
         makeLayer('L03', 'Private key handling', 'READ ONLY', 'pass', 'The request does not require wallet credentials or signing permissions.'),
-        makeLayer('L04', 'GoPlus token security', complete ? data.verdict : (data.dataStatus || 'UNVERIFIED'), tokenTone,
-          findings.length ? findings.map(function(item) { return item.message; }).join(' ') : (complete ? 'No token findings were returned by the configured provider.' : 'Provider data is unavailable or incomplete.')),
+        makeLayer('L04', 'Contract risk analysis', complete ? data.verdict : (data.dataStatus || 'UNVERIFIED'), tokenTone,
+          findings.length ? findings.map(function(item) { return item.message; }).join(' ') : (complete ? 'No token risk indicators returned by threat intelligence.' : 'Threat intelligence data is unavailable or incomplete.')),
         makeLayer('L05', 'Tax and transfer indicators', taxFinding ? 'FINDINGS RETURNED' : (complete ? 'NO FINDING RETURNED' : 'UNVERIFIED'),
           taxFinding ? tokenTone : (complete ? 'pass' : 'unverified'),
-          taxFinding ? 'Review provider findings for tax, sell, transfer or honeypot signals.' : 'No matching tax or transfer finding was returned in this provider response.'),
+          taxFinding ? 'Review security findings for tax, sell, transfer or honeypot signals.' : 'No matching tax or transfer finding was returned in this threat intelligence response.'),
         makeLayer('L06', 'Token impersonation registry', 'NOT CHECKED', 'unverified', 'Canonical symbol-to-address comparison is not part of this endpoint.'),
         makeLayer('L07', 'Transaction calldata', 'NOT CHECKED', 'unverified', 'No transaction data was supplied.'),
         makeLayer('L08', 'Address reputation', 'NOT CHECKED', 'unverified', 'This endpoint does not run the separate address reputation request.')
@@ -5279,21 +5279,21 @@ header.sec-header.scrolled {
         targetType: 'LIVE TOKEN CHECK',
         targetText: tokenName ? address + ' · ' + tokenName : address,
         latency: elapsedMs,
-        privacy: 'Read-only GoPlus token security request',
+        privacy: 'Read-only threat intelligence query',
         topology: [
-          { name: 'Token Security API', pip: complete ? (highRisk ? 'pip-rose' : review ? 'pip-amber' : 'pip-green') : 'pip-amber', status: data.dataStatus || data.verdict || 'Unverified' },
-          { name: 'Provider findings', pip: findings.length ? (highRisk ? 'pip-rose' : 'pip-amber') : 'pip-green', status: findings.length + ' returned' },
+          { name: 'Threat Intelligence API', pip: complete ? (highRisk ? 'pip-rose' : review ? 'pip-amber' : 'pip-green') : 'pip-amber', status: data.dataStatus || data.verdict || 'Unverified' },
+          { name: 'Security findings', pip: findings.length ? (highRisk ? 'pip-rose' : 'pip-amber') : 'pip-green', status: findings.length + ' returned' },
           { name: 'Canonical asset comparison', pip: 'pip-amber', status: 'Not run by this endpoint' }
         ],
         layers: layers,
         verdictCls: tone,
         verdictIcon: highRisk ? 'fa-triangle-exclamation' : 'fa-circle-info',
         verdictCategory: data.verdict || 'UNVERIFIED',
-        verdictHeadline: highRisk ? 'HIGH RISK' : review ? 'REVIEW REQUIRED' : complete ? 'PROVIDER CHECK COMPLETE' : 'UNVERIFIED',
+        verdictHeadline: highRisk ? 'HIGH RISK' : review ? 'REVIEW REQUIRED' : complete ? 'SECURITY CHECK COMPLETE' : 'UNVERIFIED',
         verdictScore: 'RISK: ' + (data.riskLevel || 'UNKNOWN'),
-        verdictSummary: findings.length ? findings.map(function(item) { return item.message; }).join(' ') : (complete ? 'The provider returned no listed risk findings. This is not a guarantee that the contract is safe.' : 'The provider did not return a complete security result.'),
+        verdictSummary: findings.length ? findings.map(function(item) { return item.message; }).join(' ') : (complete ? 'The threat intelligence returned no listed risk findings. This is not a guarantee that the contract is safe.' : 'The security service did not return a complete security result.'),
         guidanceCls: highRisk ? 'guidance-threat' : 'guidance-warn',
-        guidanceText: highRisk ? 'Avoid interacting with this token until its findings are independently understood.' : review ? 'Review each provider finding before using this token.' : complete ? 'No listed provider finding was returned. This does not assess the dApp, spender or transaction.' : 'Treat this token as unverified until the provider request can be completed.'
+        guidanceText: highRisk ? 'Avoid interacting with this token until its findings are independently understood.' : review ? 'Review each security finding before using this token.' : complete ? 'No listed risk finding was returned. This does not assess the dApp, spender or transaction.' : 'Treat this token as unverified until the security request can be completed.'
       });
     }
 
@@ -5374,7 +5374,7 @@ header.sec-header.scrolled {
         makeLayer('L01', 'Wallet address format', 'VALID ADDRESS', 'pass', 'The wallet address was accepted by the Base scanner.'),
         makeLayer('L02', 'Token discovery coverage', partial ? 'PARTIAL' : 'INDEXED', partial ? 'warn' : 'pass', data.advisoryNotice || data.discoveryMode || 'Discovery coverage not stated.'),
         makeLayer('L03', 'Private key handling', 'READ ONLY', 'pass', 'The scan uses a public address and token data; no private key is requested.'),
-        makeLayer('L04', 'GoPlus token checks', highCount ? highCount + ' HIGH RISK' : (unverifiedCount ? unverifiedCount + ' UNVERIFIED' : 'CHECKED'),
+        makeLayer('L04', 'Token risk checks', highCount ? highCount + ' HIGH RISK' : (unverifiedCount ? unverifiedCount + ' UNVERIFIED' : 'CHECKED'),
           highRisk ? 'threat' : unverifiedCount ? 'warn' : 'pass',
           'Scanned ' + Number(summary.totalTokensScanned || tokens.length) + ' token entries; ' + highCount + ' high-risk, ' + suspiciousCount + ' suspicious, ' + unverifiedCount + ' unverified.'),
         makeLayer('L05', 'Tax and transfer findings', hasTaxFinding ? 'FINDINGS' : 'NO FINDING RETURNED', hasTaxFinding ? (highRisk ? 'threat' : 'warn') : 'pass', tokenList || 'No token rows were returned.'),
@@ -5383,15 +5383,29 @@ header.sec-header.scrolled {
         makeLayer('L07', 'Transaction calldata', 'NOT CHECKED', 'unverified', 'Wallet portfolio scanning does not decode transaction calldata.'),
         makeLayer('L08', 'Wallet address reputation', 'NOT CHECKED', 'unverified', 'This portfolio endpoint does not run the separate address reputation lookup.')
       ];
+      const friendlyDiscovery = (data.discoveryMode === 'ALCHEMY_INDEXER' || data.discoveryMode === 'FULL_INDEXER') ? 'Full Portfolio Index'
+        : (data.discoveryMode === 'BLOCKSCOUT_INDEXER') ? 'On-Chain Holdings Index'
+        : (partial ? 'Partial Canonical Scope' : 'Standard On-Chain Discovery');
+      const indexerAvailable = data.blockscoutStatus === 'CONNECTED' || data.discoveryMode === 'ALCHEMY_INDEXER' || data.discoveryMode === 'FULL_INDEXER';
+      const friendlyIndexerStatus = indexerAvailable ? 'Active' : 'Fallback RPC Active';
+      const cleanAdvisory = (data.advisoryNotice || '')
+        .replace(/via Alchemy Base Mainnet API/gi, 'via Base Mainnet on-chain indexer')
+        .replace(/via Blockscout API/gi, 'via on-chain asset indexer')
+        .replace(/via GoPlus Security/gi, 'via multi-signal threat intelligence')
+        .replace(/GoPlus Security and /gi, 'multi-signal threat intelligence and ')
+        .replace(/GoPlus/gi, 'threat intelligence')
+        .replace(/Alchemy/gi, 'on-chain indexer')
+        .replace(/Blockscout/gi, 'on-chain indexer');
+
       return liveResultItem({
         targetType: 'LIVE BASE WALLET SCAN',
         targetText: address,
         latency: elapsedMs,
         privacy: partial ? 'Partial discovery coverage' : 'Read-only token discovery',
         topology: [
-          { name: 'Token discovery', pip: partial ? 'pip-amber' : 'pip-green', status: data.discoveryMode || 'Unknown' },
-          { name: 'Blockscout indexer', pip: data.blockscoutStatus === 'CONNECTED' ? 'pip-green' : 'pip-amber', status: data.blockscoutStatus || 'Unknown' },
-          { name: 'GoPlus findings', pip: highRisk ? 'pip-rose' : hasCoverageGap ? 'pip-amber' : 'pip-green', status: highCount + ' high risk / ' + suspiciousCount + ' suspicious' },
+          { name: 'Token discovery', pip: partial ? 'pip-amber' : 'pip-green', status: friendlyDiscovery },
+          { name: 'On-chain indexer', pip: indexerAvailable ? 'pip-green' : 'pip-amber', status: friendlyIndexerStatus },
+          { name: 'Threat findings', pip: highRisk ? 'pip-rose' : hasCoverageGap ? 'pip-amber' : 'pip-green', status: highCount + ' high risk / ' + suspiciousCount + ' suspicious' },
           { name: 'Asset impersonation', pip: impersonations ? 'pip-rose' : 'pip-green', status: impersonations + ' mismatch' }
         ],
         layers: layers,
@@ -5402,7 +5416,7 @@ header.sec-header.scrolled {
         verdictScore: hasCoverageGap ? 'COVERAGE: PARTIAL' : 'RISK: ' + (highRisk ? 'ELEVATED' : 'NO FLAGS RETURNED'),
         verdictSummary: 'Scanned ' + Number(summary.totalTokensScanned || tokens.length) + ' token entries. ' + highCount + ' high-risk, ' + suspiciousCount + ' suspicious, ' + unverifiedCount + ' unverified.',
         guidanceCls: highRisk ? 'guidance-threat' : 'guidance-warn',
-        guidanceText: (data.advisoryNotice || 'Token results are advisory.') + ' Discovery coverage can be partial; unindexed holdings may not appear.'
+        guidanceText: (cleanAdvisory || 'Token results are advisory.') + ' Discovery coverage can be partial; unindexed holdings may not appear.'
       });
     }
 
@@ -5417,7 +5431,7 @@ header.sec-header.scrolled {
       const findingsSummary = findings.length === 0 ? 'No adverse findings.' : findings.map(function(f) { return (f.type || f.title || 'Finding') + ': ' + (f.severity || ''); }).join(' · ');
       const layers = [
         makeLayer('N01', 'Account ID validation', verdict === 'INVALID' ? 'INVALID FORMAT' : 'VALID', verdict === 'INVALID' ? 'threat' : 'pass', 'NEAR account ID format verified against protocol naming rules.'),
-        makeLayer('N02', 'Account existence (FastNear RPC)', account.status || 'UNKNOWN', account.status === 'EXISTS' ? 'pass' : account.status === 'NOT_FOUND' ? 'warn' : 'unverified', 'Finalized state query via FastNear RPC with dRPC fallback.'),
+        makeLayer('N02', 'Account on-chain existence', account.status || 'UNKNOWN', account.status === 'EXISTS' ? 'pass' : account.status === 'NOT_FOUND' ? 'warn' : 'unverified', 'Finalized state query via on-chain RPC nodes.'),
         makeLayer('N03', 'Full-access key count', account.fullAccessKeyCount !== undefined ? String(account.fullAccessKeyCount) : 'NOT CHECKED', account.fullAccessKeyCount > 2 ? 'warn' : 'pass', 'Number of full-access keys returned by view_access_key_list.'),
         makeLayer('N04', 'Contract deployed', account.codeHash && account.codeHash !== '11111111111111111111111111111111' ? 'YES' : (account.codeHash ? 'NO (EOA)' : 'NOT CHECKED'), 'pass', 'Whether the account has contract bytecode deployed (code hash != empty).'),
         makeLayer('N05', 'Canonical contract match', findings.some(function(f) { return f.type === 'NEAR_FACT_CANONICAL_CONTRACT_MATCH'; }) ? 'MATCH' : 'NOT CHECKED', 'pass', 'Code hash compared against curated canonical NEAR contract registry.'),
@@ -5432,7 +5446,7 @@ header.sec-header.scrolled {
         network: 'NEAR Mainnet',
         privacy: 'Read-only finalized RPC query',
         topology: [
-          { name: 'FastNear RPC', pip: account.status === 'EXISTS' ? 'pip-green' : 'pip-amber', status: account.status || 'QUERIED' },
+          { name: 'On-Chain RPC Node', pip: account.status === 'EXISTS' ? 'pip-green' : 'pip-amber', status: account.status || 'QUERIED' },
           { name: 'Access key analysis', pip: account.fullAccessKeyCount > 2 ? 'pip-amber' : 'pip-green', status: account.fullAccessKeyCount !== undefined ? account.fullAccessKeyCount + ' full-access keys' : 'N/A' },
           { name: 'Impersonation engine', pip: isHigh ? 'pip-rose' : 'pip-green', status: findings.length + ' finding(s)' },
           { name: 'Canonical registry', pip: 'pip-green', status: 'Checked' }

@@ -10,11 +10,11 @@ These are honest, accurate limitations of the current implementation. They repre
 
 | # | Limitation | Details |
 |---|-----------|---------|
-| 1 | **GoPlus Base Sepolia not supported** | Chain ID 84532 returns `UNVERIFIED / UNSUPPORTED_CHAIN`. GoPlus threat feeds index Base Mainnet (8453) only. |
+| 1 | **Base Sepolia threat intelligence not supported** | Chain ID 84532 returns `UNVERIFIED / UNSUPPORTED_CHAIN`. Real-time threat feeds index Base Mainnet (8453) only. |
 | 2 | **ERC-20 calldata only (3 selectors)** | The calldata inspector recognizes `approve`, `transfer`, and `transferFrom`. Any other selector returns advisory `REVIEW`, not `BLOCK`. EIP-712 typed-data, permit2, multicall, and DEX routers are not decoded. |
 | 3 | **No on-chain state simulation** | PayGuard analyzes calldata statically. It cannot simulate dynamic contract execution, detect flash loan reentrancy, assess gas manipulation, or evaluate runtime state transitions. |
-| 4 | **GoPlus indexing lag on zero-day scams** | Brand-new scam tokens deployed minutes ago may not appear in the GoPlus database immediately. Unindexed tokens fail closed as `UNVERIFIED / UNINDEXED_TOKEN`, never as `PASS`. |
-| 5 | **GoPlus data quality not verified** | PayGuard evaluates what GoPlus returns but does not independently audit GoPlus's internal threat intelligence scoring or raw data accuracy. |
+| 4 | **Threat intelligence indexing lag on zero-day scams** | Brand-new scam tokens deployed minutes ago may not appear in threat intelligence databases immediately. Unindexed tokens fail closed as `UNVERIFIED / UNINDEXED_TOKEN`, never as `PASS`. |
+| 5 | **Threat intelligence data quality not independently verified** | PayGuard evaluates returned threat signals but does not independently audit external threat intelligence scoring or raw data accuracy. |
 | 6 | **Advisory verdicts only outside signing path** | A `BLOCK` verdict automatically prevents signing only within PayGuard's opt-in `BaseSmartWalletClient`. PayGuard cannot enforce blocks in external wallet extensions or third-party signing clients. |
 | 7 | **No proxy upgrade slot analysis** | The `is_proxy` flag is surfaced as an informational finding. PayGuard does not inspect proxy implementation addresses or timelock parameters. |
 | 8 | **No MEV or sandwich attack detection** | Mempool transaction ordering, frontrunning, and sandwich attacks are out of scope. |
@@ -39,9 +39,9 @@ These are honest, accurate limitations of the current implementation. They repre
 
 | # | Limitation | Details |
 |---|-----------|---------|
-| 16 | **In-memory cache only** | GoPlus and address results are cached in process memory with a 10-minute TTL. Cache resets on process restart. |
-| 17 | **No cross-chain GoPlus support** | Threat intelligence is scoped to Base Mainnet (8453). Ethereum mainnet, Arbitrum, Optimism, and Solana are not supported. |
-| 18 | **Google Web Risk opt-in** | Web Risk reputation lookup requires both `checkReputation: true` in the request and a valid `GOOGLE_WEB_RISK_API_KEY` server-side. |
+| 16 | **In-memory cache only** | Threat intelligence and address results are cached in process memory with a 10-minute TTL. Cache resets on process restart. |
+| 17 | **No cross-chain threat intelligence support** | Threat intelligence is scoped to Base Mainnet (8453). Ethereum mainnet, Arbitrum, Optimism, and Solana are not supported. |
+| 18 | **External reputation opt-in** | External reputation lookup requires both `checkReputation: true` in the request and a valid `GOOGLE_WEB_RISK_API_KEY` server-side. |
 | 19 | **No document or message analysis** | PayGuard analyzes URLs, EVM calldata, and on-chain addresses. It does not parse PDFs, emails, Discord messages, or social media text. |
 | 20 | **No authentication or quotas** | The API is open. The per-IP rate limit reads forwarded headers and is reliable only behind a trusted proxy. |
 | 21 | **CommonJS build issue** | `dist/index.cjs` fails the CI CommonJS check at the time of this update. ES module use is unaffected. |
@@ -61,8 +61,8 @@ The following areas are considered for future development. Items marked **planne
 |---------|-------------|
 | **EIP-712 typed-data inspection** | Decode and analyze `eth_signTypedData_v4` payloads, including permit and permit2 patterns |
 | **Expanded calldata selector library** | Add support for common DEX operations (Uniswap V3 swap, Aerodrome multicall) and NFT approvals (`setApprovalForAll`) |
-| **Dedicated Indexer RPC Support** | Support optional dedicated Alchemy/QuickNode/Goldsky endpoints for full historical token indexing |
-| **Persistent GoPlus cache** | Optional Redis or SQLite backend for cross-process and cross-restart caching |
+| **Dedicated Indexer RPC Support** | Support optional dedicated indexing endpoints for full historical token indexing |
+| **Persistent intelligence cache** | Optional Redis or SQLite backend for cross-process and cross-restart caching |
 | **Structured audit log** | Optional append-only event log of tool invocations and verdicts for operator review |
 | **Repository trust items** | Fix the CommonJS build, add LICENSE, SECURITY.md and `.env.example` |
 | **Authentication and quotas** | API-key or JWT authentication, per-identity quotas, trusted-proxy handling |
@@ -102,7 +102,7 @@ PayGuard is an **advisory intelligence platform**. It delivers structured securi
 | Area | Status |
 |------|--------|
 | URL Sentinel, x402 payment guard, x402 client hook, MCP server, REST API, dashboard | Implemented |
-| Calldata inspector, token security, address security, wallet scanner, Google Web Risk lookup | Partially Supported |
+| Calldata inspector, token security, address security, wallet scanner, external reputation lookup | Partially Supported |
 | Paid-endpoint x402 gate | Partially Supported |
 | Live threat-intelligence feeds, passive website scanner | Planned for main (exists on an unmerged branch) |
 | Authentication, Permit and EIP-712, EIP-7702, simulation, additional chains | Planned |

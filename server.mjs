@@ -505,6 +505,8 @@ async function requestHandler(req, res) {
         service: "payguard",
         version: "0.1.0",
         mode: "read-only",
+        threatIntelligenceConfigured: Boolean(process.env.GOPLUS_API_KEY && process.env.GOPLUS_API_KEY.trim()),
+        externalReputationConfigured: Boolean(process.env.GOOGLE_WEB_RISK_API_KEY && process.env.GOOGLE_WEB_RISK_API_KEY.trim()),
         goPlusConfigured: Boolean(process.env.GOPLUS_API_KEY && process.env.GOPLUS_API_KEY.trim()),
         webRiskConfigured: Boolean(process.env.GOOGLE_WEB_RISK_API_KEY && process.env.GOOGLE_WEB_RISK_API_KEY.trim()),
         supportedChains: ["8453"],

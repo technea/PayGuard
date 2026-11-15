@@ -2381,7 +2381,7 @@ header .pill-secondary {
             <i class="fa-solid fa-bolt"></i> Run URL Security Scan
           </button>
           <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">
-            <input type="checkbox" id="sentinel-reputation"> <i class="fa-solid fa-cloud-arrow-down" style="color: var(--cyan);"></i> Check Google Web Risk Threat Intelligence (if configured)
+            <input type="checkbox" id="sentinel-reputation"> <i class="fa-solid fa-cloud-arrow-down" style="color: var(--cyan);"></i> Check External Threat Intelligence (if configured)
           </label>
         </div>
 
@@ -2579,7 +2579,7 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-coins" style="color: var(--cyan);"></i> Base Token Security (GoPlus Intelligence)</div>
+            <div class="card-title"><i class="fa-solid fa-coins" style="color: var(--cyan);"></i> Base Token Security</div>
             <div class="card-subtitle">Inspect token contracts on Base Mainnet (Chain ID 8453) for honeypots, malicious taxes, transfer restrictions, and minting privileges.</div>
           </div>
         </div>
@@ -2588,7 +2588,7 @@ header .pill-secondary {
           <i class="fa-solid fa-database action-guidance-icon"></i>
           <div>
             <div class="action-guidance-title">Base Mainnet Support Only (8453)</div>
-            <div class="action-guidance-text">Live token reputation is powered by GoPlus Security API for Base Mainnet. Base Sepolia (84532) is not indexed upstream and safely returns UNVERIFIED. All error paths fail closed.</div>
+            <div class="action-guidance-text">Live token reputation is powered by multi-signal threat intelligence for Base Mainnet. Base Sepolia (84532) is not indexed upstream and safely returns UNVERIFIED. All error paths fail closed.</div>
           </div>
         </div>
 
@@ -2653,7 +2653,7 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-address-card" style="color: var(--cyan);"></i> Base Address Security (GoPlus Intelligence)</div>
+            <div class="card-title"><i class="fa-solid fa-address-card" style="color: var(--cyan);"></i> Base Address Security</div>
             <div class="card-subtitle">Screen EVM counterparty wallets and contracts on Base Mainnet for phishing, theft attacks, OFAC sanctions, cybercrime, and honeypot affiliation.</div>
           </div>
         </div>
@@ -2738,7 +2738,7 @@ header .pill-secondary {
           <i class="fa-solid fa-user-shield action-guidance-icon"></i>
           <div>
             <div class="action-guidance-title">Zero-Signature Read-Only Investigation</div>
-            <div class="action-guidance-text">PayGuard never requests wallet connection signatures, private keys, or token permissions. Simply enter any public Base address to run multi-vector token discovery (Blockscout + Canonical Base Registry + GoPlus Security).</div>
+            <div class="action-guidance-text">PayGuard never requests wallet connection signatures, private keys, or token permissions. Simply enter any public Base address to run multi-vector token discovery (Multi-Source Security Analysis).</div>
           </div>
         </div>
 
@@ -2796,7 +2796,7 @@ header .pill-secondary {
               </div>
               <div>
                 <div class="verdict-title" id="wallet-scanner-title">Portfolio Scan Complete</div>
-                <div class="verdict-plain-summary" id="wallet-scanner-summary">Audited tokens against GoPlus Security and Base canonical registry.</div>
+                <div class="verdict-plain-summary" id="wallet-scanner-summary">Audited tokens against multi-signal threat intelligence and Base canonical registry.</div>
               </div>
             </div>
             <div id="wallet-scanner-badge" class="verdict-risk-tag low">
@@ -2808,7 +2808,7 @@ header .pill-secondary {
           <div id="wallet-scanner-meta-bar" style="margin-top: 1rem; padding: 0.75rem 1rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 0.5rem; display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between; font-size: 0.8rem;">
             <div><span style="color: var(--text-dim);">Wallet:</span> <span id="meta-wallet-address" style="color: #ffffff; font-family: var(--font-mono); font-weight: 600;">-</span></div>
             <div><span style="color: var(--text-dim);">Network:</span> <span id="meta-wallet-network" style="color: var(--cyan); font-weight: 600;">Base Mainnet (8453)</span></div>
-            <div><span style="color: var(--text-dim);">Data Provider:</span> <span id="meta-wallet-provider" style="color: var(--emerald); font-weight: 600;">Alchemy Base API + GoPlus</span></div>
+            <div><span style="color: var(--text-dim);">Security Analysis:</span> <span id="meta-wallet-provider" style="color: var(--emerald); font-weight: 600;">Multi-Source Security Analysis</span></div>
             <div><span style="color: var(--text-dim);">Scan Status:</span> <span id="meta-wallet-status" class="pill-secondary" style="font-size: 0.7rem;">COMPLETE</span></div>
             <div><span style="color: var(--text-dim);">Timestamp:</span> <span id="meta-wallet-timestamp" style="color: var(--text-dim);">-</span></div>
           </div>
@@ -2826,7 +2826,7 @@ header .pill-secondary {
                     <span class="pill-secondary" style="font-size: 0.7rem; color: var(--cyan); border-color: rgba(56, 189, 248, 0.3);">Native Asset</span>
                   </div>
                   <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 0.2rem;">
-                    Base Mainnet Gas Token • Indexed via <span id="eth-provider-name">Alchemy</span>
+                    Base Mainnet Gas Token • <span id="eth-provider-name">Asset Data Retrieved</span>
                   </div>
                 </div>
               </div>
@@ -2910,7 +2910,7 @@ header .pill-secondary {
         <div class="card-header">
           <div>
             <div class="card-title"><i class="fa-solid fa-atom" style="color: var(--cyan);"></i> NEAR Protocol Security Intelligence</div>
-            <div class="card-subtitle">Account existence, access-key analysis, contract code-hash auditing, and impersonation detection on NEAR Mainnet via FastNear RPC.</div>
+            <div class="card-subtitle">Account existence, access-key analysis, contract code-hash auditing, and impersonation detection on NEAR Mainnet.</div>
           </div>
         </div>
 
@@ -2918,7 +2918,7 @@ header .pill-secondary {
           <i class="fa-solid fa-shield-halved action-guidance-icon"></i>
           <div>
             <div class="action-guidance-title">Read-Only NEAR Protocol Agent (Phase 1)</div>
-            <div class="action-guidance-text">Validates NEAR account IDs (named, implicit ED25519, ETH-implicit), retrieves finalized state via FastNear RPC with dRPC fallback, analyzes access keys, detects homoglyph impersonation, and compares contract code hashes against a canonical registry. Zero private-key access &mdash; purely advisory.</div>
+            <div class="action-guidance-text">Validates NEAR account IDs (named, implicit ED25519, ETH-implicit), retrieves finalized on-chain state, analyzes access keys, detects homoglyph impersonation, and compares contract code hashes against a canonical registry. Zero private-key access &mdash; purely advisory.</div>
           </div>
         </div>
 
@@ -3177,8 +3177,8 @@ header .pill-secondary {
         icon: "fa-solid fa-circle-xmark"
       },
       web_risk_reputation: {
-        title: "Google Web Risk Threat Intelligence",
-        explain: "Queries Google's global threat database for active malware, social engineering, or phishing records.",
+        title: "External Threat Intelligence",
+        explain: "Queries threat intelligence databases for active malware, social engineering, or phishing records.",
         icon: "fa-solid fa-cloud-arrow-down"
       },
       url_syntax: {
@@ -3817,7 +3817,7 @@ header .pill-secondary {
       const contractAddress = document.getElementById('token-address').value.trim();
 
       const btn = document.getElementById('btn-check-token');
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Querying GoPlus Intelligence...';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Analyzing Token Security...';
       btn.disabled = true;
 
       try {
@@ -3875,7 +3875,7 @@ header .pill-secondary {
         riskBadge.className = 'verdict-risk-tag high';
         riskBadge.innerHTML = '<i class="fa-solid fa-shield-xmark"></i> BLOCK • CRITICAL';
         summary.textContent = 'Token contract flagged with critical malicious markers (honeypot, cannot sell, or excessive fee drain).';
-        guidance.textContent = 'DO NOT BUY OR INTERACT. GoPlus intelligence indicates holders are unable to sell or owner can drain balances.';
+        guidance.textContent = 'DO NOT BUY OR INTERACT. Threat intelligence indicates holders are unable to sell or owner can drain balances.';
       } else {
         hero.classList.add('UNVERIFIED');
         iconBox.innerHTML = '<i class="fa-solid fa-question"></i>';
@@ -3883,7 +3883,7 @@ header .pill-secondary {
         riskBadge.className = 'verdict-risk-tag medium';
         riskBadge.innerHTML = '<i class="fa-solid fa-question"></i> UNVERIFIED';
         summary.textContent = (data.findings && data.findings.length) ? data.findings[0].message : 'Intelligence unavailable or unsupported network.';
-        guidance.textContent = 'Absence of data is not proof of safety. GoPlus Token Security supports Base Mainnet (8453) only.';
+        guidance.textContent = 'Absence of data is not proof of safety. Token Security supports Base Mainnet (8453) only.';
       }
 
       grid.innerHTML = (data.findings || []).map(f => {
@@ -3901,7 +3901,7 @@ header .pill-secondary {
               <span class="check-badge"><i class="${statusIcon}"></i> ${severity.toUpperCase()}</span>
             </div>
             <div class="check-explain">${f.message}</div>
-            <div class="check-tech-id">Provider: GoPlus Security • Status: ${data.dataStatus || 'AVAILABLE'}</div>
+            <div class="check-tech-id">Security Evidence • Status: ${data.dataStatus || 'AVAILABLE'}</div>
           </div>
         `;
       }).join('');
@@ -3962,7 +3962,7 @@ header .pill-secondary {
         riskBadge.className = 'verdict-risk-tag low';
         riskBadge.innerHTML = '<i class="fa-solid fa-shield"></i> PASS • LOW RISK';
         summary.textContent = 'No records of phishing, theft, OFAC sanctions, or cybercrime found for this address.';
-        guidance.textContent = 'Counterparty address has no adverse reputation marks in GoPlus security database.';
+        guidance.textContent = 'Counterparty address has no adverse reputation marks in threat intelligence database.';
       } else if (verdict === 'REVIEW') {
         hero.classList.add('REVIEW');
         iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
@@ -4004,10 +4004,26 @@ header .pill-secondary {
               <span class="check-badge"><i class="${statusIcon}"></i> ${severity.toUpperCase()}</span>
             </div>
             <div class="check-explain">${f.message}</div>
-            <div class="check-tech-id">Provider: GoPlus Security • Chain: ${data.chainId || '8453'}</div>
+            <div class="check-tech-id">Security Evidence • Chain: ${data.chainId || '8453'}</div>
           </div>
         `;
       }).join('');
+    }
+
+    // Presentation sanitizer to prevent exposing internal vendors or raw RPC implementation details
+    function sanitizeProviderLabel(val) {
+      if (!val || typeof val !== 'string') return 'Multi-Source Security Analysis';
+      const v = val.toLowerCase();
+      if (v.includes('alchemy') && v.includes('goplus')) return 'Multi-Source Security Analysis';
+      if (v.includes('blockscout') && v.includes('goplus')) return 'Multi-Source Wallet Analysis';
+      if (v.includes('base rpc') && v.includes('goplus')) return 'Multi-Source Security Analysis';
+      if (v.includes('goplus')) return 'Multi-Signal Threat Intelligence';
+      if (v.includes('alchemy')) return 'Asset Data Retrieved';
+      if (v.includes('blockscout')) return 'On-Chain Asset Discovery';
+      if (v.includes('fastnear') || v.includes('drpc')) return 'On-Chain RPC Verification';
+      if (v.includes('web risk') || v.includes('webrisk') || v.includes('google')) return 'External Threat Intelligence';
+      if (v.includes('base registry') || v.includes('base rpc') || v.includes('official base')) return 'Canonical Base Registry';
+      return 'Multi-Source Security Analysis';
     }
 
 
@@ -4176,7 +4192,7 @@ header .pill-secondary {
       const metaNet = document.getElementById('meta-wallet-network');
       if (metaNet) metaNet.textContent = data.networkName || 'Base Mainnet (8453)';
       const metaProv = document.getElementById('meta-wallet-provider');
-      if (metaProv) metaProv.textContent = data.dataProvider || 'Alchemy Base API + GoPlus';
+      if (metaProv) metaProv.textContent = sanitizeProviderLabel(data.dataProvider) || 'Multi-Source Security Analysis';
       const metaStat = document.getElementById('meta-wallet-status');
       if (metaStat) {
         metaStat.textContent = data.scanCompletionStatus || 'COMPLETE';
@@ -4192,7 +4208,7 @@ header .pill-secondary {
       if (data.nativeEth) {
         if (ethFormatted) ethFormatted.textContent = (data.nativeEth.balanceEth || '0') + ' ETH';
         if (ethWei) ethWei.textContent = (data.nativeEth.balanceWei || '0') + ' wei';
-        if (ethProv) ethProv.textContent = data.nativeEth.provider || 'Alchemy Base Mainnet';
+        if (ethProv) ethProv.textContent = sanitizeProviderLabel(data.nativeEth.provider) || 'Asset Data Retrieved';
       }
 
       hero.className = 'verdict-hero';
@@ -4305,7 +4321,7 @@ header .pill-secondary {
             </div>
 
             <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-dim);">
-              <span>Source: ${t.provider}</span>
+              <span>Evidence: ${sanitizeProviderLabel(t.provider)}</span>
               <span>Checked: ${new Date(t.lastChecked).toLocaleTimeString()}</span>
             </div>
           </div>

@@ -35,10 +35,10 @@ flowchart TD
         C7["Threat Report<br/>prepareThreatReport()"]
     end
 
-    subgraph External["External Providers & Data Sources"]
-        D1["GoPlus Security API<br/>api.gopluslabs.io"]
-        D2["Google Web Risk API<br/>(Optional Reputation)"]
-        D3["Blockscout Base API v2<br/>(Token Holdings Discovery)"]
+    subgraph External["External Threat Intelligence & RPC Services"]
+        D1["Threat Intelligence API<br/>Token & Address Signals"]
+        D2["External Threat Intelligence<br/>(Optional Reputation)"]
+        D3["On-Chain Asset Indexer<br/>(Token Holdings Discovery)"]
         D4["Base Mainnet Public RPC<br/>mainnet.base.org (Multicall)"]
     end
 
@@ -113,11 +113,11 @@ Discovers and screens ERC-20 token holdings in any Base Mainnet (Chain ID 8453) 
 
 **Key Architecture Components:**
 1. **Two-Tier Discovery:**
-   - **Tier 1 (Blockscout API v2):** Attempts to fetch token holdings from `https://base.blockscout.com/api/v2/addresses/{address}/tokens?type=ERC-20`. When accessible, returns all arbitrary tokens.
-   - **Tier 2 (RPC Multicall Fallback):** When indexers encounter rate limits or Cloudflare bot challenges, falls back to direct on-chain `eth_call` queries (`balanceOf(address)`) on `https://mainnet.base.org`. This fallback evaluates the 7 curated Base canonical tokens plus any caller-specified `customTokenAddresses`.
+   - **Tier 1 (On-Chain Indexer):** Attempts to fetch token holdings via on-chain asset indexer APIs. When accessible, returns all arbitrary tokens.
+   - **Tier 2 (RPC Multicall Fallback):** When indexers encounter rate limits or bot challenges, falls back to direct on-chain `eth_call` queries (`balanceOf(address)`) on `https://mainnet.base.org`. This fallback evaluates the 7 curated Base canonical tokens plus any caller-specified `customTokenAddresses`.
 2. **Canonical Token Registry:** Authoritative mapping of official Base assets (WETH, USDC, cbETH, VIRTUAL, DAI, USDbC, AERO) with known contract addresses.
 3. **Impersonation Detector (`checkTokenImpersonation`):** Identifies lookalike tokens that reuse well-known symbols while pointing to unauthorized contract addresses.
-4. **GoPlus Security Bridge:** Evaluates honeypot flags, buy/sell taxes, and owner balance alteration privileges for every holding with non-zero balance.
+4. **Multi-Signal Threat Engine:** Evaluates honeypot flags, buy/sell taxes, and owner balance alteration privileges for every holding with non-zero balance.
 
 ---
 
@@ -131,18 +131,18 @@ Pure, deterministic, synchronous EVM calldata analyzer with zero network depende
 
 ---
 
-### `src/token-security.mjs` — GoPlus Token Security Integration
+### `src/token-security.mjs` — Token Security Integration
 
-Interrogates the GoPlus Token Security API for Base Mainnet (Chain ID 8453):
+Interrogates multi-signal threat intelligence for Base Mainnet (Chain ID 8453):
 - **Contract Risk Analysis:** Evaluates honeypots (`is_honeypot`), balance alteration (`owner_change_balance`), buy/sell taxes, pausable transfers, and unverified source code.
 - **In-Memory Cache:** Caches successful responses for 10 minutes to protect upstream rate limits.
 - **Fail-Closed Error Handling:** Network timeouts (3000ms), 429 rate limits, or malformed JSON return `UNVERIFIED` — never defaulting to `PASS`.
 
 ---
 
-### `src/address-security.mjs` — GoPlus Address Security Integration
+### `src/address-security.mjs` — Address Security Integration
 
-Interrogates the GoPlus Address Security API for Base Mainnet (Chain ID 8453):
+Interrogates multi-signal address security intelligence for Base Mainnet (Chain ID 8453):
 - **Entity Screening:** Flags sanctioned addresses, phishing records, cybercrime involvement, mixer usage, and malicious contract creators.
 - **Cache & Resilience:** In-memory caching and strict response payload size ceiling (64 KB).
 
@@ -168,8 +168,8 @@ HTTP/1.1 microservice running with native Node.js ESM and zero external HTTP fra
   - `POST /api/check-payment` — x402 payment intent policy evaluator.
   - `POST /api/threat-report` — Privacy-conscious threat report generator.
   - `POST /api/inspect-calldata` — Pre-signing calldata inspector.
-  - `POST /api/token-security` — GoPlus Base token security auditor.
-  - `POST /api/address-security` — GoPlus Base address security auditor.
+  - `POST /api/token-security` — Base token security auditor.
+  - `POST /api/address-security` — Base address security auditor.
   - `POST /api/scan-wallet-tokens` — Base wallet token scanner.
   - `GET /api/capabilities` — Service feature & provider status manifest.
   - `GET /health` — Read-only health probe.
@@ -183,11 +183,11 @@ HTTP/1.1 microservice running with native Node.js ESM and zero external HTTP fra
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| URL Sentinel (`analyzeUrlSecurity`) | Implemented | Local analysis; optional Google Web Risk lookup |
+| URL Sentinel (`analyzeUrlSecurity`) | Implemented | Local analysis; optional external reputation lookup |
 | x402 payment guard (`evaluatePaymentIntent`) | Implemented | Compares supplied data with supplied policy |
 | x402 client hook (`createPayGuardX402Hook`, `registerPayGuardX402`) | Implemented | Attaches to `onBeforePaymentCreation` |
 | Calldata inspector | Partially Supported | Three ERC-20 selectors |
-| Token and address security | Partially Supported | GoPlus data, Base 8453 only |
+| Token and address security | Partially Supported | Multi-signal threat intelligence, Base 8453 only |
 | Wallet token scanner | Partially Supported | Full discovery depends on the public indexer |
 | Smart-wallet wrapper | Implemented (opt-in) | Blocks only inside the wrapper |
 | `paybox.mjs` x402 gate and Bazaar metadata | Partially Supported | Challenge format tested; live settlement not verified |

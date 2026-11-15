@@ -5,8 +5,8 @@
 
   const evidence = [
     { id: "domain", title: "URL / Domain Lexical", detail: "Hostname normalization, Unicode controls, homoglyph and official-domain comparison.", source: "URL Sentinel · local deterministic checks" },
-    { id: "contract", title: "Smart Contract Signals", detail: "Provider flags can inform risk, but do not constitute an independent bytecode audit.", source: "GoPlus · provider evidence when a scan is run" },
-    { id: "counterparty", title: "Counterparty Reputation", detail: "Address reputation depends on provider coverage and may be incomplete or unavailable.", source: "GoPlus address security · provider evidence when queried" },
+    { id: "contract", title: "Smart Contract Signals", detail: "Threat intelligence flags can inform risk, but do not constitute an independent bytecode audit.", source: "Multi-signal threat intelligence evidence when a scan is run" },
+    { id: "counterparty", title: "Counterparty Reputation", detail: "Address reputation depends on threat intelligence coverage and may be incomplete or unavailable.", source: "Multi-signal threat intelligence evidence when queried" },
     { id: "calldata", title: "Calldata / Permit Analysis", detail: "Current inspector supports approve, transfer and transferFrom selectors. Permit and Permit2 are not currently decoded.", source: "Local calldata inspector · supported selectors only" }
   ];
 

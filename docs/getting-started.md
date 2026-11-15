@@ -172,7 +172,7 @@ curl -X POST http://localhost:8080/api/scan-wallet-tokens \
 | Frontend | Plain HTML, CSS and JavaScript; Tailwind CSS compiled by `npm run build:css` |
 | Runtime dependency | `@coinbase/wallet-sdk` 4.4.0 (smart-wallet wrapper) |
 | Dev dependency | `@x402/core` 2.29.0 (x402 SDK) |
-| Providers | GoPlus, Blockscout, Base public RPC, Google Web Risk (optional) |
+| Providers | Threat intelligence, on-chain indexers, Base public RPC, optional reputation |
 | Observability | Prometheus metrics at `/metrics`; Prometheus and Grafana in Docker Compose |
 
 ---
@@ -183,7 +183,7 @@ curl -X POST http://localhost:8080/api/scan-wallet-tokens \
 |------|----------|
 | `src/plugin.mjs` | MCP plugin, tool registry, URL Sentinel, payment guard, stdio server |
 | `src/calldata-inspector.mjs` | Calldata decoding and policy checks |
-| `src/token-security.mjs`, `src/address-security.mjs` | GoPlus integrations |
+| `src/token-security.mjs`, `src/address-security.mjs` | Token and address security threat intelligence |
 | `src/wallet-token-scanner.mjs` | Wallet scan, canonical registry, impersonation check |
 | `src/smart-wallet.mjs` | Opt-in Base smart-wallet wrapper |
 | `server.mjs`, `api/index.mjs` | HTTP server and Vercel entry |
@@ -219,7 +219,7 @@ This runs `node --test test/*.test.mjs`. The suites need the installed dependenc
 | Symptom | Likely cause | What to do |
 |---------|--------------|------------|
 | Token or address result is `UNVERIFIED` with `NETWORK_ERROR` | Provider unreachable or timed out (3 second limit) | Check outbound access; retry later. This is expected fail-closed behavior |
-| Wallet scan shows `REGISTRY_AND_CUSTOM_PARTIAL` | Blockscout indexer unavailable | Supply `customTokenAddresses`, or accept partial coverage |
+| Wallet scan shows `REGISTRY_AND_CUSTOM_PARTIAL` | On-chain indexer unavailable | Supply `customTokenAddresses`, or accept partial coverage |
 | `UNSUPPORTED_CHAIN` | Chain other than 8453 requested | Use Base Mainnet |
 | HTTP 429 | Rate limit or concurrency cap | Slow down, or raise `MAX_REQUESTS_PER_WINDOW` |
 | HTTP 402 | `PAYGUARD_REQUIRE_X402=true` | Supply a payment header or disable the gate |
