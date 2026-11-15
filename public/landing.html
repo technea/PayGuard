@@ -3084,28 +3084,29 @@ header.sec-header.scrolled {
   max-width: 540px;
   margin: 0 0 2rem 0;
   display: inline-flex;
-  align-items: center;
-  gap: 0.85rem;
+  align-items: baseline;
+  gap: 0.6rem;
   background: transparent;
   border: none;
   box-shadow: none;
   padding: 0.25rem 0;
   min-height: 40px;
+  flex-wrap: nowrap;
 }
 
 .hero-content-col .stream-bullet {
   color: var(--cyan);
   font-size: 1rem;
   filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.45));
-  display: inline-flex;
-  align-items: center;
+  display: inline;
+  flex-shrink: 0;
 }
 
 .hero-content-col .seq-text-container {
   position: relative;
   min-width: 200px;
-  display: inline-flex;
-  align-items: center;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .hero-content-col .seq-text {
@@ -3114,8 +3115,8 @@ header.sec-header.scrolled {
   font-weight: 700;
   color: #f8fafc;
   letter-spacing: -0.015em;
-  display: inline-flex;
-  align-items: center;
+  display: inline;
+  white-space: nowrap;
 }
 
 .hero-content-col .stream-cursor {
@@ -3126,6 +3127,8 @@ header.sec-header.scrolled {
   animation: blinkCursor 0.9s infinite;
   user-select: none;
   margin-left: 2px;
+  vertical-align: middle;
+  display: inline;
 }
 
 .hero-content-col .seq-module-tag {
@@ -4400,14 +4403,18 @@ header.sec-header.scrolled {
       function renderWordByWord(fullText, onComplete) {
         const words = fullText.split(' ');
         textEl.innerHTML = '';
-        
+
         words.forEach((w, i) => {
+          // Insert a real space text node between words so they don't merge
+          if (i > 0) {
+            textEl.appendChild(document.createTextNode(' '));
+          }
           const span = document.createElement('span');
           span.className = 'word-reveal';
-          span.textContent = (i === 0 ? '' : ' ') + w;
+          span.textContent = w;
           span.style.opacity = '0';
           span.style.transform = 'translateY(4px)';
-          span.style.display = 'inline-block';
+          span.style.display = 'inline';
           span.style.transition = 'opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)';
           textEl.appendChild(span);
         });
