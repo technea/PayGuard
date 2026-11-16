@@ -7,6 +7,26 @@ import {
   verifyPaymentProof,
   payboxIntegration
 } from "../paybox.mjs";
+import { createInMemoryX402ReplayGuard } from "../src/x402-replay-guard.mjs";
+
+let liveNonceCounter = 10;
+function makeLivePaymentPayload() {
+  liveNonceCounter += 1;
+  return {
+    x402Version: 2,
+    accepted: { scheme: "exact", network: X402_CONFIG.network, amount: "1000", asset: X402_CONFIG.asset, payTo: X402_CONFIG.payTo, extra: { assetTransferMethod: "eip3009" } },
+    payload: {
+      signature: "0x" + "11".repeat(65),
+      authorization: {
+        from: "0x857b06519e91e3a54538791bdbb0e22373e36b66",
+        to: X402_CONFIG.payTo,
+        value: "1000", validAfter: "0", validBefore: "1999999999",
+        nonce: "0x" + liveNonceCounter.toString(16).padStart(64, "0")
+      }
+    }
+  };
+}
+
 
 test("x402 route configuration and challenge matches official specification", () => {
   const challenge = build402Challenge("https://api.payguard.example/api/analyze-url");
@@ -139,7 +159,7 @@ test("Security: malformed payment fields fail closed without throwing", async ()
 });
 
 test("Security: Facilitator /verify failure fails closed and live mode never falls back to mock", async () => {
-  const validHeader = 'Payment-Signature sig="0x1234567890abcdef1234567890abcdef"';
+  const validHeader = makeLivePaymentPayload();
   
   // Facilitator returns isValid: false
   const failedVerify = await verifyPaymentProof(validHeader, "https://api.payguard.example/scan", "1000", {
@@ -170,7 +190,7 @@ test("Security: Facilitator /verify failure fails closed and live mode never fal
 });
 
 test("Security: Settlement failure never produces a success response claiming payment was completed", async () => {
-  const validHeader = 'Payment-Signature sig="0x1234567890abcdef1234567890abcdef"';
+  const validHeader = makeLivePaymentPayload();
 
   // /verify succeeds (isValid: true) BUT /settle fails (success: false)
   const settleFail = await verifyPaymentProof(validHeader, "https://api.payguard.example/scan", "1000", {
@@ -208,7 +228,9 @@ test("Security: Caller-supplied transaction hash is never accepted as proof of s
   assert.equal(mockRes.settlement.transaction, undefined); // client's txHash must not be copied as proof
 
   // In live mode, settlement transaction comes strictly from facilitator's /settle response
-  const liveRes = await verifyPaymentProof(clientClaimedTx, "https://api.payguard.example/scan", "1000", {
+  const livePayload = makeLivePaymentPayload();
+  livePayload.txHash = "0xAttackerFabricatedTransactionHash";
+  const liveRes = await verifyPaymentProof(livePayload, "https://api.payguard.example/scan", "1000", {
     liveFacilitator: true,
     facilitatorUrl: "https://mock-facilitator.example",
     fetchImpl: async (url) => {
@@ -221,6 +243,109 @@ test("Security: Caller-supplied transaction hash is never accepted as proof of s
   assert.equal(liveRes.settlement.settled, true);
   assert.equal(liveRes.settlement.transaction, "0xFacilitatorConfirmedTxHash");
   assert.notEqual(liveRes.settlement.transaction, "0xAttackerFabricatedTransactionHash");
+});
+
+
+test("Security: same EIP-3009 authorization cannot be settled twice", async () => {
+  const replayGuard = createInMemoryX402ReplayGuard();
+  const payload = makeLivePaymentPayload();
+  let verifyCalls = 0;
+  let settleCalls = 0;
+  const fetchImpl = async (url) => {
+    if (url.endsWith("/verify")) {
+      verifyCalls += 1;
+      return { ok: true, json: async () => ({ isValid: true, payer: payload.payload.authorization.from }) };
+    }
+    settleCalls += 1;
+    return { ok: true, json: async () => ({ success: true, transaction: "0xFacilitatorTx" }) };
+  };
+  const options = { liveFacilitator: true, facilitatorUrl: "https://mock-facilitator.example", fetchImpl, replayGuard };
+  const first = await verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", options);
+  const replay = await verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", options);
+  assert.equal(first.valid, true);
+  assert.equal(first.settlement.settled, true);
+  assert.equal(replay.valid, false);
+  assert.match(replay.reason, /duplicate|replay/i);
+  assert.equal(verifyCalls, 1);
+  assert.equal(settleCalls, 1);
+});
+
+test("Security: concurrent duplicate EIP-3009 requests reserve the nonce atomically", async () => {
+  const replayGuard = createInMemoryX402ReplayGuard();
+  const payload = makeLivePaymentPayload();
+  let verifyCalls = 0;
+  let settleCalls = 0;
+  const fetchImpl = async (url) => {
+    if (url.endsWith("/verify")) {
+      verifyCalls += 1;
+      await Promise.resolve();
+      return { ok: true, json: async () => ({ isValid: true }) };
+    }
+    settleCalls += 1;
+    return { ok: true, json: async () => ({ success: true, transaction: "0xConcurrentTx" }) };
+  };
+  const options = { liveFacilitator: true, facilitatorUrl: "https://mock-facilitator.example", fetchImpl, replayGuard };
+  const results = await Promise.all([
+    verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", options),
+    verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", options)
+  ]);
+  assert.equal(results.filter((result) => result.valid).length, 1);
+  assert.equal(results.filter((result) => !result.valid && /duplicate|replay/i.test(result.reason)).length, 1);
+  assert.equal(verifyCalls, 1);
+  assert.equal(settleCalls, 1);
+});
+
+test("Security: reservation is released after a definite facilitator verification rejection", async () => {
+  const replayGuard = createInMemoryX402ReplayGuard();
+  const payload = makeLivePaymentPayload();
+  let shouldReject = true;
+  const fetchImpl = async (url) => {
+    if (url.endsWith("/verify")) {
+      if (shouldReject) return { ok: true, json: async () => ({ isValid: false, invalidReason: "invalid_signature" }) };
+      return { ok: true, json: async () => ({ isValid: true }) };
+    }
+    return { ok: true, json: async () => ({ success: true, transaction: "0xRetryTx" }) };
+  };
+  const options = { liveFacilitator: true, facilitatorUrl: "https://mock-facilitator.example", fetchImpl, replayGuard };
+  const rejected = await verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", options);
+  shouldReject = false;
+  const retried = await verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", options);
+  assert.equal(rejected.valid, false);
+  assert.equal(retried.valid, true);
+});
+
+test("Security: ambiguous settlement transport failure keeps the authorization reserved", async () => {
+  const replayGuard = createInMemoryX402ReplayGuard();
+  const payload = makeLivePaymentPayload();
+  const options = {
+    liveFacilitator: true,
+    facilitatorUrl: "https://mock-facilitator.example",
+    replayGuard,
+    fetchImpl: async (url) => {
+      if (url.endsWith("/verify")) return { ok: true, json: async () => ({ isValid: true }) };
+      throw new Error("connection dropped after broadcast");
+    }
+  };
+  const first = await verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", options);
+  const retry = await verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", options);
+  assert.equal(first.valid, false);
+  assert.match(first.reason, /reserved pending reconciliation/i);
+  assert.equal(retry.valid, false);
+  assert.match(retry.reason, /duplicate|replay/i);
+});
+
+test("Security: live mode rejects missing EIP-3009 authorization before facilitator calls", async () => {
+  const payload = makeLivePaymentPayload();
+  delete payload.payload.authorization;
+  let calls = 0;
+  const result = await verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", {
+    liveFacilitator: true,
+    facilitatorUrl: "https://mock-facilitator.example",
+    fetchImpl: async () => { calls += 1; return { ok: true, json: async () => ({ isValid: true }) }; }
+  });
+  assert.equal(result.valid, false);
+  assert.match(result.reason, /authorization/i);
+  assert.equal(calls, 0);
 });
 
 test("PayBox manifest and tool registration are intact", () => {
