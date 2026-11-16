@@ -9,6 +9,7 @@
  */
 
 import { plugin } from "./src/plugin.mjs";
+import { createInMemoryX402ReplayGuard, validateEip3009Authorization } from "./src/x402-replay-guard.mjs";
 
 export const X402_CONFIG = {
   version: "1.0",
@@ -181,6 +182,8 @@ export function validatePaymentPayloadAgainstRequirements(paymentPayload, requir
  * In live mode, contacts the facilitator for /verify and /settle.
  * In mock/simulated mode, validates payload structure and reports simulated: true, settled: false.
  */
+const DEFAULT_X402_REPLAY_GUARD = createInMemoryX402ReplayGuard();
+
 export async function verifyPaymentProof(paymentProofHeader, resource, priceAtomic = X402_CONFIG.defaultPriceAtomic, options = {}) {
   if (!paymentProofHeader) {
     return { valid: false, settled: false, reason: "Missing Payment-Signature or X-Payment header." };
@@ -234,29 +237,73 @@ export async function verifyPaymentProof(paymentProofHeader, resource, priceAtom
     if (!facilitatorUrl) {
       return { valid: false, settled: false, mode: "live_facilitator", reason: "Facilitator URL not configured for live settlement." };
     }
+
+    // Live mode accepts only the x402 V2 exact-EVM EIP-3009 payload shape.
+    // The facilitator remains responsible for cryptographic and on-chain verification.
+    const authorizationCheck = validateEip3009Authorization(paymentPayload, requirements);
+    if (!authorizationCheck.valid) {
+      return { valid: false, settled: false, mode: "live_facilitator", reason: authorizationCheck.reason };
+    }
+
+    const replayGuard = options.replayGuard || DEFAULT_X402_REPLAY_GUARD;
+    if (
+      !replayGuard ||
+      typeof replayGuard.claim !== "function" ||
+      typeof replayGuard.release !== "function" ||
+      typeof replayGuard.markSettled !== "function"
+    ) {
+      return { valid: false, settled: false, mode: "live_facilitator", reason: "Replay protection store is unavailable; payment was not submitted." };
+    }
+
+    // Reserve before any facilitator call. The default store makes this claim atomic
+    // within one Node.js process; production multi-instance deployments need shared storage.
+    let reservation;
+    try {
+      reservation = await replayGuard.claim(authorizationCheck.key);
+    } catch {
+      return { valid: false, settled: false, mode: "live_facilitator", reason: "Replay protection store failed; payment was not submitted." };
+    }
+    if (!reservation?.claimed) {
+      const status = reservation?.status || "already_seen";
+      return {
+        valid: false,
+        settled: false,
+        mode: "live_facilitator",
+        reason: status === "capacity"
+          ? "Replay protection store is at capacity; payment was rejected fail-closed."
+          : "Duplicate or replayed EIP-3009 authorization rejected (state: " + status + ")."
+      };
+    }
+
+    const releaseReservation = async () => {
+      try {
+        await replayGuard.release(authorizationCheck.key);
+      } catch {
+        // A failed release must never turn a rejected payment into an accepted one.
+      }
+    };
     const fetchFn = options.fetchImpl || fetch;
 
-    // Step A: Call /verify
+    // Step A: facilitator /verify.
     let verifyData;
     try {
-      const verifyRes = await fetchFn(`${facilitatorUrl}/verify`, {
+      const verifyRes = await fetchFn(facilitatorUrl + "/verify", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          x402Version: 2,
-          paymentPayload,
-          paymentRequirements: requirements
-        })
+        body: JSON.stringify({ x402Version: 2, paymentPayload, paymentRequirements: requirements })
       });
       if (!verifyRes || !verifyRes.ok) {
-        return { valid: false, settled: false, mode: "live_facilitator", reason: `Facilitator /verify HTTP error ${verifyRes ? verifyRes.status : 'offline'}` };
+        await releaseReservation();
+        return { valid: false, settled: false, mode: "live_facilitator", reason: "Facilitator /verify HTTP error " + (verifyRes ? verifyRes.status : "offline") };
       }
       verifyData = await verifyRes.json();
     } catch (err) {
-      return { valid: false, settled: false, mode: "live_facilitator", reason: `Facilitator /verify network failure: ${err.message}` };
+      await releaseReservation();
+      return { valid: false, settled: false, mode: "live_facilitator", reason: "Facilitator /verify network failure: " + err.message };
     }
 
     if (!verifyData || verifyData.isValid !== true) {
+      await releaseReservation();
       return {
         valid: false,
         settled: false,
@@ -265,41 +312,57 @@ export async function verifyPaymentProof(paymentProofHeader, resource, priceAtom
       };
     }
 
-    // Notice: Do NOT mark payment as settled merely because /verify returned isValid: true!
-    // Step B: Call /settle
+    // Step B: /settle. Keep the reservation on ambiguous transport failures because
+    // the facilitator may have broadcast the transaction before its response was lost.
     let settleData;
     try {
-      const settleRes = await fetchFn(`${facilitatorUrl}/settle`, {
+      const settleRes = await fetchFn(facilitatorUrl + "/settle", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          x402Version: 2,
-          paymentPayload,
-          paymentRequirements: requirements
-        })
+        body: JSON.stringify({ x402Version: 2, paymentPayload, paymentRequirements: requirements })
       });
       if (!settleRes || !settleRes.ok) {
-        return { valid: false, settled: false, mode: "live_facilitator", reason: `Facilitator /settle HTTP error ${settleRes ? settleRes.status : 'offline'}` };
+        return { valid: false, settled: false, mode: "live_facilitator", reason: "Facilitator /settle HTTP error " + (settleRes ? settleRes.status : "offline") + "; authorization remains reserved pending reconciliation." };
       }
       settleData = await settleRes.json();
     } catch (err) {
-      return { valid: false, settled: false, mode: "live_facilitator", reason: `Facilitator /settle network failure: ${err.message}` };
+      return { valid: false, settled: false, mode: "live_facilitator", reason: "Facilitator /settle network failure: " + err.message + "; authorization remains reserved pending reconciliation." };
     }
 
-    // Validate real settlement response fields
-    if (!settleData || settleData.success !== true || !settleData.transaction) {
+    if (settleData?.success === false) {
+      await releaseReservation();
       return {
         valid: false,
         settled: false,
         mode: "live_facilitator",
-        reason: settleData?.errorReason || "Settlement failed on-chain."
+        reason: settleData.errorReason || "Settlement failed on-chain."
       };
     }
 
-    // Never trust a transaction hash supplied by caller; use the facilitator's returned transaction identifier!
+    // An incomplete response is ambiguous, so keep the reservation for reconciliation.
+    if (settleData?.success !== true || typeof settleData.transaction !== "string" || !settleData.transaction) {
+      return {
+        valid: false,
+        settled: false,
+        mode: "live_facilitator",
+        reason: "Facilitator returned an incomplete settlement response; authorization remains reserved pending reconciliation."
+      };
+    }
+
+    let replayGuardWarning;
+    try {
+      await replayGuard.markSettled(authorizationCheck.key);
+    } catch {
+      // The facilitator has already confirmed settlement. Keep the reservation pending
+      // (so this process still rejects retries) but do not misreport a completed payment
+      // as unsettled or encourage the client to submit it again.
+      replayGuardWarning = "Facilitator confirmed settlement, but the replay store could not mark the reservation settled. Reconcile before restarting or retrying.";
+    }
+
     return {
       valid: true,
       mode: "live_facilitator",
+      ...(replayGuardWarning ? { replayGuardWarning } : {}),
       settlement: {
         settled: true,
         simulated: false,
@@ -308,7 +371,7 @@ export async function verifyPaymentProof(paymentProofHeader, resource, priceAtom
         asset: requirements.asset,
         recipient: requirements.payTo,
         transaction: settleData.transaction,
-        payer: settleData.payer || verifyData.payer,
+        payer: settleData.payer || verifyData.payer || paymentPayload.payload.authorization.from,
         timestamp: new Date().toISOString()
       }
     };

@@ -48,6 +48,7 @@ These are honest, accurate limitations of the current implementation. They repre
 | 22 | **Third-party assets on public pages** | Fonts and icons load from external CDNs without subresource integrity. |
 | 23 | **No independent security review** | The code has not been externally audited. |
 | 24 | **Paid-endpoint mode unverified live** | The x402 payment gate is not verified against a live facilitator. |
+| 25 | **Replay guard is process-local** | The x402 exact-EVM EIP-3009 replay guard reserves authorizer/token/network/nonce tuples in process memory. It protects duplicate and concurrent requests handled by the same process, but does not coordinate multiple serverless instances and resets on restart. EIP-3009 token nonce consumption remains the on-chain replay boundary; production multi-instance deployments still need a durable, atomic shared store and settlement reconciliation. |
 
 ---
 
@@ -103,7 +104,7 @@ PayGuard is an **advisory intelligence platform**. It delivers structured securi
 |------|--------|
 | URL Sentinel, x402 payment guard, x402 client hook, MCP server, REST API, dashboard | Implemented |
 | Calldata inspector, token security, address security, wallet scanner, external reputation lookup | Partially Supported |
-| Paid-endpoint x402 gate | Partially Supported |
+| Paid-endpoint x402 gate and EIP-3009 replay guard | Partially Supported | Process-local duplicate/concurrency guard implemented; shared durable storage and live facilitator verification remain outstanding. |
 | Live threat-intelligence feeds, passive website scanner | Planned for main (exists on an unmerged branch) |
 | Authentication, Permit and EIP-712, EIP-7702, simulation, additional chains | Planned |
 | AI Security Agent | Planned |
