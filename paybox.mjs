@@ -160,10 +160,10 @@ export function validatePaymentPayloadAgainstRequirements(paymentPayload, requir
   // which would otherwise turn a rejected proof into an HTTP 500 response.
   const amount = accepted.amount;
   const requiredAmount = requirements.amount;
-  if (typeof amount !== "string" || !/^\\d+$/.test(amount)) {
+  if (typeof amount !== "string" || !/^\d+$/.test(amount)) {
     return { valid: false, reason: "Payment amount must be a non-negative integer string." };
   }
-  if (typeof requiredAmount !== "string" || !/^\\d+$/.test(requiredAmount)) {
+  if (typeof requiredAmount !== "string" || !/^\d+$/.test(requiredAmount)) {
     return { valid: false, reason: "Server payment amount configuration is invalid." };
   }
   if (BigInt(amount) < BigInt(requiredAmount)) {
