@@ -348,6 +348,30 @@ test("Security: live mode rejects missing EIP-3009 authorization before facilita
   assert.equal(calls, 0);
 });
 
+
+test("Security: confirmed settlement is still reported accurately if settled-state persistence fails", async () => {
+  const payload = makeLivePaymentPayload();
+  const replayGuard = {
+    async claim() { return { claimed: true, status: "pending" }; },
+    async release() {},
+    async markSettled() { throw new Error("storage unavailable"); }
+  };
+  const result = await verifyPaymentProof(payload, "https://api.payguard.example/scan", "1000", {
+    liveFacilitator: true,
+    facilitatorUrl: "https://mock-facilitator.example",
+    replayGuard,
+    fetchImpl: async (url) => {
+      if (url.endsWith("/verify")) return { ok: true, json: async () => ({ isValid: true }) };
+      return { ok: true, json: async () => ({ success: true, transaction: "0xConfirmedOnChainTx" }) };
+    }
+  });
+
+  assert.equal(result.valid, true);
+  assert.equal(result.settlement.settled, true);
+  assert.equal(result.settlement.transaction, "0xConfirmedOnChainTx");
+  assert.match(result.replayGuardWarning, /could not mark the reservation settled/i);
+});
+
 test("PayBox manifest and tool registration are intact", () => {
   assert.equal(payboxIntegration.manifest.id, "payguard");
   assert.ok(payboxIntegration.manifest.protocols.includes("x402"));

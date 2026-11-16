@@ -33,6 +33,7 @@ The default replay guard is in-memory and process-local. Its claim operation is 
 - Its state is lost when the process restarts.
 - It fails closed when its configured entry capacity is exhausted.
 - Ambiguous settlement reservations remain pending in that process and require operator reconciliation.
+- If the facilitator confirms success but the store cannot persist the settled label, PayGuard still reports the confirmed settlement accurately and returns a warning; the pending reservation continues to block retries in that process.
 
 Before enabling paid x402 endpoints across multiple production instances, replace the default guard with a durable shared adapter whose claim operation is atomic (for example, a database unique constraint or Redis SET NX with carefully designed persistence). Settlement reconciliation must be designed alongside that adapter.
 

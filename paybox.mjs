@@ -349,20 +349,20 @@ export async function verifyPaymentProof(paymentProofHeader, resource, priceAtom
       };
     }
 
+    let replayGuardWarning;
     try {
       await replayGuard.markSettled(authorizationCheck.key);
     } catch {
-      return {
-        valid: false,
-        settled: false,
-        mode: "live_facilitator",
-        reason: "Settlement was reported successful, but replay state could not be persisted. Reconcile the facilitator transaction before retrying."
-      };
+      // The facilitator has already confirmed settlement. Keep the reservation pending
+      // (so this process still rejects retries) but do not misreport a completed payment
+      // as unsettled or encourage the client to submit it again.
+      replayGuardWarning = "Facilitator confirmed settlement, but the replay store could not mark the reservation settled. Reconcile before restarting or retrying.";
     }
 
     return {
       valid: true,
       mode: "live_facilitator",
+      ...(replayGuardWarning ? { replayGuardWarning } : {}),
       settlement: {
         settled: true,
         simulated: false,
