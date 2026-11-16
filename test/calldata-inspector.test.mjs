@@ -161,3 +161,28 @@ test("9. native ETH transfer with empty calldata evaluates cleanly", () => {
   assert.equal(res.operation, "NATIVE_TRANSFER");
   assert.equal(res.details.nativeValue, "1000000000000000000");
 });
+
+test("10. non-canonical ABI address padding is rejected", () => {
+  const malformedAddressWord = "01" + "00".repeat(11) + SPENDER.slice(2).toLowerCase();
+  const calldata = SELECTORS.ERC20_APPROVE + malformedAddressWord + padUint256(100n);
+  const result = inspectCalldata({ to: TOKEN, data: calldata });
+
+  assert.equal(result.verdict, "BLOCK");
+  assert.equal(result.operation, "ERC20_APPROVE");
+  assert.ok(result.reasons.includes("Failed to decode valid spender address or uint256 amount"));
+});
+
+test("11. unknown selector cannot downgrade a failed target allowlist policy", () => {
+  const disallowedTarget = "0x9999999999999999999999999999999999999999";
+  const unknownCalldata = "0x12345678" + padAddress(RECIPIENT) + padUint256(100n);
+  const result = inspectCalldata(
+    { to: disallowedTarget, data: unknownCalldata },
+    { allowedTargets: [TOKEN] }
+  );
+
+  assert.equal(result.verdict, "BLOCK");
+  assert.equal(result.riskLevel, "HIGH");
+  assert.equal(result.operation, "UNKNOWN_OPERATION");
+  assert.ok(result.reasons.includes("TARGET_NOT_IN_ALLOWLIST"));
+  assert.ok(result.checks.some(check => check.id === "target_policy" && check.status === "FAIL"));
+});
