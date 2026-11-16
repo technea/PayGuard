@@ -77,6 +77,68 @@
     }
   });
 
+  const renderAddressField = (container, address) => {
+    container.replaceChildren();
+    if (!address || address === "—" || address === "Target unavailable" || address === "Not supplied") {
+      container.textContent = address || "—";
+      return;
+    }
+    const isAddress = /^0x[a-fA-F0-9]{40}$/.test(address);
+    if (!isAddress) {
+      container.textContent = address;
+      return;
+    }
+
+    const box = document.createElement("div");
+    box.className = "pg-address-box";
+
+    const textSpan = document.createElement("span");
+    textSpan.className = "pg-address-text";
+    textSpan.textContent = address;
+    textSpan.title = address;
+
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "pg-copy-btn";
+    copyBtn.title = "Copy address to clipboard";
+    copyBtn.setAttribute("aria-label", "Copy address " + address);
+    copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+    copyBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const markCopied = () => {
+        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        copyBtn.classList.add("is-copied");
+        setTimeout(() => {
+          copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+          copyBtn.classList.remove("is-copied");
+        }, 1500);
+      };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(address);
+          markCopied();
+        } else {
+          throw new Error("No clipboard API");
+        }
+      } catch (_) {
+        const textarea = document.createElement("textarea");
+        textarea.value = address;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand("copy");
+          markCopied();
+        } catch (err) {}
+        document.body.removeChild(textarea);
+      }
+    });
+
+    box.append(textSpan, copyBtn);
+    container.append(box);
+  };
+
   const evidenceCount = new Set();
   window.addEventListener("payguard:evidence-result", (event) => {
     const detail = event.detail || {};
@@ -153,7 +215,8 @@
 
     const diffCards = root.querySelectorAll(".pg-diff-side");
     if (diffCards[0]) {
-      diffCards[0].querySelector("strong").textContent = request.to || "Target unavailable";
+      const strong = diffCards[0].querySelector("strong");
+      renderAddressField(strong, request.to || "Target unavailable");
       diffCards[0].querySelector("p").textContent = "Native value (wei): " + String(request.value || "0") +
         ". Token transfers and balance deltas are not returned by this inspector.";
     }
@@ -178,7 +241,11 @@
         const term = document.createElement("dt");
         const description = document.createElement("dd");
         term.textContent = label;
-        description.textContent = String(value);
+        if (label === "Contract target" && value && String(value).startsWith("0x")) {
+          renderAddressField(description, String(value));
+        } else {
+          description.textContent = String(value);
+        }
         list.append(term, description);
       });
       summary.append(list);
