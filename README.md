@@ -150,6 +150,7 @@ console.log(calldataResult.verdict); // "PASS"
 - [Security Model & Threat Landscape](docs/security-model.md)
 - [MCP Tools Reference (7 Tools)](docs/mcp-tools.md)
 - [API Reference](docs/api-reference.md)
+- [x402 V2 Replay Protection](docs/x402-replay-protection.md)
 - [AI Security Agent (planned design)](docs/ai-security-agent.md)
 - [Getting Started Guide](docs/getting-started.md)
 - [Technical Whitepaper](docs/whitepaper.md)
