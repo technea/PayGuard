@@ -45,9 +45,9 @@ function sliceAddress(sliceHex) {
   // Left 24 chars (12 bytes) must be zero padding for standard ABI encoded address
   const padding = sliceHex.slice(0, 24);
   const addrHex = sliceHex.slice(24);
-  if (!/^0+$/.test(padding)) {
-    // Non-standard padding, but still extract address
-  }
+  // ABI-encoded address values must have 12 zero-padding bytes.
+  // Reject non-canonical encodings instead of silently normalizing them.
+  if (!/^0+$/.test(padding)) return null;
   return "0x" + addrHex.toLowerCase();
 }
 
@@ -419,11 +419,16 @@ export function inspectCalldata(tx, policy = {}) {
   // Operation Unknown / Unsupported Selector
   // Fails safe with advisory REVIEW
   // ----------------------------------------------------
+  const hasPolicyFailure = checks.some(check => check.status === "FAIL");
+  const unknownSelectorReason = `Unrecognized or unsupported function selector: ${selector}`;
+
   return {
-    verdict: "REVIEW",
-    riskLevel: "MEDIUM",
+    // An unsupported selector must not erase a policy failure already found
+    // (for example, a target that is outside allowedTargets).
+    verdict: hasPolicyFailure ? "BLOCK" : "REVIEW",
+    riskLevel: hasPolicyFailure ? "HIGH" : "MEDIUM",
     operation: "UNKNOWN_OPERATION",
-    reasons: [`Unrecognized or unsupported function selector: ${selector}`],
+    reasons: [...riskFactors, unknownSelectorReason],
     checks: [
       ...checks,
       { id: "calldata_selector", status: "WARN", detail: `Selector ${selector} is not an analyzed standard ERC-20 method` }
