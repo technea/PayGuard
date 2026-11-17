@@ -1,10 +1,10 @@
-# PayGuard Technical Whitepaper
+# PayGuard — Technical Whitepaper
 
-**A Base-first pre-interaction security layer for people, developers and AI agents**
+**Pre-transaction security analysis for the Base ecosystem**
 
 **Version 1.2.0 | November 2026**
 
-Mission: Verify Before You Trust
+**Operating principle:** Verify before you trust.
 
 Repository: [github.com/technea/PayGuard](https://github.com/technea/PayGuard) (branch: main)
 
@@ -39,9 +39,9 @@ Companion documents: [Architecture](architecture.md), [Security Model](security-
 
 ## 1. Executive Summary
 
-Transactions on Base are final once confirmed. Most losses in Web3 do not come from broken cryptography. They come from a person, or increasingly a software agent, trusting the wrong thing: a look-alike domain, a counterfeit token, an unlimited approval, or a payment request that asks for more than intended.
+On Base, the critical security decision often happens before a transaction is signed. A familiar token symbol may belong to an unrelated contract. A convincing domain may imitate an official service. An approval may grant more spending authority than the user intended. In automated payment flows, an agent may accept a recipient or amount without a person reviewing each field.
 
-PayGuard is a free, open-source, advisory security layer for the Base ecosystem. Before a user or agent acts, PayGuard inspects the evidence it can verify and returns a structured verdict with the reasons behind it. It covers five areas:
+PayGuard is a free, open-source inspection toolkit focused on that decision point. It evaluates supported inputs, returns a structured result, and exposes the checks and limitations behind the result. The current implementation covers five areas:
 
 - URL and domain analysis (look-alike hostnames, Unicode tricks, Base impersonation).
 - Token and contract risk (honeypot, tax and owner-privilege flags from a threat-intelligence provider).
@@ -49,11 +49,11 @@ PayGuard is a free, open-source, advisory security layer for the Base ecosystem.
 - Transaction calldata inspection (ERC-20 `approve`, `transfer`, `transferFrom`).
 - x402 payment-policy verification (compare a payment request against a policy the user wrote in advance).
 
-The checks are exposed three ways: a REST API, a dashboard, and seven Model Context Protocol (MCP) tools that AI agents can call directly.
+The checks are available through a REST API, a browser dashboard and seven Model Context Protocol (MCP) tools. These interfaces share the same underlying security modules; they are not separate detection engines.
 
-PayGuard follows four rules. It is **non-custodial** (no keys, no signing for users, no custody). It **fails closed** (missing evidence returns `UNVERIFIED`, never a silent pass). It is **advisory** (a verdict informs a decision and is not a guarantee). It is **honest about scope** (Base Mainnet, chain ID 8453, is the supported network).
+The implementation has four explicit boundaries: **non-custodial** (it does not hold keys or sign transactions), **fail-closed** (missing or unavailable evidence is reported as `UNVERIFIED`), **advisory** (results inform a decision but cannot guarantee safety), and **Base-first** (provider-backed checks currently target Base Mainnet, chain ID 8453).
 
-The next development phase is an **AI Security Agent** that would coordinate these tools, correlate evidence and explain findings. That agent is a proposal, described in Section 10 and in the [design document](ai-security-agent.md).
+A coordinating AI Security Agent is a proposed next phase, not a shipped capability. Its intended role and limitations are set out in Section 10 and the [design document](ai-security-agent.md).
 
 ---
 
@@ -87,9 +87,9 @@ AI agents that pay for APIs and services over HTTP (the x402 pattern) act withou
 
 ---
 
-## 3. Why Existing Security Approaches Are Not Enough
+## 3. Where Existing Controls Leave Gaps
 
-The following are general categories, not assessments of specific products. Each is useful. None covers the whole pre-interaction window on its own.
+The table compares broad control categories rather than individual products. Each addresses a real part of the threat surface; the gap is the hand-off between them and the lack of a shared, inspectable result before an interaction.
 
 | Approach | What it does well | Gap PayGuard targets |
 | :--- | :--- | :--- |
@@ -100,15 +100,15 @@ The following are general categories, not assessments of specific products. Each
 | Reputation APIs | Fast flags on known-bad contracts and addresses | Return raw flags; need interpretation and fail-closed handling |
 | Wallet spend limits | Cap what an agent can spend | Do not judge whether the payee or request is the intended one |
 
-PayGuard's contribution is to combine local deterministic checks with provider evidence, explain each result, and expose the same logic to humans (dashboard), developers (API) and agents (MCP) without taking custody of anything.
+PayGuard brings local checks and attributed provider signals into one response format. The dashboard, API and MCP server call the same modules, so a developer or agent can inspect the same findings a person sees in the interface. The system does not take custody of assets or authorize transactions.
 
 ---
 
-## 4. Mission and Vision
+## 4. Purpose and Direction
 
-**Mission: Verify Before You Trust.** Give people and software an inspectable check that runs before value moves, and show the evidence behind each answer.
+**Purpose — Verify Before You Trust.** Put evidence in front of the decision to connect, approve, transfer or pay. A useful result must show what was checked, what was found and what remains unknown.
 
-**Vision.** An ecosystem where links, tokens, approvals and payment requests are checked against explicit, independent evidence before action, and where an agent can ask "is this safe to do?" and receive an answer that states its own uncertainty. The vision is incremental. Today the checks listed in Section 6 exist. The investigation and correlation layer in Section 10 is what comes next.
+**Long-term direction.** Extend the same evidence-first workflow across links, tokens, wallet activity, transaction permissions and machine-initiated payments. The current checks are described in Section 6. Cross-tool investigation and evidence correlation remain future work under the proposal in Section 10.
 
 ---
 
@@ -405,4 +405,6 @@ PayGuard has not received a grant. If a grant is sought, the work above can be o
 
 ## 17. Conclusion
 
-PayGuard already gives Base users, developers and agents a set of read-only, evidence-returning checks and a way to put those checks in front of an x402 payment. Its limits are specific and documented: three calldata selectors, provider-dependent token and address data, a single supported network, and no authentication. The path forward is to close those gaps, verify the existing integrations against live services, and then build the AI Security Agent as a layer that explains evidence rather than replaces it.
+PayGuard currently provides read-only checks for supported URLs, token and address signals, wallet holdings, selected ERC-20 calldata and x402 payment requirements. Results include the evidence available to the relevant module and disclose where coverage ends. The present boundaries matter: calldata support is limited to three selectors; token and address findings depend on external providers; provider-backed checks target Base Mainnet; and the public API has no authentication.
+
+The next engineering priorities are to close documented coverage and deployment gaps, validate provider integrations under live conditions, and publish independent assurance evidence. Only after those foundations should the proposed AI Security Agent coordinate multiple checks. Its role should be to organize and explain evidence—not to manufacture certainty or replace the underlying security controls.
