@@ -1270,6 +1270,33 @@
       }
     }
 
+
+    .mobile-menu-toggle { display: none; }
+    @media (max-width: 760px) {
+      nav { position: relative; }
+      .mobile-menu-toggle {
+        display: inline-flex; flex-direction: column; justify-content: center;
+        gap: 5px; width: 42px; height: 42px; padding: 9px;
+        border: 1px solid rgba(0,245,212,.28); border-radius: 10px;
+        background: rgba(0,245,212,.06); color: var(--cyan-neon);
+        cursor: pointer; margin-left: auto;
+      }
+      .mobile-menu-toggle span { display: block; height: 2px; width: 100%; border-radius: 2px; background: currentColor; transition: transform .2s, opacity .2s; }
+      nav.menu-open .mobile-menu-toggle span:first-child { transform: translateY(7px) rotate(45deg); }
+      nav.menu-open .mobile-menu-toggle span:nth-child(2) { opacity: 0; }
+      nav.menu-open .mobile-menu-toggle span:last-child { transform: translateY(-7px) rotate(-45deg); }
+      nav .nav-links { display: none; }
+      nav.menu-open .nav-links {
+        display: flex; flex: 0 0 100%; width: 100%; order: 4;
+        flex-direction: column; align-items: stretch; gap: 0;
+        padding: .4rem 0 .2rem; white-space: normal; overflow: visible;
+        border-top: 1px solid rgba(0,245,212,.14);
+      }
+      nav.menu-open .nav-links li { width: 100%; }
+      nav.menu-open .nav-links a { display: flex; padding: .8rem .35rem; font-size: .92rem; }
+      nav .nav-actions { margin-left: 0; }
+    }
+
   </style>
 </head>
 <body>
@@ -1288,7 +1315,10 @@
         <span class="brand-tag">v0.1.0</span>
       </div>
     </a>
-    <ul class="nav-links">
+    <button class="mobile-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="landingNavLinks">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="landingNavLinks">
       <li><a href="#products">Products</a></li>
       <li><a href="#features">Security Mesh</a></li>
       <li><a href="/dashboard">Dashboard</a></li>
@@ -1776,6 +1806,23 @@
     function closeModal() {
       document.getElementById('demo-modal').style.display = 'none';
     }
+  </script>
+  <script>
+    (() => {
+      const nav = document.querySelector('body > nav');
+      const toggle = document.querySelector('.mobile-menu-toggle');
+      if (!nav || !toggle) return;
+      toggle.addEventListener('click', () => {
+        const open = nav.classList.toggle('menu-open');
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+      });
+      nav.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => {
+        nav.classList.remove('menu-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open navigation menu');
+      }));
+    })();
   </script>
 </body>
 </html>

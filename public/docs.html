@@ -1237,7 +1237,7 @@
       </a>
 
       <!-- Primary navigation links -->
-      <nav class="nav-links" aria-label="Primary navigation">
+      <nav class="nav-links docs-primary-nav" id="docsPrimaryNav" aria-label="Primary navigation">
         <a href="/#products" class="nav-link">Products</a>
         <a href="/#features" class="nav-link">Security Mesh</a>
         <a href="/dashboard" class="nav-link">Dashboard</a>
@@ -1245,6 +1245,9 @@
         <a href="/docs" class="nav-link" id="nav-docs">Docs</a>
         <a href="/faq" class="nav-link" id="nav-faq">FAQ</a>
       </nav>
+      <button class="docs-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="docsPrimaryNav">
+        <i class="fa-solid fa-bars"></i>
+      </button>
 
       <!-- Nav actions with live indicator + Connect Wallet -->
       <div class="nav-actions">
@@ -1487,5 +1490,24 @@
     }
   </script>
 
+  <script>
+    (() => {
+      const container = document.querySelector('.nav-container');
+      const toggle = document.querySelector('.docs-menu-toggle');
+      if (!container || !toggle) return;
+      toggle.addEventListener('click', () => {
+        const open = container.classList.toggle('mobile-nav-open');
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+        toggle.innerHTML = open ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+      });
+      container.querySelectorAll('.docs-primary-nav a').forEach(link => link.addEventListener('click', () => {
+        container.classList.remove('mobile-nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open navigation menu');
+        toggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
+      }));
+    })();
+  </script>
 </body>
 </html>
