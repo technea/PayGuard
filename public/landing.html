@@ -731,6 +731,19 @@
     }
 
     /* Player / Asset Styling */
+    .timeline-visual dotlottie-player.protects-animation::after {
+      content: "";
+      position: absolute;
+      top: 12%;
+      left: 12%;
+      width: 38%;
+      height: 9%;
+      background: linear-gradient(180deg, #0d2522 0%, #071714 100%);
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 4;
+    }
+
     .timeline-visual dotlottie-player {
       position: relative;
       z-index: 2;
@@ -1468,6 +1481,7 @@
       <div class="timeline-visual">
         <div class="radial-glow blue-glow"></div>
         <dotlottie-player
+          class="protects-animation"
           src="/assets/lottie_protects.lottie"
           background="transparent"
           speed="1"
