@@ -2362,13 +2362,13 @@ header .pill-secondary {
     header.sec-header .live-status { padding: 0.42rem 0.7rem; font-size: 0.76rem; }
     header.sec-header .pill-secondary { padding: 0.42rem 0.62rem; font-size: 0.72rem; }
     header.sec-header #wallet-connect-btn { min-height:38px; padding:0.42rem 0.8rem !important; border-radius:999px !important; }
-    .landing-footer { margin-top:auto; padding:5rem clamp(1rem,5vw,4rem) 2.5rem; border-top:1px solid rgba(255,255,255,.08); background:#030507; font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
-    .landing-footer .newsletter-box { max-width:700px; margin:0 auto 4.5rem; text-align:center; }
+    .landing-footer { display:block !important; width:100%; margin-top:auto; padding:5rem clamp(1rem,5vw,4rem) 2.5rem; border-top:1px solid rgba(255,255,255,.08); background:#030507; font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+    .landing-footer .newsletter-box { display:block; width:100%; max-width:700px; margin:0 auto 4.5rem; text-align:center; }
     .landing-footer .newsletter-box h3 { margin:.8rem 0; color:#fff; font-size:1.5rem; }
     .landing-footer .newsletter-box p { color:var(--text-muted); font-size:.95rem; }
     .landing-footer .newsletter-form { display:flex; gap:1rem; justify-content:center; margin-top:1.8rem; }
     .landing-footer .newsletter-form input { width:min(320px,100%); padding:.9rem 1.1rem; color:#fff; border:1px solid rgba(255,255,255,.15); border-radius:10px; outline:0; background:rgba(255,255,255,.04); }
-    .landing-footer .footer-links-grid { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:2rem; padding-bottom:2.5rem; border-bottom:1px solid rgba(255,255,255,.06); }
+    .landing-footer .footer-links-grid { width:100%; max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:2rem; padding-bottom:2.5rem; border-bottom:1px solid rgba(255,255,255,.06); }
     .landing-footer .footer-col h4 { margin:0 0 1.1rem; color:#fff; font-size:.82rem; letter-spacing:.1em; text-transform:uppercase; }
     .landing-footer .footer-col ul { display:grid; gap:.75rem; margin:0; padding:0; list-style:none; font-size:.9rem; }
     .landing-footer .footer-col a { color:var(--text-muted); text-decoration:none; }
@@ -2377,6 +2377,68 @@ header .pill-secondary {
     @media (max-width: 1320px) { header.sec-header .pill-secondary { display:none !important; } header.sec-header .nav-link { padding-inline:.55rem; } }
     @media (max-width: 1080px) { header.sec-header .live-status { display:none !important; } }
     @media (max-width: 640px) { .landing-footer .footer-links-grid { grid-template-columns:repeat(2,1fr); } .landing-footer .newsletter-form,.landing-footer .footer-bottom { flex-direction:column; align-items:center; } .landing-footer .newsletter-form input { width:100%; } }
+
+    /* Shared landing-page type scale and responsive dashboard guardrails. */
+    html { -webkit-text-size-adjust: 100%; }
+    body, button, input, textarea, select {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    :is(.card-title, .section-title, .panel-header h2, .overview-hero h2, .verdict-title, .checks-section-heading) {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      letter-spacing: -0.025em !important;
+    }
+    :is(.card-subtitle, .action-guidance-text, .form-label, .check-description) {
+      line-height: 1.58;
+    }
+    header.sec-header { overflow: visible; }
+    header.sec-header .nav-container { min-width: 0; }
+    header.sec-header .nav-links { overflow: hidden; }
+    .landing-footer .newsletter-form .btn {
+      min-height: 44px;
+      padding: 0.75rem 1.3rem;
+      border-radius: 10px;
+      color: #03110f;
+      border-color: transparent;
+      background: linear-gradient(135deg, #00f5d4, #38bdf8);
+      box-shadow: 0 0 24px rgba(0, 245, 212, 0.2);
+    }
+    @media (max-width: 1120px) {
+      header.sec-header .nav-links { display: none !important; }
+      header.sec-header .mobile-menu-toggle { display: inline-flex !important; }
+      header.sec-header .nav-container { padding-inline: 1rem; }
+    }
+    @media (max-width: 768px) {
+      body { overflow-x: clip; }
+      header.sec-header .nav-container { min-height: 62px; padding: .6rem .85rem; }
+      header.sec-header .brand-tag,
+      header.sec-header .live-status,
+      header.sec-header .pill-secondary,
+      header.sec-header #wallet-network-badge { display: none !important; }
+      header.sec-header .nav-actions { gap: .4rem; }
+      header.sec-header #wallet-connect-btn { min-height: 36px; padding: .38rem .62rem !important; font-size: .76rem !important; }
+      header.sec-header .mobile-menu-toggle { width: 36px; height: 36px; }
+      main { padding-inline: .85rem !important; }
+      .tab-nav { overflow-x: auto; justify-content: flex-start; padding-bottom: .35rem; scrollbar-width: thin; }
+      .tab-nav .tab-btn { flex: 0 0 auto; min-height: 40px; white-space: nowrap; }
+      :is(.glass-card, .metric-card, .action-guidance-card, .check-card, .guarantee-card) { min-width: 0; }
+      .card-header { align-items: flex-start; gap: .75rem; }
+      .card-title { font-size: 1rem !important; line-height: 1.35; }
+      .input-box, textarea, select { width: 100%; max-width: 100%; }
+      .landing-footer { padding: 3.5rem 1rem 1.5rem; }
+      .landing-footer .newsletter-box { margin-bottom: 3rem; }
+      .landing-footer .newsletter-box h3 { font-size: 1.25rem; }
+      .landing-footer .footer-links-grid { gap: 1.75rem 1rem; }
+      .landing-footer .footer-bottom { text-align: center; }
+    }
+    @media (max-width: 420px) {
+      header.sec-header .brand-title-text { font-size: 1.04rem; }
+      header.sec-header .logo-badge { width: 34px; height: 34px; }
+      header.sec-header .logo-badge img { width: 21px; height: 21px; }
+      header.sec-header #wallet-connect-btn .fa-wallet { margin: 0; }
+      header.sec-header #wallet-btn-label { display: none; }
+      .tab-nav .tab-btn { font-size: .78rem; padding-inline: .72rem; }
+      .landing-footer .footer-links-grid { grid-template-columns: 1fr; }
+    }
 
 </style>
 </head>
@@ -2402,7 +2464,6 @@ header .pill-secondary {
         <a href="/#features" class="nav-link">Security</a>
         <a href="/dashboard" class="nav-link active" aria-current="page">Dashboard</a>
         <a href="/docs" class="nav-link">Docs</a>
-        <a href="/blog" class="nav-link">Blog</a>
       </nav>
 
       <!-- Nav actions matching homepage + dashboard controls -->
