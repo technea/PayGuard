@@ -851,74 +851,6 @@
       filter: drop-shadow(0 0 30px rgba(0, 245, 212, 0.25));
     }
 
-    /* PayGuard transaction-monitor animation (replaces legacy branded artwork) */
-    .monitors-visual { overflow: visible; isolation: isolate; }
-    .monitor-panel {
-      position: relative; z-index: 2; width: min(100%, 390px); padding: 22px;
-      border: 1px solid rgba(91, 232, 214, .28); border-radius: 17px;
-      background: linear-gradient(145deg, rgba(11,28,33,.98), rgba(3,11,17,.98));
-      box-shadow: 0 24px 70px rgba(0,0,0,.48), 0 0 55px rgba(0,245,212,.12);
-      animation: monitorPanelFloat 6s ease-in-out infinite;
-    }
-    .monitor-panel-head, .monitor-panel-foot, .monitor-chart-legend {
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
-    .monitor-brand { display:flex; align-items:center; gap:8px; color:#e8f7f5; font-size:13px; font-weight:700; letter-spacing:.02em; }
-    .monitor-brand-mark {
-      display:grid; place-items:center; width:23px; height:23px; border-radius:7px;
-      color:#041311; background:#55e6d1; font-size:13px; font-weight:800;
-      box-shadow:0 0 15px rgba(85,230,209,.3);
-    }
-    .monitor-live { display:flex; align-items:center; gap:6px; color:#79e8d5; font:600 9px 'JetBrains Mono',monospace; letter-spacing:.1em; }
-    .monitor-live i { width:6px; height:6px; border-radius:50%; background:#54e7bc; box-shadow:0 0 10px #54e7bc; animation:monitorLivePulse 1.6s infinite; }
-    .monitor-panel-title { margin-top:25px; color:#f0f7f6; font-size:20px; font-weight:700; }
-    .monitor-panel-subtitle { margin-top:5px; color:#82999e; font:10px 'JetBrains Mono',monospace; }
-    .monitor-chart {
-      height:132px; margin-top:22px; padding:13px 12px 0; display:flex; align-items:flex-end;
-      gap:8px; border-bottom:1px solid rgba(132,181,184,.2);
-      background:repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(132,181,184,.09) 32px);
-    }
-    .monitor-chart span {
-      flex:1; height:var(--bar); min-width:4px; border-radius:4px 4px 0 0;
-      background:linear-gradient(to top, rgba(0,190,169,.3), #45d9c1);
-      transform-origin:bottom; animation:monitorBarRise 1s both, monitorBarPulse 3.5s ease-in-out var(--delay) infinite;
-    }
-    .monitor-chart span.monitor-bar-alert { background:linear-gradient(to top, rgba(255,112,112,.3), #ff7777); }
-    .monitor-chart-legend { justify-content:flex-start; gap:18px; margin-top:13px; color:#82999e; font-size:9px; }
-    .monitor-chart-legend span { display:flex; align-items:center; gap:6px; }
-    .monitor-chart-legend i { width:6px; height:6px; border-radius:2px; background:#45d9c1; }
-    .monitor-chart-legend span+span i { background:#ff7777; }
-    .monitor-panel-foot { margin-top:18px; padding-top:13px; border-top:1px solid rgba(132,181,184,.14); color:#82999e; font:9px 'JetBrains Mono',monospace; }
-    .monitor-panel-foot b { color:#d8e9e7; font-weight:500; }
-    .monitor-status { color:#71e2ce; letter-spacing:.08em; }
-    .monitor-orbit { position:absolute; z-index:0; left:50%; top:50%; width:330px; height:230px; border:1px solid rgba(0,245,212,.13); border-radius:50%; transform:translate(-50%,-50%) rotate(-22deg); animation:monitorOrbit 18s linear infinite; }
-    .monitor-orbit-two { width:390px; height:280px; transform:translate(-50%,-50%) rotate(35deg); animation-direction:reverse; opacity:.55; }
-    .monitor-floating-tag {
-      position:absolute; z-index:3; padding:10px 13px; border:1px solid rgba(106,226,211,.2);
-      border-radius:10px; background:rgba(5,18,23,.94); color:#c9e6e2;
-      box-shadow:0 10px 30px rgba(0,0,0,.3); font:10px 'JetBrains Mono',monospace;
-      animation:monitorTagFloat 4.5s ease-in-out infinite;
-    }
-    .monitor-floating-tag span { margin-right:6px; color:#62e4ce; }
-    .monitor-tag-top { top:12%; right:-2%; }
-    .monitor-tag-bottom { bottom:12%; left:-2%; animation-delay:-2s; }
-    @keyframes monitorPanelFloat { 0%,100% { transform:translateY(0) rotate(-1deg); } 50% { transform:translateY(-9px) rotate(0deg); } }
-    @keyframes monitorLivePulse { 50% { opacity:.35; transform:scale(.75); } }
-    @keyframes monitorBarRise { from { transform:scaleY(.08); opacity:.25; } to { transform:scaleY(1); opacity:1; } }
-    @keyframes monitorBarPulse { 0%,100% { filter:brightness(.88); } 50% { filter:brightness(1.3); } }
-    @keyframes monitorOrbit { to { rotate:360deg; } }
-    @keyframes monitorTagFloat { 0%,100% { translate:0 0; } 50% { translate:0 -7px; } }
-    @media (max-width:760px) {
-      .monitor-panel { width:min(100%,310px); padding:17px; }
-      .monitor-chart { height:104px; gap:6px; }
-      .monitor-panel-title { font-size:17px; margin-top:20px; }
-      .monitor-tag-top { right:-1%; }
-      .monitor-tag-bottom { left:-1%; }
-    }
-    @media (prefers-reduced-motion:reduce) {
-      .monitors-visual *, .monitors-visual::before, .monitors-visual::after { animation:none !important; }
-    }
-
     /* Floating Keyframes */
     @keyframes floatSmooth {
       0%, 100% {
@@ -1631,30 +1563,7 @@
 
       <div class="timeline-visual">
         <div class="radial-glow"></div>
-        <div class="rive-container monitors-visual" role="img" aria-label="Animated PayGuard transaction monitoring dashboard">
-          <div class="monitor-orbit monitor-orbit-one"></div>
-          <div class="monitor-orbit monitor-orbit-two"></div>
-          <div class="monitor-panel">
-            <div class="monitor-panel-head">
-              <span class="monitor-brand"><span class="monitor-brand-mark">P</span> PayGuard</span>
-              <span class="monitor-live"><i></i> LIVE</span>
-            </div>
-            <div class="monitor-panel-title">Transaction activity</div>
-            <div class="monitor-panel-subtitle">Base network · Block monitoring</div>
-            <div class="monitor-chart" aria-hidden="true">
-              <span style="--bar:36%;--delay:0s"></span><span style="--bar:58%;--delay:.12s"></span>
-              <span style="--bar:44%;--delay:.24s"></span><span style="--bar:76%;--delay:.36s"></span>
-              <span style="--bar:52%;--delay:.48s"></span><span class="monitor-bar-alert" style="--bar:88%;--delay:.6s"></span>
-              <span style="--bar:63%;--delay:.72s"></span><span style="--bar:47%;--delay:.84s"></span>
-              <span style="--bar:70%;--delay:.96s"></span><span style="--bar:55%;--delay:1.08s"></span>
-              <span style="--bar:82%;--delay:1.2s"></span><span style="--bar:43%;--delay:1.32s"></span>
-            </div>
-            <div class="monitor-chart-legend"><span><i></i> Verified activity</span><span><i></i> Flagged signal</span></div>
-            <div class="monitor-panel-foot"><span>Latest block <b>#24,891,306</b></span><span class="monitor-status">MONITORING</span></div>
-          </div>
-          <div class="monitor-floating-tag monitor-tag-top"><span>✓</span> Block verified</div>
-          <div class="monitor-floating-tag monitor-tag-bottom"><span>↗</span> Activity detected</div>
-        </div>
+
       </div>
     </div>
 
@@ -1677,30 +1586,14 @@
 
       <div class="timeline-visual">
         <div class="radial-glow blue-glow"></div>
-        <div class="protects-animation-wrap">
-          <div class="security-visual" role="img" aria-label="PayGuard security analysis visual showing active checks for domains, tokens and transactions">
-            <div class="security-visual-top">
-              <span>PayGuard / Security monitor</span>
-              <span class="security-live">LIVE ANALYSIS</span>
-            </div>
-            <div class="security-core">
-              <span class="security-scan" aria-hidden="true"></span>
-              <svg class="security-shield" viewBox="0 0 80 92" fill="none" aria-hidden="true">
-                <path d="M40 4 69 15v23c0 21-12 38-29 49C23 76 11 59 11 38V15L40 4Z" stroke="currentColor" stroke-width="2.2"/>
-                <path d="m27 45 9 9 19-21" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="security-signals">
-              <div class="security-signal"><strong>DOMAIN</strong><span>Identity signals</span></div>
-              <div class="security-signal"><strong>ASSET</strong><span>Contract signals</span></div>
-              <div class="security-signal"><strong>TX DATA</strong><span>Permission checks</span></div>
-            </div>
-            <div class="security-visual-bottom">
-              <span>Evidence-led · Read-only</span>
-              <span class="security-result">CHECKS ACTIVE</span>
-            </div>
-          </div>
-        </div>
+        <dotlottie-player
+          class="protects-animation"
+          src="/assets/lottie_protects.lottie"
+          background="transparent"
+          speed="1"
+          loop
+          autoplay>
+        </dotlottie-player>
       </div>
     </div>
   </section>
