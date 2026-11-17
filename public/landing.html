@@ -481,6 +481,42 @@
       position: relative;
       z-index: 10;
     }
+    .walkthrough-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 2rem 7rem;
+      position: relative;
+      z-index: 10;
+    }
+    .walkthrough-heading {
+      max-width: 680px;
+      margin: 0 auto 2.25rem;
+      text-align: center;
+    }
+    .walkthrough-heading h2 {
+      margin: 0 0 .85rem;
+      color: #fff;
+      font-size: clamp(2rem, 3.8vw, 3.1rem);
+      letter-spacing: -0.035em;
+    }
+    .walkthrough-heading p {
+      margin: 0;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .walkthrough-frame {
+      overflow: hidden;
+      border: 1px solid rgba(0, 245, 212, 0.24);
+      border-radius: 18px;
+      background: #070d11;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42), inset 0 0 30px rgba(0, 245, 212, 0.04);
+    }
+    .walkthrough-frame video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #030507;
+    }
 
     .section-title {
       text-align: center;
@@ -971,6 +1007,9 @@
       .footer-links-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+      .walkthrough-section {
+        padding: 1rem 1.5rem 5rem;
+      }
     }
   </style>
 </head>
@@ -1190,6 +1229,19 @@
           autoplay>
         </dotlottie-player>
       </div>
+    </div>
+  </section>
+
+  <section class="walkthrough-section" id="walkthrough">
+    <div class="walkthrough-heading">
+      <h2>See PayGuard in action</h2>
+      <p>A short walkthrough of the PayGuard security workspace and its review flow.</p>
+    </div>
+    <div class="walkthrough-frame">
+      <video controls playsinline preload="metadata" poster="/assets/css/download.png" aria-label="PayGuard product walkthrough">
+        <source src="/assets/videos/payguard-walkthrough.mp4" type="video/mp4">
+        Your browser does not support HTML5 video. <a href="/assets/videos/payguard-walkthrough.mp4">Open the PayGuard walkthrough.</a>
+      </video>
     </div>
   </section>
 

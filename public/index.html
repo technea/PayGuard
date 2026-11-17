@@ -2440,6 +2440,68 @@ header .pill-secondary {
       .landing-footer .footer-links-grid { grid-template-columns: 1fr; }
     }
 
+    /* Consistent icon hierarchy for the dashboard's primary decision paths. */
+    .tab-nav .tab-btn > i {
+      display: inline-grid;
+      width: 1.7rem;
+      height: 1.7rem;
+      place-items: center;
+      flex: 0 0 1.7rem;
+      border: 1px solid rgba(109, 164, 212, 0.16);
+      border-radius: 7px;
+      color: #8cbcff;
+      background: rgba(69, 123, 181, 0.12);
+      font-size: .78rem;
+    }
+    .tab-nav .tab-btn.active > i {
+      color: #06221e;
+      border-color: transparent;
+      background: linear-gradient(135deg, #00f5d4, #5ad7ff);
+      box-shadow: 0 0 16px rgba(0, 245, 212, 0.25);
+    }
+    .overview-scan-card > i {
+      display: grid;
+      width: 2.55rem;
+      height: 2.55rem;
+      place-items: center;
+      margin-bottom: .85rem;
+      border: 1px solid rgba(0, 245, 212, 0.18);
+      border-radius: 9px;
+      color: #64d7ff;
+      background: linear-gradient(135deg, rgba(0, 245, 212, 0.14), rgba(59, 130, 246, 0.16));
+      font-size: 1rem;
+    }
+    .overview-scan-card:nth-child(2) > i { color: #aab9ff; background: rgba(129, 140, 248, 0.13); border-color: rgba(129, 140, 248, 0.22); }
+    .overview-scan-card:nth-child(3) > i { color: #80e6b7; background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.2); }
+    .overview-scan-card:nth-child(4) > i { color: #ffcf83; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.22); }
+    .guarantee-card h4 > i {
+      display: inline-grid;
+      width: 1.85rem;
+      height: 1.85rem;
+      place-items: center;
+      flex: 0 0 1.85rem;
+      margin-right: .15rem;
+      border: 1px solid currentColor;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: .78rem;
+    }
+    .card-title > i, .checks-section-heading > i {
+      display: inline-grid;
+      width: 1.9rem;
+      height: 1.9rem;
+      place-items: center;
+      margin-right: .35rem;
+      border: 1px solid rgba(0, 245, 212, 0.18);
+      border-radius: 8px;
+      background: rgba(0, 245, 212, 0.08);
+      vertical-align: middle;
+    }
+    @media (max-width: 768px) {
+      .tab-nav .tab-btn > i { width: 1.5rem; height: 1.5rem; flex-basis: 1.5rem; }
+      .overview-scan-card > i { width: 2.3rem; height: 2.3rem; }
+    }
+
 </style>
 </head>
 <body>
