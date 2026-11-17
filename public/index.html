@@ -2248,6 +2248,136 @@ header .pill-secondary {
 }
 .top-nav-links a:hover { color: var(--cyan); }
 
+
+    /* Modernized High-End Typography & Brand Alignment for Dashboard */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.011em;
+    }
+
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .logo-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, rgba(0, 245, 212, 0.2), rgba(56, 189, 248, 0.2));
+      border: 1px solid rgba(0, 245, 212, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(0, 245, 212, 0.25);
+    }
+
+    .brand-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-title-text {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--cyan);
+      background: rgba(0, 245, 212, 0.1);
+      border: 1px solid rgba(0, 245, 212, 0.25);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .panel-header h2,
+    .section-title,
+    .card-title {
+      font-family: 'Inter', sans-serif !important;
+      font-weight: 700 !important;
+      letter-spacing: -0.02em !important;
+    }
+
+    .nav-links a {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--cyan) !important;
+    }
+
+    .btn-connect-wallet {
+      background: linear-gradient(135deg, rgba(0, 245, 212, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%) !important;
+      border: 1px solid rgba(0, 245, 212, 0.45) !important;
+      color: var(--cyan) !important;
+      font-weight: 600 !important;
+      transition: all 0.25s ease !important;
+    }
+
+    .btn-connect-wallet:hover {
+      background: linear-gradient(135deg, rgba(0, 245, 212, 0.28) 0%, rgba(56, 189, 248, 0.28) 100%) !important;
+      box-shadow: 0 0 20px rgba(0, 245, 212, 0.4) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    /* Shared landing typography and compact dashboard application bar. */
+    header.sec-header .nav-container {
+      max-width: 1320px;
+      min-height: 72px;
+      padding: 0.75rem 1.5rem;
+      gap: 0.85rem;
+    }
+    header.sec-header .brand-link,
+    header.sec-header .brand-title-wrap,
+    header.sec-header .nav-links,
+    header.sec-header .nav-actions,
+    header.sec-header .header-pills {
+      flex-wrap: nowrap !important;
+      white-space: nowrap;
+    }
+    header.sec-header .brand-link { flex: 0 0 auto; gap: 0.65rem; }
+    header.sec-header .brand-title-text { font-size: 1.18rem; }
+    header.sec-header .nav-links { flex: 1 1 auto; justify-content: center; gap: 0.2rem; min-width: 0; }
+    header.sec-header .nav-link { padding: 0.66rem 0.72rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600; }
+    header.sec-header .nav-link.active { color: var(--cyan); background: rgba(0, 245, 212, 0.09); }
+    header.sec-header .nav-actions { flex: 0 0 auto; gap: 0.45rem; }
+    header.sec-header .header-pills { gap: 0.42rem !important; }
+    header.sec-header #wallet-network-badge { display: none; }
+    header.sec-header .live-status { padding: 0.42rem 0.7rem; font-size: 0.76rem; }
+    header.sec-header .pill-secondary { padding: 0.42rem 0.62rem; font-size: 0.72rem; }
+    header.sec-header #wallet-connect-btn { min-height:38px; padding:0.42rem 0.8rem !important; border-radius:999px !important; }
+    .landing-footer { margin-top:auto; padding:5rem clamp(1rem,5vw,4rem) 2.5rem; border-top:1px solid rgba(255,255,255,.08); background:#030507; font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+    .landing-footer .newsletter-box { max-width:700px; margin:0 auto 4.5rem; text-align:center; }
+    .landing-footer .newsletter-box h3 { margin:.8rem 0; color:#fff; font-size:1.5rem; }
+    .landing-footer .newsletter-box p { color:var(--text-muted); font-size:.95rem; }
+    .landing-footer .newsletter-form { display:flex; gap:1rem; justify-content:center; margin-top:1.8rem; }
+    .landing-footer .newsletter-form input { width:min(320px,100%); padding:.9rem 1.1rem; color:#fff; border:1px solid rgba(255,255,255,.15); border-radius:10px; outline:0; background:rgba(255,255,255,.04); }
+    .landing-footer .footer-links-grid { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:2rem; padding-bottom:2.5rem; border-bottom:1px solid rgba(255,255,255,.06); }
+    .landing-footer .footer-col h4 { margin:0 0 1.1rem; color:#fff; font-size:.82rem; letter-spacing:.1em; text-transform:uppercase; }
+    .landing-footer .footer-col ul { display:grid; gap:.75rem; margin:0; padding:0; list-style:none; font-size:.9rem; }
+    .landing-footer .footer-col a { color:var(--text-muted); text-decoration:none; }
+    .landing-footer .footer-col a:hover { color:var(--cyan); }
+    .landing-footer .footer-bottom { max-width:1200px; display:flex; justify-content:space-between; gap:1rem; margin:2rem auto 0; color:var(--text-muted); font-size:.85rem; }
+    @media (max-width: 1320px) { header.sec-header .pill-secondary { display:none !important; } header.sec-header .nav-link { padding-inline:.55rem; } }
+    @media (max-width: 1080px) { header.sec-header .live-status { display:none !important; } }
+    @media (max-width: 640px) { .landing-footer .footer-links-grid { grid-template-columns:repeat(2,1fr); } .landing-footer .newsletter-form,.landing-footer .footer-bottom { flex-direction:column; align-items:center; } .landing-footer .newsletter-form input { width:100%; } }
+
 </style>
 </head>
 <body>
@@ -2256,22 +2386,23 @@ header .pill-secondary {
   <!-- Header (Identical to homepage navbar) -->
   <header class="sec-header" id="mainHeader">
     <div class="nav-container">
-      <a href="/" class="brand">
-        <div class="brand-icon">
-          <img src="/assets/payguard-mark.svg" alt="" width="27" height="27" />
+      <a href="/" class="brand-link">
+        <div class="logo-badge">
+          <img src="/assets/payguard-mark.svg" alt="PayGuard Logo" width="25" height="25" />
         </div>
-        <div class="brand-title">
-          <span>PayGuard</span>
-          <span class="brand-badge">v0.1.0</span>
+        <div class="brand-title-wrap">
+          <span class="brand-title-text">PayGuard</span>
+          <span class="brand-tag">v0.1.0</span>
         </div>
       </a>
 
       <!-- Primary navigation links matching homepage -->
       <nav class="nav-links" aria-label="Primary navigation">
-        <a href="/" class="nav-link">Product</a>
-        <a href="/dashboard" class="nav-link active" aria-current="page">Security</a>
-        <a href="/docs" class="nav-link">Developers</a>
-        <a href="/whitepaper" class="nav-link">Docs</a>
+        <a href="/#products" class="nav-link">Products</a>
+        <a href="/#features" class="nav-link">Security</a>
+        <a href="/dashboard" class="nav-link active" aria-current="page">Dashboard</a>
+        <a href="/docs" class="nav-link">Docs</a>
+        <a href="/blog" class="nav-link">Blog</a>
       </nav>
 
       <!-- Nav actions matching homepage + dashboard controls -->
@@ -2362,77 +2493,58 @@ header .pill-secondary {
 
     <!-- TAB 1: OVERVIEW & TELEMETRY -->
     <section id="tab-overview" class="tab-content active">
-      <div class="metric-grid">
-        <div class="metric-card">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="metric-label">API Health</div>
-            <i class="fa-solid fa-heart-pulse" style="color: var(--emerald); font-size: 1rem;"></i>
-          </div>
-          <div class="metric-value" id="stat-health" style="color: var(--emerald);">200 OK</div>
-          <div class="metric-sub"><i class="fa-solid fa-circle-check"></i> Advisory Read-Only</div>
-        </div>
-        <div class="metric-card">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="metric-label">Total Requests</div>
-            <i class="fa-solid fa-arrow-trend-up" style="color: var(--cyan); font-size: 1rem;"></i>
-          </div>
-          <div class="metric-value" id="stat-requests">0</div>
-          <div class="metric-sub"><i class="fa-solid fa-chart-simple"></i> Live HTTP Telemetry</div>
-        </div>
-        <div class="metric-card">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="metric-label">In-Flight Scans</div>
-            <i class="fa-solid fa-wave-square" style="color: var(--violet); font-size: 1rem;"></i>
-          </div>
-          <div class="metric-value" id="stat-inflight">0</div>
-          <div class="metric-sub"><i class="fa-solid fa-gauge"></i> Max Ceiling: 100</div>
-        </div>
-        <div class="metric-card">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="metric-label">Uptime</div>
-            <i class="fa-solid fa-clock" style="color: var(--amber); font-size: 1rem;"></i>
-          </div>
-          <div class="metric-value" id="stat-uptime">0s</div>
-          <div class="metric-sub"><i class="fa-solid fa-shield"></i> Zero memory leaks</div>
-        </div>
-      </div>
-
-            <!-- Mission Banner -->
-      <div class="glass-card" style="border-left: 4px solid var(--cyan); margin-bottom: 1.75rem;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
-          <div style="max-width: 800px;">
-            <div style="font-size: 0.75rem; font-weight: 800; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem;">
-              <i class="fa-solid fa-bullseye"></i> Platform Mission
-            </div>
-            <h2 style="font-size: 1.4rem; font-weight: 800; color: #ffffff; margin-bottom: 0.5rem;">
-              Verify Before You Trust
-            </h2>
-            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.75rem;">
-              Your first line of defense against phishing websites, fake tokens, impersonated projects, and suspicious smart contracts across the Base ecosystem. Remember:
-              <strong>HTTPS does not mean legitimate</strong>, <strong>verified contract source code does not mean safe</strong>, and <strong>token symbols alone cannot establish authenticity</strong>. Always inspect before connecting a wallet or signing.
-            </p>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.8rem;">
-              <span class="pill-secondary" style="color: var(--emerald); border-color: rgba(16, 185, 129, 0.3);"><i class="fa-solid fa-check"></i> 100% Free & Non-Custodial</span>
-              <span class="pill-secondary" style="color: var(--cyan); border-color: rgba(0, 240, 255, 0.3);"><i class="fa-solid fa-shield-virus"></i> Zero-SSRF In-Memory URL Parsing</span>
-              <span class="pill-secondary" style="color: var(--violet); border-color: rgba(129, 140, 248, 0.3);"><i class="fa-solid fa-robot"></i> 8 Native MCP Tools</span>
-            </div>
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-            <a href="/whitepaper" class="btn" style="font-size: 0.8rem; padding: 0.5rem 1rem;"><i class="fa-solid fa-file-contract"></i> Read Whitepaper</a>
-            <a href="/faq" class="btn" style="font-size: 0.8rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.05);"><i class="fa-solid fa-circle-question"></i> View FAQ</a>
+      <div class="overview-hero">
+        <div class="overview-hero-copy">
+          <p class="overview-kicker">Base security workspace</p>
+          <h2>Verify before you connect, sign, or send.</h2>
+          <p>Check a website, token, address, transaction, or wallet before it can put your assets at risk. PayGuard is read-only and never asks for a private key or seed phrase.</p>
+          <div class="overview-hero-actions">
+            <button class="btn overview-primary-action" type="button" onclick="switchTab('wallet-scanner')"><i class="fa-solid fa-radar"></i> Scan a wallet</button>
+            <button class="btn btn-secondary" type="button" onclick="switchTab('url-sentinel')"><i class="fa-solid fa-magnifying-glass-chart"></i> Check a website</button>
           </div>
         </div>
-      </div>
-
-      <div class="glass-card">
-        <div class="card-header">
+        <aside class="overview-posture" aria-label="PayGuard protection status">
+          <div class="overview-posture-icon"><i class="fa-solid fa-shield-halved"></i></div>
           <div>
-            <div class="card-title"><i class="fa-solid fa-shield-halved" style="color: var(--cyan);"></i> Security Perimeter & Non-Negotiable Guarantees</div>
-            <div class="card-subtitle">Enforced architectural safety constraints for autonomous agents and user wallets</div>
+            <span>Protection approach</span>
+            <strong>Evidence first. Action clear.</strong>
+            <p>Results explain what was found, why it matters, and what to do next.</p>
           </div>
-        </div>
+        </aside>
+      </div>
 
-        <div class="guarantee-grid">
+      <section class="overview-scan-launcher" aria-labelledby="quick-scan-title">
+        <div class="overview-section-heading">
+          <div>
+            <h3 id="quick-scan-title">What would you like to check?</h3>
+            <p>Choose the item closest to the risk you are evaluating.</p>
+          </div>
+          <span class="overview-read-only"><i class="fa-solid fa-lock"></i> Read-only checks</span>
+        </div>
+        <div class="overview-scan-grid">
+          <button class="overview-scan-card" type="button" onclick="switchTab('url-sentinel')"><i class="fa-solid fa-globe"></i><span>Website</span><small>Phishing and impersonation</small></button>
+          <button class="overview-scan-card" type="button" onclick="switchTab('token-security')"><i class="fa-solid fa-coins"></i><span>Token</span><small>Honeypot and contract risks</small></button>
+          <button class="overview-scan-card" type="button" onclick="switchTab('address-security')"><i class="fa-solid fa-address-card"></i><span>Address</span><small>Known threat signals</small></button>
+          <button class="overview-scan-card" type="button" onclick="switchTab('calldata-inspector')"><i class="fa-solid fa-code-branch"></i><span>Transaction</span><small>Approvals and calldata intent</small></button>
+        </div>
+      </section>
+
+      <section class="overview-status-row" aria-label="Platform status">
+        <div class="overview-status-item"><span>API health</span><strong id="stat-health">200 OK</strong><small><i class="fa-solid fa-circle-check"></i> Available for checks</small></div>
+        <div class="overview-status-item"><span>Requests processed</span><strong id="stat-requests">0</strong><small>Live telemetry</small></div>
+        <div class="overview-status-item"><span>Active scans</span><strong id="stat-inflight">0</strong><small>Capacity: 100 concurrent</small></div>
+        <div class="overview-status-item"><span>Session uptime</span><strong id="stat-uptime">0s</strong><small>Read-only operation</small></div>
+      </section>
+
+      <section class="overview-guarantees" aria-labelledby="guarantees-title">
+        <div class="overview-section-heading">
+          <div>
+            <h3 id="guarantees-title">Designed to keep you in control</h3>
+            <p>Security checks are advisory. You remain in control of every wallet and transaction decision.</p>
+          </div>
+          <div class="overview-resource-links"><a href="/whitepaper">How it works <i class="fa-solid fa-arrow-right"></i></a><a href="/faq">FAQ <i class="fa-solid fa-arrow-right"></i></a></div>
+        </div>
+        <div class="overview-guarantee-grid">
           <div class="guarantee-card">
             <h4><i class="fa-solid fa-key" style="color: var(--cyan);"></i> Zero Credential Access</h4>
             <p>PayGuard never requests, stores, or handles wallet private keys, seed phrases, card details, or bearer passwords.</p>
@@ -2450,7 +2562,7 @@ header .pill-secondary {
             <p>PASS signals conformance between offered requirements and user policies; decisions are advisory and never execute payments.</p>
           </div>
         </div>
-      </div>
+      </section>
     </section>
 
     <!-- TAB 2: URL SENTINEL -->
@@ -3150,17 +3262,27 @@ header .pill-secondary {
 
   </main>
 
-  <!-- Footer -->
-  <footer>
-    <div><i class="fa-solid fa-shield-halved" style="color: var(--cyan); margin-right: 0.35rem;"></i> PayGuard v0.1.0 • Verify Before You Trust • Free Base Ecosystem Security Platform</div>
-    <div class="footer-links">
-      <a href="/"><i class="fa-solid fa-house"></i> Home</a>
-      <a href="/whitepaper"><i class="fa-solid fa-file-contract"></i> Whitepaper</a>
-      <a href="/docs"><i class="fa-solid fa-book"></i> Technical Docs</a>
-      <a href="/faq"><i class="fa-solid fa-circle-question"></i> FAQ</a>
-      <a href="/health" target="_blank"><i class="fa-solid fa-heart-pulse"></i> Health</a>
-      <a href="https://github.com/technea/PayGuard" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+  <!-- Footer matches the landing page -->
+  <footer class="landing-footer">
+    <div class="newsletter-box">
+      <div style="display:inline-flex;align-items:center;gap:.6rem;margin-bottom:1.2rem;">
+        <div class="logo-badge" style="width:34px;height:34px;"><img src="/assets/payguard-mark.svg" alt="PayGuard logo" width="20" height="20"></div>
+        <span style="font-weight:800;font-size:1.3rem;letter-spacing:-.02em;color:#fff;">PayGuard</span>
+      </div>
+      <h3>Subscribe to PayGuard Security Intelligence</h3>
+      <p>Get real-time onchain vulnerability disclosures, security research, and network alerts.</p>
+      <form class="newsletter-form" onsubmit="event.preventDefault();this.querySelector('input').value='';">
+        <input type="email" placeholder="Enter your institutional email" required>
+        <button type="submit" class="btn">Subscribe</button>
+      </form>
     </div>
+    <div class="footer-links-grid">
+      <div class="footer-col"><h4>Security Platform</h4><ul><li><a href="/#products">PayGuard Risk</a></li><li><a href="/#products">Risk Firewall</a></li><li><a href="/dashboard">Security Dashboard</a></li><li><a href="/dashboard">Transaction Simulator</a></li></ul></div>
+      <div class="footer-col"><h4>Intelligence &amp; Docs</h4><ul><li><a href="/whitepaper">Whitepaper</a></li><li><a href="/docs">Technical Docs</a></li><li><a href="/docs#api-reference">API Reference</a></li><li><a href="/faq">Frequently Asked Questions</a></li></ul></div>
+      <div class="footer-col"><h4>Ecosystem</h4><ul><li><a href="https://base.org" target="_blank">Base Ecosystem</a></li><li><a href="/health" target="_blank">System Health</a></li><li><a href="https://github.com/technea/PayGuard" target="_blank">GitHub Repository</a></li></ul></div>
+      <div class="footer-col"><h4>Security Commitment</h4><ul style="color:var(--text-muted);line-height:1.7;"><li>Verify Before You Trust</li><li>Autonomous Onchain Protection</li><li>Decentralized Threat Intelligence</li></ul></div>
+    </div>
+    <div class="footer-bottom"><div style="display:flex;align-items:center;gap:.6rem;"><img src="/assets/payguard-mark.svg" alt="" width="18" height="18" style="opacity:.8;"><span>&copy; 2026 PayGuard Platform. All rights reserved.</span></div><span>Verify Before You Trust &bull; Free Base Ecosystem Security Platform</span></div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>

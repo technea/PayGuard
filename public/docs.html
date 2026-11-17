@@ -107,14 +107,29 @@
       gap: 0.4rem;
     }
     .doc-layout {
-      max-width: 1360px;
+      max-width: 100%;
       width: 100%;
       margin: 0 auto;
-      padding: 2rem 1.5rem;
+      padding: 2rem clamp(1rem, 3vw, 3rem);
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 260px 1fr;
       gap: 2.5rem;
       flex: 1;
+    }
+    .whitepaper-page .doc-layout {
+      max-width: 100%;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 3rem;
+      padding-inline: clamp(1.25rem, 3vw, 3.5rem);
+    }
+    .whitepaper-page .doc-content {
+      padding: clamp(2.5rem, 5vw, 5rem) clamp(2rem, 4vw, 5rem);
+      border-radius: 20px;
+      max-width: none;
+    }
+    .whitepaper-page .doc-content p,
+    .whitepaper-page .doc-content li {
+      max-width: 90ch;
     }
     aside {
       position: sticky;
@@ -433,14 +448,14 @@
     }
     .doc-content {
       min-width: 0;
-      padding: clamp(1.25rem, 3vw, 2.5rem);
-      border-radius: 18px;
-      line-height: 1.7;
+      padding: clamp(1.75rem, 3.5vw, 3.5rem);
+      border-radius: 20px;
+      line-height: 1.75;
     }
-    .doc-content h1 { font-size: clamp(1.8rem, 3.4vw, 2.35rem); line-height: 1.16; text-wrap: balance; }
-    .doc-content h2 { font-size: clamp(1.35rem, 2.3vw, 1.65rem); line-height: 1.25; }
-    .doc-content h3 { font-size: clamp(1.1rem, 1.8vw, 1.25rem); line-height: 1.3; }
-    .doc-content p { max-width: 78ch; line-height: 1.75; }
+    .doc-content h1 { font-size: clamp(1.9rem, 3.6vw, 2.6rem); line-height: 1.14; text-wrap: balance; }
+    .doc-content h2 { font-size: clamp(1.4rem, 2.4vw, 1.75rem); line-height: 1.25; }
+    .doc-content h3 { font-size: clamp(1.12rem, 1.9vw, 1.3rem); line-height: 1.3; }
+    .doc-content p { max-width: 90ch; line-height: 1.8; }
     .doc-content pre { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .doc-nav-item { min-height: 42px; }
     footer { padding: 1.35rem clamp(1rem, 3vw, 2rem); gap: 1rem; flex-wrap: wrap; }
@@ -520,28 +535,33 @@
   
     /* Whitepaper/document hierarchy: readable editorial rhythm without changing source content. */
     .doc-content {
-      max-width: 920px;
-      margin-inline: auto;
-      padding: clamp(1.25rem, 3.5vw, 3rem);
-      background: linear-gradient(180deg, rgba(17, 27, 42, .96), rgba(10, 17, 28, .96));
+      max-width: none;
+      width: 100%;
+      margin-inline: 0;
+      padding: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 4vw, 4rem);
+      background: linear-gradient(180deg, rgba(17, 27, 42, .97), rgba(10, 17, 28, .97));
       border-color: rgba(121, 169, 255, .16);
-      box-shadow: 0 18px 55px rgba(0, 0, 0, .22);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .28);
     }
     .doc-content > h1:first-child {
-      max-width: 16ch;
-      margin: 0 0 .65rem;
+      max-width: none;
+      margin: 0 0 .75rem;
       padding: 0;
       border: 0;
-      font-size: clamp(2rem, 4.2vw, 3.15rem);
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
       line-height: 1.06;
       letter-spacing: -.055em;
       text-wrap: balance;
+      background: linear-gradient(to right, #fff 0%, #a9c8ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .doc-content > h1:first-child + p {
-      max-width: 68ch;
+      max-width: 90ch;
       margin: 0 0 .5rem;
       color: #d6e4f7;
-      font-size: clamp(1.02rem, 1.7vw, 1.2rem);
+      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
       line-height: 1.65;
     }
     .doc-content > h1:first-child ~ p:nth-of-type(2),
@@ -551,30 +571,30 @@
       line-height: 1.7;
     }
     .doc-content h2 {
-      margin-top: 3rem;
-      padding: 1rem 0 .65rem;
+      margin-top: 3.5rem;
+      padding: 1.1rem 0 .7rem;
       border-bottom: 1px solid rgba(121, 169, 255, .18);
       color: #edf4ff;
-      font-size: clamp(1.35rem, 2.5vw, 1.8rem);
+      font-size: clamp(1.4rem, 2.6vw, 2rem);
       line-height: 1.2;
       letter-spacing: -.035em;
       scroll-margin-top: 6rem;
     }
     .doc-content h3 {
-      margin-top: 1.8rem;
+      margin-top: 2rem;
       color: #c8dcf7;
-      font-size: clamp(1.02rem, 1.8vw, 1.2rem);
+      font-size: clamp(1.05rem, 1.9vw, 1.3rem);
       line-height: 1.35;
       letter-spacing: -.02em;
       scroll-margin-top: 6rem;
     }
     .doc-content h4 {
-      margin: 1.35rem 0 .45rem;
+      margin: 1.5rem 0 .5rem;
       color: #a9c8ff;
-      font-size: .92rem;
+      font-size: .95rem;
       letter-spacing: .015em;
     }
-    .doc-content p { max-width: 76ch; line-height: 1.8; }
+    .doc-content p { max-width: 90ch; line-height: 1.82; font-size: 1.02rem; }
     .doc-content strong { color: #eef5ff; font-weight: 700; }
     .doc-content ul, .doc-content ol { padding-left: 1.35rem; }
     .doc-content li { padding-left: .2rem; margin-bottom: .55rem; line-height: 1.72; }
@@ -674,36 +694,570 @@
       .doc-content .doc-toc a { min-height: 38px; font-size: .84rem; }
     }
 
-  </style>
+  
+    /* =============================================================
+       FORTA-STYLE CLEAN DOCUMENTATION & WHITEPAPER LAYOUT
+       ============================================================= */
+    :root {
+      --bg-dark: #000000;
+      --bg-surface: #06090e;
+      --bg-card: transparent;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-light: rgba(255, 255, 255, 0.12);
+      --cyan: #00f5d4;
+      --cyan-glow: rgba(0, 245, 212, 0.25);
+      --blue-accent: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    body {
+      background-color: #000000;
+      color: #f1f5f9;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Full-width 3-column Forta documentation grid */
+    .doc-layout,
+    .whitepaper-page .doc-layout {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 2.5rem 3rem 5rem 3rem !important;
+      display: grid !important;
+      grid-template-columns: 260px minmax(0, 1fr) 220px !important;
+      gap: 3.5rem !important;
+      box-sizing: border-box !important;
+    }
+
+    /* Left Sidebar: Forta Collapsible / Category Navigation */
+    aside {
+      position: sticky !important;
+      top: 5rem !important;
+      height: calc(100vh - 6.5rem) !important;
+      overflow-y: auto !important;
+      padding-right: 1.5rem !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0.25rem !important;
+    }
+
+    aside::-webkit-scrollbar {
+      width: 4px;
+    }
+    aside::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+    }
+
+    .sidebar-heading {
+      font-size: 0.85rem !important;
+      font-weight: 700 !important;
+      color: #ffffff !important;
+      text-transform: none !important;
+      letter-spacing: -0.01em !important;
+      margin: 1.4rem 0 0.5rem 0.2rem !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+    }
+
+    .sidebar-heading:first-of-type {
+      margin-top: 0.2rem !important;
+    }
+
+    .doc-nav-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.65rem !important;
+      padding: 0.5rem 0.75rem !important;
+      border-radius: 6px !important;
+      color: #94a3b8 !important;
+      font-size: 0.88rem !important;
+      font-weight: 500 !important;
+      text-decoration: none !important;
+      transition: all 0.15s ease !important;
+      border-left: 2px solid transparent !important;
+    }
+
+    .doc-nav-item:hover {
+      color: #ffffff !important;
+      background: rgba(255, 255, 255, 0.04) !important;
+    }
+
+    .doc-nav-item.active {
+      color: #38bdf8 !important;
+      background: rgba(56, 189, 248, 0.08) !important;
+      border-left: 2px solid #38bdf8 !important;
+      font-weight: 600 !important;
+    }
+
+    /* Main Reading Column: Seamless, Clean, Full-Width Forta Typography */
+    main {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      padding: 0 !important;
+    }
+
+    .doc-content,
+    .whitepaper-page .doc-content {
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0 1rem 4rem 0 !important;
+      max-width: 100% !important;
+      line-height: 1.85 !important;
+    }
+
+    .doc-content h1 {
+      font-size: clamp(2.4rem, 4vw, 3.4rem) !important;
+      font-weight: 400 !important;
+      letter-spacing: -0.03em !important;
+      line-height: 1.15 !important;
+      color: #ffffff !important;
+      border-bottom: none !important;
+      padding-bottom: 0 !important;
+      margin-bottom: 1.8rem !important;
+      background: none !important;
+      -webkit-text-fill-color: initial !important;
+    }
+
+    .doc-content h2 {
+      font-size: clamp(1.6rem, 2.5vw, 2.1rem) !important;
+      font-weight: 400 !important;
+      letter-spacing: -0.02em !important;
+      color: #f8fafc !important;
+      margin-top: 3.5rem !important;
+      margin-bottom: 1.2rem !important;
+      border-bottom: none !important;
+      padding-bottom: 0 !important;
+    }
+
+    .doc-content h3 {
+      font-size: 1.3rem !important;
+      font-weight: 600 !important;
+      letter-spacing: -0.01em !important;
+      color: #e2e8f0 !important;
+      margin-top: 2.2rem !important;
+      margin-bottom: 0.8rem !important;
+    }
+
+    .doc-content p,
+    .whitepaper-page .doc-content p {
+      font-size: 1.05rem !important;
+      line-height: 1.85 !important;
+      color: #cbd5e1 !important;
+      margin-bottom: 1.5rem !important;
+      max-width: 95ch !important;
+      font-weight: 400 !important;
+    }
+
+    .doc-content li,
+    .whitepaper-page .doc-content li {
+      font-size: 1.02rem !important;
+      line-height: 1.8 !important;
+      color: #cbd5e1 !important;
+      margin-bottom: 0.6rem !important;
+      max-width: 95ch !important;
+    }
+
+    .doc-content ul, .doc-content ol {
+      margin-bottom: 1.8rem !important;
+      padding-left: 1.8rem !important;
+    }
+
+    /* Forta-style In-Article Subtitle / Lead Paragraph */
+    .doc-content > p:first-of-type {
+      font-size: 1.18rem !important;
+      color: #94a3b8 !important;
+      line-height: 1.75 !important;
+      margin-bottom: 2.5rem !important;
+      padding-bottom: 1.5rem !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* Tables, Callouts, and Code Blocks in Forta Clean Dark Theme */
+    .doc-content table {
+      width: 100% !important;
+      border-collapse: separate !important;
+      border-spacing: 0 !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 12px !important;
+      overflow: hidden !important;
+      margin: 2.2rem 0 !important;
+      background: rgba(10, 15, 22, 0.5) !important;
+    }
+
+    .doc-content th {
+      background: rgba(15, 23, 34, 0.9) !important;
+      color: #ffffff !important;
+      font-weight: 600 !important;
+      padding: 0.9rem 1.2rem !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+      font-size: 0.92rem !important;
+    }
+
+    .doc-content td {
+      padding: 0.85rem 1.2rem !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+      color: #cbd5e1 !important;
+      font-size: 0.92rem !important;
+    }
+
+    .doc-content tr:last-child td {
+      border-bottom: none !important;
+    }
+
+    .doc-content pre {
+      background: #06090e !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      border-radius: 12px !important;
+      padding: 1.4rem !important;
+      margin: 1.8rem 0 !important;
+      overflow-x: auto !important;
+    }
+
+    .doc-content code {
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 0.88em !important;
+      background: rgba(255, 255, 255, 0.06) !important;
+      color: #38bdf8 !important;
+      padding: 0.2rem 0.45rem !important;
+      border-radius: 5px !important;
+    }
+
+    .doc-content pre code {
+      background: transparent !important;
+      padding: 0 !important;
+      color: #e2e8f0 !important;
+    }
+
+    /* Right Column: Forta On-This-Page Table of Contents */
+    .forta-toc-sidebar {
+      position: sticky !important;
+      top: 5rem !important;
+      height: calc(100vh - 6.5rem) !important;
+      overflow-y: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0.5rem !important;
+      padding-left: 0.5rem !important;
+      border-left: 1px solid rgba(255, 255, 255, 0.07) !important;
+    }
+
+    .forta-toc-title {
+      font-size: 0.82rem !important;
+      font-weight: 700 !important;
+      color: #94a3b8 !important;
+      margin-bottom: 0.8rem !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.05em !important;
+    }
+
+    .forta-toc-list {
+      list-style: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0.45rem !important;
+    }
+
+    .forta-toc-link {
+      font-size: 0.85rem !important;
+      line-height: 1.45 !important;
+      color: #94a3b8 !important;
+      text-decoration: none !important;
+      transition: color 0.15s ease !important;
+      display: block !important;
+    }
+
+    .forta-toc-link:hover,
+    .forta-toc-link.active {
+      color: #38bdf8 !important;
+    }
+
+    /* Hide redundant internal doc-toc since we have the Forta right-hand TOC */
+    .doc-content .doc-toc {
+      display: none !important;
+    }
+
+    @media (max-width: 1100px) {
+      .doc-layout,
+      .whitepaper-page .doc-layout {
+        grid-template-columns: 240px minmax(0, 1fr) !important;
+        padding: 2rem 1.5rem !important;
+        gap: 2.5rem !important;
+      }
+      .forta-toc-sidebar {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .doc-layout,
+      .whitepaper-page .doc-layout {
+        grid-template-columns: 1fr !important;
+        padding: 1.2rem 1rem !important;
+      }
+      aside {
+        display: none !important;
+      }
+      .forta-toc-sidebar {
+        display: none !important;
+      }
+      .doc-content h1 {
+        font-size: 2.1rem !important;
+      }
+    }
+
+
+    /* Unified Navigation & Header Styles */
+    header.sec-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(5, 8, 10, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0;
+    }
+    .nav-container {
+      width: 100%;
+      max-width: 100%;
+      padding: 1rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #fff;
+    }
+    .logo-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, rgba(0, 245, 212, 0.2), rgba(56, 189, 248, 0.2));
+      border: 1px solid rgba(0, 245, 212, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(0, 245, 212, 0.25);
+    }
+    .brand-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .brand-title-text {
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 40%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--cyan);
+      background: rgba(0, 245, 212, 0.1);
+      border: 1px solid rgba(0, 245, 212, 0.25);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--cyan);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .nav-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+    }
+    .nav-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #00f5d4;
+      box-shadow: 0 0 8px #00f5d4;
+      animation: pulseDot 2s infinite;
+    }
+    .nav-cta {
+      padding: 0.6rem 1.35rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(0, 245, 212, 0.12) 0%, rgba(56, 189, 248, 0.12) 100%);
+      border: 1px solid rgba(0, 245, 212, 0.38);
+      color: var(--cyan);
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.25s ease;
+    }
+    .nav-cta:hover {
+      background: linear-gradient(135deg, rgba(0, 245, 212, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%);
+      border-color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 245, 212, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* Unified Footer Styles */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: #030507;
+      padding: 5rem 3rem 3rem 3rem;
+      margin-top: auto;
+    }
+    .newsletter-box {
+      max-width: 700px;
+      margin: 0 auto 5rem auto;
+      text-align: center;
+    }
+    .newsletter-box h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      color: #fff;
+    }
+    .newsletter-box p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+    .newsletter-form {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .newsletter-form input {
+      padding: 0.9rem 1.2rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 0.95rem;
+      width: 320px;
+      outline: none;
+    }
+    .footer-links-grid {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2.5rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .footer-col h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 1.2rem;
+    }
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      padding: 0 !important;
+    }
+    .footer-col ul a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .footer-col ul a:hover {
+      color: var(--cyan);
+    }
+    .footer-bottom {
+      max-width: 1300px;
+      margin: 2rem auto 0 auto;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+</style>
 </head>
 <body>
 
   <!-- Top Header Navigation -->
-  <header>
-    <a href="/" class="brand">
-      <div class="logo-badge"><img src="/assets/payguard-mark.svg" alt="" width="32" height="32"></div>
-      <div class="brand-title">PayGuard</div>
-    </a>
-    <nav class="docs-desktop-nav" aria-label="Primary navigation">
-      <ul class="nav-links">
-        <li><a href="/" class="nav-link"><i class="fa-solid fa-house"></i> Home</a></li>
-        <li><a href="/dashboard" class="nav-link"><i class="fa-solid fa-gauge-high"></i> Security Tools</a></li>
-        <li><a href="/whitepaper" class="nav-link" id="nav-whitepaper"><i class="fa-solid fa-file-contract"></i> Whitepaper</a></li>
-        <li><a href="/docs" class="nav-link" id="nav-docs"><i class="fa-solid fa-book"></i> Technical Docs</a></li>
-        <li><a href="/faq" class="nav-link" id="nav-faq"><i class="fa-solid fa-circle-question"></i> FAQ</a></li>
-      </ul>
-    </nav>
-    <button class="docs-menu-toggle" id="docs-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="docs-mobile-nav">
-      <i class="fa-solid fa-bars" aria-hidden="true"></i>
-    </button>
-    <nav class="docs-mobile-nav" id="docs-mobile-nav" aria-label="Mobile navigation" hidden>
-      <a href="/">Home</a>
-      <a href="/dashboard">Security Tools</a>
-      <a href="/whitepaper">Whitepaper</a>
-      <a href="/docs">Technical Docs</a>
-      <a href="/faq">FAQ</a>
-    </nav>
-    <a href="/dashboard" class="btn-tools"><i class="fa-solid fa-sliders"></i> Launch Tools</a>
+    <!-- Unified PayGuard Header Navigation -->
+  <header class="sec-header" id="mainHeader">
+    <div class="nav-container">
+      <a href="/" class="brand-link">
+        <div class="logo-badge">
+          <img src="/assets/payguard-mark.svg" alt="PayGuard Logo" width="25" height="25" />
+        </div>
+        <div class="brand-title-wrap">
+          <span class="brand-title-text">PayGuard</span>
+          <span class="brand-tag">v0.1.0</span>
+        </div>
+      </a>
+
+      <!-- Primary navigation links -->
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="/#products" class="nav-link">Products</a>
+        <a href="/#features" class="nav-link">Security Mesh</a>
+        <a href="/dashboard" class="nav-link">Dashboard</a>
+        <a href="/whitepaper" class="nav-link" id="nav-whitepaper">Whitepaper</a>
+        <a href="/docs" class="nav-link" id="nav-docs">Docs</a>
+        <a href="/faq" class="nav-link" id="nav-faq">FAQ</a>
+      </nav>
+
+      <!-- Nav actions with live indicator + Connect Wallet -->
+      <div class="nav-actions">
+        <div class="nav-status">
+          <span class="nav-pulse"></span>
+          <span>Base Mainnet</span>
+        </div>
+        <button id="wallet-connect-btn" class="nav-cta btn-connect-wallet" onclick="handleWalletClick()">
+          <i class="fa-solid fa-wallet" style="margin-right: 0.35rem;"></i>
+          <span id="wallet-btn-label">Connect Wallet</span>
+        </button>
+      </div>
+    </div>
   </header>
 
   <div class="doc-layout">
@@ -735,15 +1289,76 @@
         {{DOC_CONTENT}}
       </article>
     </main>
+
+    <!-- Right Sidebar: Forta Style On-This-Page Navigation -->
+    <aside class="forta-toc-sidebar" id="fortaTocSidebar">
+      <div class="forta-toc-title">On this page</div>
+      <ul class="forta-toc-list" id="fortaTocList">
+        <!-- Generated dynamically from article h2 / h3 headings -->
+      </ul>
+    </aside>
   </div>
 
+    <!-- Unified PayGuard Footer -->
   <footer>
-    <div class="footer-brand"><img src="/assets/payguard-mark.svg" alt="" width="22" height="22"> <span>PayGuard • Verify Before You Trust • Free Base Ecosystem Security Platform</span></div>
-    <div style="display:flex; gap:1.25rem;">
-      <a href="/dashboard" style="color:var(--text-muted); text-decoration:none;">Dashboard</a>
-      <a href="/docs" style="color:var(--text-muted); text-decoration:none;">Docs</a>
-      <a href="/faq" style="color:var(--text-muted); text-decoration:none;">FAQ</a>
-      <a href="https://github.com/technea/PayGuard" target="_blank" style="color:var(--text-muted); text-decoration:none;"><i class="fa-brands fa-github"></i> GitHub</a>
+    <div class="newsletter-box">
+      <div style="display:inline-flex; align-items:center; gap:0.6rem; margin-bottom:1.2rem;">
+        <div class="logo-badge" style="width:34px; height:34px;">
+          <img src="/assets/payguard-mark.svg" alt="PayGuard Logo" width="20" height="20" />
+        </div>
+        <span style="font-weight:800; font-size:1.3rem; letter-spacing:-0.02em; color:#fff;">PayGuard</span>
+      </div>
+      <h3>Subscribe to PayGuard Security Intelligence</h3>
+      <p>Get real-time onchain vulnerability disclosures, security research, and network alerts.</p>
+      <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed successfully!');">
+        <input type="email" placeholder="Enter your institutional email..." required />
+        <button type="submit" class="btn-primary" style="padding: 0.9rem 1.6rem; background: linear-gradient(135deg, #00f5d4 0%, #38bdf8 100%); color:#030712; font-weight:700; border:none; border-radius:10px; cursor:pointer;">Subscribe</button>
+      </form>
+    </div>
+
+    <div class="footer-links-grid">
+      <div class="footer-col">
+        <h4>Security Platform</h4>
+        <ul>
+          <li><a href="/#products">PayGuard Risk</a></li>
+          <li><a href="/#products">Risk Firewall</a></li>
+          <li><a href="/dashboard">Security Dashboard</a></li>
+          <li><a href="/dashboard">Transaction Simulator</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Intelligence & Docs</h4>
+        <ul>
+          <li><a href="/whitepaper">Whitepaper</a></li>
+          <li><a href="/docs">Technical Docs</a></li>
+          <li><a href="/docs#api-reference">API Reference</a></li>
+          <li><a href="/faq">Frequently Asked Questions</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Ecosystem</h4>
+        <ul>
+          <li><a href="https://base.org" target="_blank">Base Ecosystem</a></li>
+          <li><a href="/health" target="_blank">System Health</a></li>
+          <li><a href="https://github.com/technea/PayGuard" target="_blank">GitHub Repository</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Security Commitment</h4>
+        <ul style="color:#94a3b8; font-size:0.86rem; line-height:1.7;">
+          <li>Verify Before You Trust</li>
+          <li>Autonomous Onchain Protection</li>
+          <li>Decentralized Threat Intelligence</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div style="display:flex; align-items:center; gap:0.6rem;">
+        <img src="/assets/payguard-mark.svg" alt="" width="18" height="18" style="opacity:0.8;" />
+        <span>&copy; 2026 PayGuard Platform. All rights reserved.</span>
+      </div>
+      <span>Verify Before You Trust &bull; Free Base Ecosystem Security Platform</span>
     </div>
   </footer>
 
@@ -757,6 +1372,7 @@
       }
     });
     if (path.includes('whitepaper')) {
+      document.body.classList.add('whitepaper-page');
       document.getElementById('nav-whitepaper')?.classList.add('active');
     } else if (path.includes('faq')) {
       document.getElementById('nav-faq')?.classList.add('active');
@@ -799,6 +1415,76 @@
         if (window.innerWidth > 1080 && !panel.hidden) setOpen(false);
       }, { passive: true });
     })();
+  </script>
+
+
+  <!-- Dynamic Forta Table of Contents Generator -->
+  <script>
+    (function generateFortaToc() {
+      const docViewer = document.getElementById('docViewer');
+      const tocList = document.getElementById('fortaTocList');
+      if (!docViewer || !tocList) return;
+
+      const headings = docViewer.querySelectorAll('h2, h3');
+      if (!headings.length) {
+        document.getElementById('fortaTocSidebar')?.remove();
+        return;
+      }
+
+      headings.forEach((h, index) => {
+        if (!h.id) {
+          h.id = 'section-' + (h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || index);
+        }
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.className = 'forta-toc-link';
+        if (h.tagName === 'H3') {
+          a.style.paddingLeft = '0.8rem';
+          a.style.fontSize = '0.8rem';
+        }
+        a.textContent = h.textContent.replace(/^#+\s*/, '');
+        li.appendChild(a);
+        tocList.appendChild(li);
+      });
+
+      // Highlight active on scroll
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            document.querySelectorAll('.forta-toc-link').forEach(link => {
+              link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+            });
+          }
+        });
+      }, { rootMargin: '0px 0px -70% 0px' });
+
+      headings.forEach(h => observer.observe(h));
+    })();
+  </script>
+
+
+  <script>
+    async function handleWalletClick() {
+      const btn = document.getElementById('wallet-connect-btn');
+      const label = document.getElementById('wallet-btn-label');
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts[0]) {
+            const addr = accounts[0];
+            label.textContent = addr.slice(0, 6) + '...' + addr.slice(-4);
+            btn.style.borderColor = 'var(--cyan)';
+            btn.style.background = 'rgba(0, 245, 212, 0.2)';
+          }
+        } catch (e) {
+          console.warn('Wallet connection cancelled', e);
+        }
+      } else {
+        window.location.href = '/dashboard';
+      }
+    }
   </script>
 
 </body>
