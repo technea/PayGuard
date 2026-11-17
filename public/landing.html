@@ -1011,6 +1011,252 @@
         padding: 1rem 1.5rem 5rem;
       }
     }
+  
+    /* Mobile-first responsive refinements: preserve existing desktop visuals and animations. */
+    @media (max-width: 1024px) {
+      nav { padding: 1rem 1.5rem; gap: 1rem; }
+      .nav-links { gap: 1.25rem; }
+      .hero-section {
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 0.9fr);
+        gap: 2rem;
+        padding: 4rem 2rem 3rem;
+      }
+      .section-container { padding: 5rem 1.5rem 4rem; }
+      .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .product-card { padding: 2.25rem 1.75rem; }
+      .timeline-row, .timeline-row.reverse {
+        grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr);
+        gap: 1.25rem;
+      }
+      .timeline-visual { min-height: 360px; }
+      .timeline-visual dotlottie-player { height: 360px; }
+      .timeline-visual .rive-container { height: 360px; }
+    }
+
+    @media (max-width: 760px) {
+      html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+      nav {
+        padding: 0.85rem 1rem;
+        flex-wrap: wrap;
+        row-gap: 0.75rem;
+      }
+      .brand-link { gap: 0.55rem; min-width: 0; }
+      .logo-badge { width: 36px; height: 36px; flex: 0 0 36px; }
+      .brand-title-text { font-size: 1.1rem; }
+      .brand-tag { font-size: 0.58rem; }
+      .nav-actions { gap: 0.55rem; margin-left: auto; }
+      .nav-status { display: none; }
+      .nav-cta { padding: 0.55rem 0.8rem; font-size: 0.78rem; }
+      .nav-links {
+        order: 3;
+        flex: 0 0 100%;
+        width: 100%;
+        gap: 1.25rem;
+        padding: 0.15rem 0 0.35rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .nav-links::-webkit-scrollbar { display: none; }
+      .nav-links a { font-size: 0.82rem; }
+
+      .hero-section {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.25rem;
+        padding: 3.25rem 1.15rem 2.5rem;
+      }
+      .hero-content { width: 100%; }
+      .status-pill {
+        max-width: 100%;
+        width: fit-content;
+        font-size: 0.59rem;
+        letter-spacing: 0.055em;
+        word-spacing: 0.08em;
+        padding: 0.42rem 0.7rem;
+        margin-bottom: 1.2rem;
+      }
+      .hero-title {
+        font-size: clamp(2.25rem, 10vw, 3.25rem);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+        word-spacing: normal;
+        margin-bottom: 1.1rem;
+      }
+      .hero-title .gradient-text { word-spacing: normal; margin: 0.08rem 0; }
+      .hero-subtitle {
+        max-width: 100%;
+        font-size: 0.96rem;
+        line-height: 1.65;
+        word-spacing: normal;
+        margin-bottom: 1.5rem;
+      }
+      .cta-group { align-items: stretch; gap: 0.7rem; }
+      .btn-primary, .btn-secondary {
+        min-height: 48px;
+        justify-content: center;
+        padding: 0.85rem 1rem;
+        font-size: 0.9rem;
+        word-spacing: normal;
+      }
+      .visual-container {
+        width: 100%;
+        height: auto;
+        min-height: 300px;
+        max-height: 390px;
+        margin: 0 auto;
+      }
+      #sphere-canvas {
+        display: block;
+        width: min(100%, 360px);
+        height: auto;
+        aspect-ratio: 1 / 1;
+        max-width: 360px;
+        max-height: none;
+      }
+      .hud-card { padding: 0.55rem 0.7rem; gap: 0.55rem; }
+      .hud-threat { top: 5%; right: 0; }
+      .hud-safe { bottom: 4%; left: 0; }
+      .hud-threat-title { font-size: 0.59rem; }
+      .hud-threat-sub, .hud-safe-sub { font-size: 0.58rem; }
+      .hud-safe-title { font-size: 0.68rem; }
+      .threat-icon, .safe-icon { width: 26px; height: 26px; }
+
+      .trust-bar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-items: center;
+        gap: 1.1rem 0.75rem;
+        padding: 1.5rem 1rem;
+      }
+      .trust-item { gap: 0.5rem; }
+      .trust-item img, .trust-item svg { width: 22px; height: 22px; }
+      .trust-name { font-size: 0.88rem; }
+
+      .section-container { padding: 4rem 1.1rem 3rem; }
+      .section-title {
+        font-size: clamp(1.75rem, 7vw, 2.35rem);
+        line-height: 1.15;
+        word-spacing: normal;
+        margin-bottom: 2rem;
+      }
+      .product-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+      .product-card { min-width: 0; padding: 1.5rem 1.25rem; border-radius: 16px; }
+      .product-card h3 { font-size: 1.35rem; word-spacing: normal; }
+      .product-card p { font-size: 0.94rem; word-spacing: normal; margin-bottom: 1.5rem; }
+      .card-btn { max-width: 100%; white-space: normal; }
+
+      .pg-timeline {
+        padding: 1.5rem 1rem 3rem 0.85rem;
+        overflow: hidden;
+      }
+      .timeline-spine {
+        left: 21px;
+        top: 35px;
+        bottom: 35px;
+        transform: none;
+      }
+      .timeline-row, .timeline-row.reverse {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        column-gap: 0.75rem;
+        row-gap: 0.8rem;
+        align-items: start;
+        margin-bottom: 3.5rem;
+      }
+      .timeline-row .timeline-content,
+      .timeline-row.reverse .timeline-content {
+        grid-column: 2;
+        grid-row: 1;
+        padding: 0.15rem 0 0;
+        min-width: 0;
+      }
+      .timeline-row .timeline-node,
+      .timeline-row.reverse .timeline-node {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: start;
+        padding-top: 0.15rem;
+      }
+      .timeline-badge { width: 38px; height: 38px; }
+      .timeline-row .timeline-visual,
+      .timeline-row.reverse .timeline-visual {
+        grid-column: 2;
+        grid-row: 2;
+        min-height: 230px;
+        width: 100%;
+        min-width: 0;
+        overflow: hidden;
+      }
+      .timeline-content h3 {
+        font-size: clamp(1.55rem, 6vw, 2rem);
+        line-height: 1.12;
+        margin-bottom: 0.75rem;
+      }
+      .timeline-content p {
+        font-size: 0.94rem;
+        line-height: 1.65;
+        margin-bottom: 1.1rem;
+      }
+      .timeline-visual .radial-glow { width: 280px; height: 280px; filter: blur(28px); }
+      .timeline-visual dotlottie-player { width: 100%; height: 240px; max-width: 320px; }
+      .timeline-visual .rive-container { width: 100%; height: 240px; max-width: 320px; }
+      .timeline-visual canvas.rive-canvas { max-width: 100%; }
+
+      .walkthrough-section { padding: 1rem 1rem 4rem; }
+      .walkthrough-heading { margin-bottom: 1.4rem; }
+      .walkthrough-heading h2 { font-size: clamp(1.7rem, 7vw, 2.2rem); line-height: 1.15; }
+      .walkthrough-frame { border-radius: 12px; }
+      .walkthrough-frame video { width: 100%; height: auto; }
+
+      footer { padding-left: 1rem; padding-right: 1rem; }
+      .newsletter-box { width: 100%; max-width: 100%; }
+      .newsletter-form { display: flex; flex-direction: column; gap: 0.7rem; }
+      .newsletter-form input, .newsletter-form button { width: 100%; min-width: 0; }
+      .footer-links-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1rem; }
+      .footer-col { min-width: 0; }
+      .footer-col a { overflow-wrap: anywhere; }
+      .footer-bottom {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.65rem;
+        line-height: 1.5;
+      }
+      .modal-content {
+        width: calc(100% - 2rem);
+        max-width: 440px;
+        max-height: calc(100dvh - 2rem);
+        overflow-y: auto;
+        padding: 1.4rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      nav { padding-left: 0.8rem; padding-right: 0.8rem; }
+      .brand-title-text { font-size: 1rem; }
+      .brand-tag { display: none; }
+      .nav-cta { font-size: 0.73rem; padding: 0.5rem 0.65rem; }
+      .hero-section { padding-left: 0.9rem; padding-right: 0.9rem; }
+      .hero-title { font-size: clamp(2.05rem, 10vw, 2.65rem); }
+      .visual-container { min-height: 270px; }
+      .hud-card { transform: scale(0.9); transform-origin: center; }
+      .footer-links-grid { grid-template-columns: minmax(0, 1fr); }
+      .timeline-row, .timeline-row.reverse { column-gap: 0.55rem; }
+      .timeline-spine { left: 19px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .nav-pulse, .status-dot, .hud-threat, .hud-safe,
+      .timeline-visual dotlottie-player, .timeline-visual .rive-container {
+        animation: none !important;
+      }
+    }
+
   </style>
 </head>
 <body>
