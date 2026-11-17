@@ -730,46 +730,106 @@
       background: radial-gradient(circle at center, rgba(56, 189, 248, 0.28) 0%, rgba(99, 102, 241, 0.1) 45%, transparent 70%);
     }
 
-    /* Player / Asset Styling */
+    /* Original PayGuard threat-analysis visual */
     .timeline-visual .protects-animation-wrap {
       position: relative;
       z-index: 2;
+      width: min(100%, 510px);
+      min-height: 430px;
+      display: grid;
+      place-items: center;
+      animation: floatSmooth 8s ease-in-out infinite;
+    }
+    .security-visual {
+      position: relative;
       width: 100%;
-      max-width: 500px;
-      height: 440px;
-      animation: floatSmooth 7s ease-in-out infinite;
+      min-height: 410px;
+      padding: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(111, 226, 218, .16);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(0, 245, 212, .12), transparent 42%),
+        linear-gradient(145deg, rgba(13, 28, 34, .97), rgba(5, 12, 18, .98) 68%);
+      box-shadow: 0 28px 90px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.045);
       isolation: isolate;
     }
-    .timeline-visual .protects-animation-wrap dotlottie-player {
-      display: block;
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      max-width: none;
-      animation: none;
+    .security-visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: .22;
+      background-image: linear-gradient(rgba(99, 220, 210, .12) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 220, 210, .12) 1px, transparent 1px);
+      background-size: 30px 30px;
+      mask-image: linear-gradient(to bottom, black, transparent 86%);
     }
-    .timeline-visual .protects-animation-label-mask {
-      position: absolute !important;
-      z-index: 9999 !important;
-      top: 19% !important;
-      left: 29% !important;
-      width: 16% !important;
-      height: 5.5% !important;
-      display: block !important;
-      background: #061b19 !important;
-      border-radius: 2px;
-      pointer-events: none;
+    .security-visual-top, .security-visual-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
-
-    .timeline-visual dotlottie-player {
+    .security-visual-top { color: #dce9ec; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+    .security-live { display: inline-flex; align-items: center; gap: 7px; color: #8ce8d9; font-size: 10px; letter-spacing: .08em; }
+    .security-live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #45e0bb; box-shadow: 0 0 12px #45e0bb; animation: securityPulse 1.8s ease-in-out infinite; }
+    .security-core {
       position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 500px;
-      height: 440px;
-      filter: drop-shadow(0 0 35px rgba(0, 245, 212, 0.2));
-      animation: floatSmooth 7s ease-in-out infinite;
+      width: 190px;
+      height: 190px;
+      margin: 32px auto 25px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(66, 226, 210, .28);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15, 72, 72, .46), rgba(5, 18, 24, .15) 68%);
+      box-shadow: 0 0 55px rgba(0, 245, 212, .09), inset 0 0 36px rgba(0, 245, 212, .07);
+    }
+    .security-core::before, .security-core::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px dashed rgba(99, 226, 213, .32);
+      border-radius: 50%;
+      animation: securityOrbit 18s linear infinite;
+    }
+    .security-core::after { inset: 27px; border-style: solid; border-color: rgba(99, 226, 213, .13); animation-direction: reverse; animation-duration: 12s; }
+    .security-shield { width: 76px; height: 88px; color: #7af0df; filter: drop-shadow(0 0 18px rgba(0,245,212,.36)); }
+    .security-scan {
+      position: absolute;
+      left: 12%; right: 12%; top: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(94,255,231,.9), transparent);
+      box-shadow: 0 0 14px rgba(94,255,231,.8);
+      animation: securitySweep 3.8s ease-in-out infinite;
+    }
+    .security-signals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .security-signal {
+      min-width: 0;
+      padding: 12px 9px;
+      border: 1px solid rgba(131, 187, 194, .13);
+      border-radius: 12px;
+      background: rgba(8, 20, 27, .78);
+      text-align: center;
+    }
+    .security-signal strong { display: block; color: #e2f4f1; font: 600 11px 'JetBrains Mono', monospace; }
+    .security-signal span { display: block; margin-top: 5px; color: #82999e; font-size: 9px; line-height: 1.35; }
+    .security-visual-bottom { margin-top: 17px; padding-top: 14px; border-top: 1px solid rgba(131,187,194,.12); color: #8ca5aa; font-size: 10px; }
+    .security-result { color: #7de8d4; font: 600 10px 'JetBrains Mono', monospace; }
+    @keyframes securityPulse { 50% { opacity: .45; transform: scale(.78); } }
+    @keyframes securityOrbit { to { transform: rotate(360deg); } }
+    @keyframes securitySweep { 0%,100% { top: 17%; opacity: 0; } 15%,80% { opacity: 1; } 55% { top: 82%; } }
+    @media (max-width: 600px) {
+      .timeline-visual .protects-animation-wrap { min-height: 350px; }
+      .security-visual { min-height: 350px; padding: 18px; border-radius: 20px; }
+      .security-core { width: 154px; height: 154px; margin: 25px auto 20px; }
+      .security-shield { width: 62px; height: 72px; }
+      .security-signal { padding: 10px 5px; }
+      .security-signal strong { font-size: 9px; }
+      .security-signal span { font-size: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .security-visual *, .security-visual::before, .security-visual::after { animation: none !important; }
     }
 
     .timeline-visual .rive-container {
@@ -1529,14 +1589,28 @@
       <div class="timeline-visual">
         <div class="radial-glow blue-glow"></div>
         <div class="protects-animation-wrap">
-          <dotlottie-player
-            src="/assets/lottie_protects.lottie"
-            background="transparent"
-            speed="1"
-            loop
-            autoplay>
-          </dotlottie-player>
-          <span class="protects-animation-label-mask" aria-hidden="true"></span>
+          <div class="security-visual" role="img" aria-label="PayGuard security analysis visual showing active checks for domains, tokens and transactions">
+            <div class="security-visual-top">
+              <span>PayGuard / Security monitor</span>
+              <span class="security-live">LIVE ANALYSIS</span>
+            </div>
+            <div class="security-core">
+              <span class="security-scan" aria-hidden="true"></span>
+              <svg class="security-shield" viewBox="0 0 80 92" fill="none" aria-hidden="true">
+                <path d="M40 4 69 15v23c0 21-12 38-29 49C23 76 11 59 11 38V15L40 4Z" stroke="currentColor" stroke-width="2.2"/>
+                <path d="m27 45 9 9 19-21" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="security-signals">
+              <div class="security-signal"><strong>DOMAIN</strong><span>Identity signals</span></div>
+              <div class="security-signal"><strong>ASSET</strong><span>Contract signals</span></div>
+              <div class="security-signal"><strong>TX DATA</strong><span>Permission checks</span></div>
+            </div>
+            <div class="security-visual-bottom">
+              <span>Evidence-led · Read-only</span>
+              <span class="security-result">CHECKS ACTIVE</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
