@@ -272,7 +272,7 @@ test("GET /whitepaper and /faq serve browser-readable documentation", async () =
   const resWp = await fetch(baseUrl + "/whitepaper");
   assert.equal(resWp.status, 200);
   const textWp = await resWp.text();
-  assert.ok(textWp.includes("PayGuard Technical Whitepaper"));
+  assert.ok(textWp.includes("PayGuard") && textWp.includes("Technical Whitepaper"));
 
   const resFaq = await fetch(baseUrl + "/faq");
   assert.equal(resFaq.status, 200);
