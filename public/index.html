@@ -2527,13 +2527,13 @@ header .pill-secondary {
     }
     .card-title { font-size: var(--dashboard-text-lg); line-height: 1.35; font-weight: 700; }
     .checks-section-heading { font-size: 1rem; line-height: 1.4; font-weight: 700; }
-    .form-label { font-size: var(--dashboard-text-sm); line-height: 1.45; font-weight: 650; color: #cbd5e1; }
+    .form-label { font-size: var(--dashboard-text-sm); line-height: 1.45; font-weight: 650; color: var(--text-muted); }
     .input-box, select.input-box, textarea.input-box {
       font-family: var(--font-mono);
       font-size: 0.875rem;
       line-height: 1.55;
     }
-    .input-box::placeholder { color: #8292a8; opacity: 1; }
+    .input-box::placeholder { color: var(--text-muted); opacity: 1; }
     .metric-label, .preset-label, .metric-sub, .check-explain,
     .check-tech-id, .check-badge, .verdict-risk-tag {
       font-size: var(--dashboard-text-xs);
@@ -2541,8 +2541,8 @@ header .pill-secondary {
     }
     .metric-label { letter-spacing: 0.045em; }
     .check-friendly-name { font-size: var(--dashboard-text-sm); line-height: 1.4; }
-    .check-explain { color: #a8b5c8; }
-    .check-tech-id { color: #aebbd0; }
+    .check-explain { color: var(--text-muted); }
+    .check-tech-id { color: var(--text-muted); }
     .tab-nav { gap: 0.4rem; }
     .tab-nav .tab-btn {
       min-height: 2.9rem;
@@ -2583,6 +2583,33 @@ header .pill-secondary {
       .glass-card { padding: 1rem; }
       .tab-nav .tab-btn { min-width: 118px; }
       .metric-value { font-size: 1.45rem; }
+    }
+
+
+    /* Match the homepage's established color palette across dashboard surfaces and text. */
+    :root {
+      --bg-dark: #05080a;
+      --bg-card: rgba(10, 15, 20, 0.92);
+      --bg-card-hover: rgba(10, 15, 20, 0.98);
+      --border-subtle: rgba(0, 245, 212, 0.15);
+      --border-glow: rgba(0, 245, 212, 0.3);
+      --cyan: #00f5d4;
+      --cyan-glow: rgba(0, 245, 212, 0.2);
+      --rose: #ff335f;
+      --rose-glow: rgba(255, 51, 95, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #94a3b8;
+    }
+    body { background-color: #05080a; color: #f8fafc; }
+    main { color: #f8fafc; }
+    .form-label, .card-subtitle, .overview-hero p,
+    .action-guidance-text, .check-explain, .check-tech-id,
+    .metric-label, .metric-sub, .preset-label {
+      color: #94a3b8;
+    }
+    :where(button, a, input, select, textarea):focus-visible {
+      outline-color: #00f5d4;
     }
 
 </style>
