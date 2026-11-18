@@ -155,6 +155,17 @@ test("GET /dashboard serves interactive HTML web application", async () => {
   assert.ok(html.includes("Payment Guard"));
 });
 
+test("GET /workspace serves single-file Web3 security workspace", async () => {
+  const response = await fetch(baseUrl + "/workspace");
+  assert.equal(response.status, 200);
+  assert.ok(response.headers.get("content-type")?.includes("text/html"));
+  const html = await response.text();
+  assert.ok(html.includes("PayGuard Security Workspace"));
+  assert.ok(html.includes("Active Threat Vectors"));
+  assert.ok(html.includes("Node Consensus Health"));
+  assert.ok(html.includes("logStream"));
+});
+
 test("GET / with Accept: text/html serves interactive web dashboard to browsers", async () => {
   const response = await fetch(baseUrl + "/", {
     headers: { "accept": "text/html,application/xhtml+xml" }

@@ -74,6 +74,27 @@ function loadDocsHtml() {
 }
 let cachedDocsHtml = loadDocsHtml();
 
+function loadWorkspaceHtml() {
+  const candidates = [
+    new URL("./public/security-workspace.html", import.meta.url),
+    new URL("./public/workspace.html", import.meta.url),
+    new URL("../public/security-workspace.html", import.meta.url),
+    path.join(process.cwd(), "public", "security-workspace.html"),
+    path.join(process.cwd(), "public", "workspace.html"),
+    path.join(process.cwd(), "security-workspace.html"),
+    path.join(process.cwd(), "workspace.html")
+  ];
+  for (const candidate of candidates) {
+    try {
+      if (existsSync(candidate)) {
+        return readFileSync(candidate, "utf8");
+      }
+    } catch {}
+  }
+  return null;
+}
+let cachedWorkspaceHtml = loadWorkspaceHtml();
+
 const PORT = Number.parseInt(process.env.PORT || "8080", 10);
 const HOST = process.env.HOST;
 const MAX_BODY_BYTES = 64 * 1024;
@@ -447,6 +468,22 @@ async function requestHandler(req, res) {
         cachedDashboardHtml = loadDashboardHtml();
       }
       const responseHtml = cachedDashboardHtml || "<!DOCTYPE html><html><head><title>PayGuard Dashboard</title></head><body><h1>PayGuard Dashboard</h1></body></html>";
+      res.writeHead(statusCode, {
+        "content-type": "text/html; charset=utf-8",
+        "content-length": Buffer.byteLength(responseHtml),
+        "cache-control": "no-cache",
+        "access-control-allow-origin": "*"
+      });
+      return res.end(responseHtml);
+    }
+
+    // Single-File Web3 Security Workspace
+    if (req.method === "GET" && (parsed.pathname === "/workspace" || parsed.pathname === "/security-workspace")) {
+      statusCode = 200;
+      if (!cachedWorkspaceHtml) {
+        cachedWorkspaceHtml = loadWorkspaceHtml();
+      }
+      const responseHtml = cachedWorkspaceHtml || cachedDashboardHtml || "<!DOCTYPE html><html><head><title>PayGuard Security Workspace</title></head><body><h1>PayGuard Security Workspace</h1></body></html>";
       res.writeHead(statusCode, {
         "content-type": "text/html; charset=utf-8",
         "content-length": Buffer.byteLength(responseHtml),
