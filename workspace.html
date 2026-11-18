@@ -859,28 +859,293 @@
         }
 
         @media (max-width: 768px) {
-            body { padding: 16px; }
-            .control-matrix { gap: 14px; }
-            .module-span-3, .module-span-4, .module-span-6, .module-span-12 {
-                grid-column: span 12;
+            html, body {
+                overflow-x: hidden;
+                padding: 12px !important;
             }
-            .scanner-entry-row {
-                flex-direction: column;
+
+            .workspace-shell {
+                max-width: 100% !important;
+                overflow-x: hidden;
             }
-            .sub-input-row {
-                grid-template-columns: 1fr;
-            }
-            .audit-trigger-btn {
-                padding: 14px;
-                justify-content: center;
-            }
+
+            /* 1. Brand Header & Kernel Pill */
             .brand-header {
-                flex-direction: column;
-                align-items: flex-start;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 14px !important;
             }
-            .telemetry-bar {
+
+            .brand-identity {
+                display: flex !important;
+                align-items: center !important;
+                flex-wrap: wrap !important;
+                gap: 12px !important;
+                width: 100% !important;
+            }
+
+            .brand-title-wrap {
                 width: 100%;
-                justify-content: space-between;
+            }
+
+            .brand-title-row {
+                display: flex !important;
+                align-items: center !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+
+            .kernel-pill,
+            .kernel-badge,
+            .status-pill {
+                white-space: nowrap !important;
+                font-size: 0.68rem !important;
+                padding: 4px 8px !important;
+            }
+
+            .telemetry-bar {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                width: 100% !important;
+            }
+
+            .tele-stat-pill,
+            .shift-shortcut-pill {
+                flex: 1 1 calc(50% - 8px) !important;
+                min-width: 130px !important;
+                justify-content: center !important;
+                white-space: nowrap !important;
+                font-size: 0.68rem !important;
+                padding: 6px 8px !important;
+            }
+
+            /* 2. Full-Width Vertical Card Stacking */
+            .control-matrix,
+            .dashboard-grid,
+            .metrics-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 14px !important;
+            }
+
+            .module-card,
+            .card,
+            .module-span-3,
+            .module-span-4,
+            .module-span-6,
+            .module-span-12,
+            [style*="grid-column"] {
+                grid-column: 1 / -1 !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                padding: 16px !important;
+            }
+
+            .metric-readout {
+                font-size: 2.25rem !important;
+                line-height: 1.1 !important;
+            }
+
+            .metric-caption {
+                font-size: 0.78rem !important;
+            }
+
+            /* Card Footer Metadata Wrapping */
+            .card-footer,
+            .metric-footer {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 6px 12px !important;
+                font-size: 0.7rem !important;
+            }
+
+            /* 3. Threat Scanner Tabs & Input Stack */
+            .module-nav-bar,
+            .scanner-tabs,
+            .mode-tabs {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
+                gap: 8px !important;
+                padding-bottom: 8px !important;
+                width: 100% !important;
+            }
+
+            .module-nav-bar::-webkit-scrollbar,
+            .scanner-tabs::-webkit-scrollbar,
+            .mode-tabs::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            .module-nav-btn,
+            .scanner-tabs button,
+            .mode-tabs button {
+                flex: 0 0 auto !important;
+                white-space: nowrap !important;
+                padding: 7px 12px !important;
+                font-size: 0.72rem !important;
+            }
+
+            .preset-strip {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
+                gap: 8px !important;
+                padding-bottom: 6px !important;
+                width: 100% !important;
+            }
+
+            .preset-strip::-webkit-scrollbar {
+                display: none !important;
+            }
+
+            .preset-pill {
+                flex: 0 0 auto !important;
+                white-space: nowrap !important;
+            }
+
+            .scanner-entry-row,
+            .scanner-input-group,
+            .input-wrapper {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+
+            .input-carrier {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+                width: 100% !important;
+                position: relative !important;
+            }
+
+            .terminal-input,
+            .scanner-input-group input,
+            .input-wrapper input {
+                width: 100% !important;
+                padding-right: 16px !important;
+                font-size: 0.8rem !important;
+            }
+
+            .input-type-badge {
+                position: static !important;
+                align-self: flex-start !important;
+                margin-top: 2px !important;
+            }
+
+            .audit-trigger-btn {
+                width: 100% !important;
+                padding: 14px !important;
+                justify-content: center !important;
+                font-size: 0.8rem !important;
+            }
+
+            .sub-input-row {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Scanner Verdict Cockpit on Mobile */
+            .verdict-cockpit {
+                padding: 14px !important;
+            }
+
+            .verdict-bar {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+
+            .verdict-seal {
+                font-size: 0.75rem !important;
+                padding: 6px 12px !important;
+            }
+
+            .risk-gauge-container {
+                width: 100% !important;
+                justify-content: space-between !important;
+                font-size: 0.75rem !important;
+            }
+
+            .gauge-track {
+                flex: 1 !important;
+                max-width: 140px !important;
+            }
+
+            .tri-column-grid {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+
+            .tri-box {
+                padding: 12px !important;
+            }
+
+            /* 4. Telemetry Header & Log Readability */
+            .telemetry-header,
+            .module-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+
+            .header-label {
+                font-size: 0.88rem !important;
+            }
+
+            .telemetry-console-head,
+            .telemetry-controls,
+            .filter-group {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 6px !important;
+                width: 100% !important;
+            }
+
+            .console-tab-btn {
+                padding: 5px 9px !important;
+                font-size: 0.68rem !important;
+                flex: 0 0 auto !important;
+            }
+
+            .telemetry-console,
+            .log-stream {
+                height: 230px !important;
+                padding: 12px !important;
+                font-size: 0.75rem !important;
+            }
+
+            .console-row,
+            .log-line {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                align-items: baseline !important;
+                gap: 6px !important;
+                margin-bottom: 12px !important;
+                padding-bottom: 8px !important;
+                border-bottom: 1px solid #141414 !important;
+            }
+
+            .console-row span:last-child,
+            .log-body,
+            .log-msg {
+                flex: 1 1 100% !important;
+                width: 100% !important;
+                white-space: normal !important;
+                word-break: normal !important;
+                overflow-wrap: anywhere !important;
+                line-height: 1.45 !important;
+            }
+
+            .log-body code {
+                word-break: break-all !important;
             }
         }
     </style>
