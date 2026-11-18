@@ -3594,10 +3594,10 @@ header .pill-secondary {
       if (verdict === 'EXPECTED_DOMAIN_MATCH' || verdict === 'NO_KNOWN_THREAT') {
         hero.classList.add('PASS');
         iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-        title.innerHTML = 'Safe: Trusted Domain Verified';
+        title.innerHTML = 'No Known URL Threats Detected';
         riskBadge.className = 'verdict-risk-tag low';
         riskBadge.innerHTML = '<i class="fa-solid fa-shield"></i> Low Risk';
-        guidance.textContent = 'This website matches your trusted domain expectations and passed all local spoofing heuristics. Safe to proceed.';
+        guidance.textContent = 'No known URL threat indicators were detected by the checks performed. This does not prove the destination is legitimate; verify the domain independently before interacting.';
       } else if (verdict === 'UNVERIFIED' || verdict === 'CAUTION') {
         hero.classList.add(verdict);
         iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
@@ -3869,9 +3869,9 @@ header .pill-secondary {
       if (status === 'PASS') {
         hero.classList.add('PASS');
         iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-        title.innerHTML = 'Payment Approved: Conforms to Policy';
+        title.innerHTML = 'Payment Requirements Match Policy';
         statusBadge.className = 'verdict-risk-tag low';
-        statusBadge.innerHTML = '<i class="fa-solid fa-check"></i> Safe • PASS';
+        statusBadge.innerHTML = '<i class="fa-solid fa-check"></i> Policy Match • PASS';
         summary.textContent = 'All payment requirements strictly match your authorized recipient, maximum budget, and blockchain network.';
         guidance.textContent = 'This payment matches your intent rules. Note: PayGuard operates in advisory mode and will not execute payments automatically.';
       } else if (status === 'REVIEW') {
@@ -4138,7 +4138,7 @@ header .pill-secondary {
         riskBadge.className = 'verdict-risk-tag low';
         riskBadge.innerHTML = '<i class="fa-solid fa-check"></i> PASS • ' + (data.riskLevel || 'LOW');
         summary.textContent = 'All parameters match configured policy allowlists and caps.';
-        guidance.textContent = 'Operation is clean and adheres to policies. Note: Pass indicates compliance with configured constraints; contract bytecode must be audited separately.';
+        guidance.textContent = 'The decoded operation matches the configured constraints. PASS reflects only the supported checks; contract bytecode must be assessed separately.';
       } else if (verdict === 'REVIEW') {
         hero.classList.add('REVIEW');
         iconBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
@@ -4237,7 +4237,7 @@ header .pill-secondary {
       if (verdict === 'PASS') {
         hero.classList.add('PASS');
         iconBox.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-        title.innerHTML = 'Token Clean • ' + (data.tokenSymbol ? data.tokenSymbol : 'Base Mainnet Asset');
+        title.innerHTML = 'No Known Threat-Intelligence Flags • ' + (data.tokenSymbol ? data.tokenSymbol : 'Base Mainnet Asset');
         riskBadge.className = 'verdict-risk-tag low';
         riskBadge.innerHTML = '<i class="fa-solid fa-shield"></i> PASS • LOW RISK';
         summary.textContent = 'Token is open source with no honeypot markers or predatory taxes detected.';
@@ -4265,7 +4265,7 @@ header .pill-secondary {
         riskBadge.className = 'verdict-risk-tag medium';
         riskBadge.innerHTML = '<i class="fa-solid fa-question"></i> UNVERIFIED';
         summary.textContent = (data.findings && data.findings.length) ? data.findings[0].message : 'Intelligence unavailable or unsupported network.';
-        guidance.textContent = 'Absence of data is not proof of safety. Token Security supports Base Mainnet (8453) only.';
+        guidance.textContent = 'No returned data is not evidence of safety. Provider-backed token checks currently support Base Mainnet (8453) only.';
       }
 
       grid.innerHTML = (data.findings || []).map(f => {
@@ -4368,7 +4368,7 @@ header .pill-secondary {
         riskBadge.className = 'verdict-risk-tag medium';
         riskBadge.innerHTML = '<i class="fa-solid fa-question"></i> UNVERIFIED';
         summary.textContent = (data.findings && data.findings.length) ? data.findings[0].message : 'Intelligence unavailable or unsupported network.';
-        guidance.textContent = 'Absence of data is not proof of safety. Address security supports Base Mainnet (8453) only.';
+        guidance.textContent = 'No returned data is not evidence of safety. Provider-backed address checks currently support Base Mainnet (8453) only.';
       }
 
       grid.innerHTML = (data.findings || []).map(f => {
