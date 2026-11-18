@@ -2535,7 +2535,7 @@ header .pill-secondary {
             <div class="pulse-dot"></div>
             <span id="service-status-text"><i class="fa-solid fa-circle-check" style="margin-right: 0.25rem;"></i> Active • Read-Only Mode</span>
           </div>
-          <div class="pill-secondary"><i class="fa-solid fa-shield-halved" style="color: var(--cyan); margin-right: 0.35rem;"></i> 8 MCP Tools Active</div>
+          <div class="pill-secondary"><i class="fa-solid fa-shield-halved" style="color: var(--cyan); margin-right: 0.35rem;"></i> 7 MCP Tools Available</div>
           <span id="wallet-network-badge"><i class="fa-solid fa-circle-nodes"></i> Base Mainnet</span>
           <button id="wallet-connect-btn" class="btn btn-connect-wallet" onclick="walletConnect()" style="font-size:0.82rem; padding:0.42rem 0.95rem; border-radius:6px;">
             <i class="fa-solid fa-wallet"></i> <span id="wallet-btn-label">Connect Wallet</span>
@@ -2620,10 +2620,10 @@ header .pill-secondary {
         <div class="overview-hero-copy">
           <p class="overview-kicker">Base security workspace</p>
           <h2>Verify before you connect, sign, or send.</h2>
-          <p>Check a website, token, address, transaction, or wallet before it can put your assets at risk. PayGuard is read-only and never asks for a private key or seed phrase.</p>
+          <p>Analyze a URL, token, wallet address, transaction calldata, or x402 payment request before interacting. PayGuard provides evidence-based, advisory checks and never asks for private keys or seed phrases.</p>
           <div class="overview-hero-actions">
             <button class="btn overview-primary-action" type="button" onclick="switchTab('wallet-scanner')"><i class="fa-solid fa-radar"></i> Scan a wallet</button>
-            <button class="btn btn-secondary" type="button" onclick="switchTab('url-sentinel')"><i class="fa-solid fa-magnifying-glass-chart"></i> Check a website</button>
+            <button class="btn btn-secondary" type="button" onclick="switchTab('url-sentinel')"><i class="fa-solid fa-magnifying-glass-chart"></i> Analyze a URL</button>
           </div>
         </div>
         <aside class="overview-posture" aria-label="PayGuard protection status">
@@ -2631,7 +2631,7 @@ header .pill-secondary {
           <div>
             <span>Protection approach</span>
             <strong>Evidence first. Action clear.</strong>
-            <p>Results explain what was found, why it matters, and what to do next.</p>
+            <p>Results show the available evidence, explain why it matters, and disclose what could not be verified.</p>
           </div>
         </aside>
       </div>
@@ -2673,12 +2673,12 @@ header .pill-secondary {
             <p>PayGuard never requests, stores, or handles wallet private keys, seed phrases, card details, or bearer passwords.</p>
           </div>
           <div class="guarantee-card">
-            <h4><i class="fa-solid fa-shield-virus" style="color: var(--emerald);"></i> Anti-SSRF In-Memory Parsing</h4>
-            <p>Target URLs are parsed strictly locally via standard URL parsers. PayGuard never opens, fetches, or triggers remote resources.</p>
+            <h4><i class="fa-solid fa-shield-virus" style="color: var(--emerald);"></i> Local URL Analysis</h4>
+            <p>URL Sentinel analyzes the submitted URL as text. It does not open or fetch the target website.</p>
           </div>
           <div class="guarantee-card">
             <h4><i class="fa-solid fa-user-secret" style="color: var(--amber);"></i> Sensitive-Path Redaction</h4>
-            <p>High-entropy tokens, reset hashes, invite codes, and query credentials are automatically scrubbed before any external lookup.</p>
+            <p>Sensitive URL values, including credentials and reset tokens, are redacted before an optional external threat-intelligence lookup.</p>
           </div>
           <div class="guarantee-card">
             <h4><i class="fa-solid fa-scale-balanced" style="color: var(--violet);"></i> Advisory Integrity Verdicts</h4>
@@ -2797,8 +2797,8 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-vault" style="color: var(--cyan);"></i> Payment Guard Intent Policy Studio</div>
-            <div class="card-subtitle">Verify x402 payment requirements against an explicit caller-defined policy before paying.</div>
+            <div class="card-title"><i class="fa-solid fa-vault" style="color: var(--cyan);"></i> x402 Payment Policy Check</div>
+            <div class="card-subtitle">Compare x402 payment requirements with a policy defined by the caller, including recipient, amount, asset, and network constraints. The result is advisory and does not authorize or execute a payment.</div>
           </div>
         </div>
 
@@ -2833,8 +2833,8 @@ header .pill-secondary {
                 <i class="fa-solid fa-circle-check"></i>
               </div>
               <div>
-                <div class="verdict-title" id="payment-verdict-title">Payment Approved by Policy</div>
-                <div class="verdict-plain-summary" id="payment-verdict-summary">All requirements comply with your trusted safety constraints.</div>
+                <div class="verdict-title" id="payment-verdict-title">Payment Requirements Match Policy</div>
+                <div class="verdict-plain-summary" id="payment-verdict-summary">The supplied requirements match the policy fields you specified. This comparison does not authorize or execute a payment.</div>
               </div>
             </div>
             <div id="payment-status-badge" class="verdict-risk-tag low">
@@ -2921,8 +2921,8 @@ header .pill-secondary {
                 <i class="fa-solid fa-circle-check"></i>
               </div>
               <div>
-                <div class="verdict-title" id="calldata-verdict-title">Calldata Validated</div>
-                <div class="verdict-plain-summary" id="calldata-verdict-summary">No dangerous allowance or policy violations detected.</div>
+                <div class="verdict-title" id="calldata-verdict-title">Supported Calldata Checks Complete</div>
+                <div class="verdict-plain-summary" id="calldata-verdict-summary">No supported operation or configured policy violations were detected in this assessment.</div>
               </div>
             </div>
             <div id="calldata-risk-badge" class="verdict-risk-tag low">
@@ -2965,7 +2965,7 @@ header .pill-secondary {
         </div>
 
         <div class="preset-bar">
-          <span class="preset-label"><i class="fa-solid fa-flask" style="color: var(--cyan); margin-right: 0.25rem;"></i> Verified Base Tokens:</span>
+          <span class="preset-label"><i class="fa-solid fa-flask" style="color: var(--cyan); margin-right: 0.25rem;"></i> Sample Base Token Addresses:</span>
           <button class="preset-chip" onclick="setTokenPreset('0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', 'USDC (Native Base)')"><i class="fa-solid fa-circle-check" style="color: var(--emerald);"></i> Base USDC (Canonical)</button>
           <button class="preset-chip" onclick="setTokenPreset('0x4200000000000000000000000000000000000006', 'WETH (Wrapped Ether)')"><i class="fa-solid fa-circle-check" style="color: var(--emerald);"></i> Base WETH</button>
           <button class="preset-chip" onclick="setTokenPreset('0x036CbD53842c5426634e7929541eC2318f3dCF7e', 'Sepolia USDC (Testnet)')"><i class="fa-solid fa-circle-question" style="color: var(--amber);"></i> Base Sepolia (UNSUPPORTED_CHAIN)</button>
@@ -2995,8 +2995,8 @@ header .pill-secondary {
                 <i class="fa-solid fa-circle-check"></i>
               </div>
               <div>
-                <div class="verdict-title" id="token-verdict-title">Token Verified Safe</div>
-                <div class="verdict-plain-summary" id="token-verdict-summary">No honeypot or malicious fee structures detected.</div>
+                <div class="verdict-title" id="token-verdict-title">No Known Risk Indicators Detected</div>
+                <div class="verdict-plain-summary" id="token-verdict-summary">No supported threat-intelligence flags were returned. This is not an independent contract audit or a guarantee of safety.</div>
               </div>
             </div>
             <div id="token-risk-badge" class="verdict-risk-tag low">
@@ -3069,8 +3069,8 @@ header .pill-secondary {
                 <i class="fa-solid fa-circle-check"></i>
               </div>
               <div>
-                <div class="verdict-title" id="address-verdict-title">Address Clear: No Known Flags</div>
-                <div class="verdict-plain-summary" id="address-verdict-summary">No active sanctions, phishing, or theft records found.</div>
+                <div class="verdict-title" id="address-verdict-title">No Known Reputation Flags Found</div>
+                <div class="verdict-plain-summary" id="address-verdict-summary">No matching threat-intelligence records were returned. Absence of a flag does not establish that an address is trustworthy.</div>
               </div>
             </div>
             <div id="address-risk-badge" class="verdict-risk-tag low">
@@ -3102,7 +3102,7 @@ header .pill-secondary {
         <div class="card-header">
           <div>
             <div class="card-title"><i class="fa-solid fa-radar" style="color: var(--cyan);"></i> Automatic Base Wallet Token Scanner</div>
-            <div class="card-subtitle">Automatically screens ERC-20 token holdings in any Base wallet for malicious honeypots, predatory taxes, and deceptive token impersonation attacks.</div>
+            <div class="card-subtitle">Inspects discoverable ERC-20 holdings in a Base wallet for threat-intelligence flags, suspicious token attributes, and possible impersonation.</div>
           </div>
         </div>
 
@@ -3110,7 +3110,7 @@ header .pill-secondary {
           <i class="fa-solid fa-user-shield action-guidance-icon"></i>
           <div>
             <div class="action-guidance-title">Zero-Signature Read-Only Investigation</div>
-            <div class="action-guidance-text">PayGuard never requests wallet connection signatures, private keys, or token permissions. Simply enter any public Base address to run multi-vector token discovery (Multi-Source Security Analysis).</div>
+            <div class="action-guidance-text">PayGuard never requests wallet connection signatures, private keys, or token permissions. Enter a public Base address to inspect available token holdings. Discovery may be incomplete; the result reports when only partial coverage is available.</div>
           </div>
         </div>
 
@@ -3231,9 +3231,9 @@ header .pill-secondary {
               <div class="metric-sub"><i class="fa-solid fa-clipboard-question"></i> Review Before Interacting</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Verified Clean</div>
+              <div class="metric-label">No Flags Returned</div>
               <div class="metric-value" id="stat-tokens-clean" style="color: var(--emerald);">0</div>
-              <div class="metric-sub"><i class="fa-solid fa-circle-check"></i> Standard Security Markers</div>
+              <div class="metric-sub"><i class="fa-solid fa-circle-check"></i> No supported risk indicators returned</div>
             </div>
           </div>
 
@@ -3251,7 +3251,7 @@ header .pill-secondary {
         <div class="card-header">
           <div>
             <div class="card-title"><i class="fa-solid fa-file-shield" style="color: var(--cyan);"></i> Privacy-Conscious Threat Report Generator</div>
-            <div class="card-subtitle">Produces audited draft threat reports with guaranteed secret and credential token redaction.</div>
+            <div class="card-subtitle">Produces draft threat reports with sensitive secrets and credential values redacted.</div>
           </div>
         </div>
 
@@ -3281,16 +3281,16 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-atom" style="color: var(--cyan);"></i> NEAR Protocol Security Intelligence</div>
-            <div class="card-subtitle">Account existence, access-key analysis, contract code-hash auditing, and impersonation detection on NEAR Mainnet.</div>
+            <div class="card-title"><i class="fa-solid fa-atom" style="color: var(--cyan);"></i> Experimental NEAR Security Checks</div>
+            <div class="card-subtitle">Experimental integration outside the current Base-first scope documented in Whitepaper v1.2.0.</div>
           </div>
         </div>
 
         <div class="action-guidance-card" style="margin-bottom:1.25rem">
           <i class="fa-solid fa-shield-halved action-guidance-icon"></i>
           <div>
-            <div class="action-guidance-title">Read-Only NEAR Protocol Agent (Phase 1)</div>
-            <div class="action-guidance-text">Validates NEAR account IDs (named, implicit ED25519, ETH-implicit), retrieves finalized on-chain state, analyzes access keys, detects homoglyph impersonation, and compares contract code hashes against a canonical registry. Zero private-key access &mdash; purely advisory.</div>
+            <div class="action-guidance-title">Experimental NEAR Account Assessment</div>
+            <div class="action-guidance-text">Inspects selected NEAR account and contract signals through a separate experimental integration. This is not part of PayGuard's documented Base Mainnet coverage; results are advisory and do not use private keys.</div>
           </div>
         </div>
 
@@ -3356,8 +3356,8 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-store" style="color: var(--cyan);"></i> Autonomous Agent Bazaar Service Catalog</div>
-            <div class="card-subtitle">Standard Draft 2020-12 x402 discovery metadata for AI agents and marketplace bots.</div>
+            <div class="card-title"><i class="fa-solid fa-store" style="color: var(--cyan);"></i> x402 Service Discovery Catalog</div>
+            <div class="card-subtitle">Draft 2020-12 x402 discovery metadata for API clients and AI agents.</div>
           </div>
         </div>
 
@@ -3403,7 +3403,7 @@ header .pill-secondary {
       <div class="footer-col"><h4>Security Platform</h4><ul><li><a href="/#products">PayGuard Risk</a></li><li><a href="/#products">Risk Firewall</a></li><li><a href="/dashboard">Security Dashboard</a></li><li><a href="/dashboard">Transaction Simulator</a></li></ul></div>
       <div class="footer-col"><h4>Intelligence &amp; Docs</h4><ul><li><a href="/whitepaper">Whitepaper</a></li><li><a href="/docs">Technical Docs</a></li><li><a href="/docs#api-reference">API Reference</a></li><li><a href="/faq">Frequently Asked Questions</a></li></ul></div>
       <div class="footer-col"><h4>Ecosystem</h4><ul><li><a href="https://base.org" target="_blank">Base Ecosystem</a></li><li><a href="/health" target="_blank">System Health</a></li><li><a href="https://github.com/technea/PayGuard" target="_blank">GitHub Repository</a></li></ul></div>
-      <div class="footer-col"><h4>Security Commitment</h4><ul style="color:var(--text-muted);line-height:1.7;"><li>Verify Before You Trust</li><li>Autonomous Onchain Protection</li><li>Decentralized Threat Intelligence</li></ul></div>
+      <div class="footer-col"><h4>Security Commitment</h4><ul style="color:var(--text-muted);line-height:1.7;"><li>Verify Before You Trust</li><li>Read-Only, Evidence-Based Security</li><li>Threat-Intelligence Provider Signals</li></ul></div>
     </div>
     <div class="footer-bottom"><div style="display:flex;align-items:center;gap:.6rem;"><img src="/assets/payguard-mark.svg" alt="" width="18" height="18" style="opacity:.8;"><span>&copy; 2026 PayGuard Platform. All rights reserved.</span></div><span>Verify Before You Trust &bull; Free Base Ecosystem Security Platform</span></div>
   </footer>
