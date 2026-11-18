@@ -2502,6 +2502,89 @@ header .pill-secondary {
       .overview-scan-card > i { width: 2.3rem; height: 2.3rem; }
     }
 
+
+    /* Dashboard typography and usability alignment — scoped to this page. */
+    :root {
+      --dashboard-text-xs: 0.75rem;
+      --dashboard-text-sm: 0.875rem;
+      --dashboard-text-base: 0.9375rem;
+      --dashboard-text-lg: 1.125rem;
+      --dashboard-text-xl: 1.375rem;
+    }
+    body { font-family: var(--font-sans); font-size: var(--dashboard-text-base); line-height: 1.6; }
+    main { color: var(--text-main); }
+    main h1, main h2, main h3, main h4,
+    .overview-hero h2, .card-title, .checks-section-heading {
+      font-family: var(--font-sans);
+      letter-spacing: -0.025em;
+      text-wrap: pretty;
+    }
+    .overview-hero h2 { font-size: clamp(1.65rem, 3vw, 2rem); line-height: 1.2; font-weight: 800; }
+    .overview-hero p, .card-subtitle, .action-guidance-text,
+    .verdict-plain-summary, .check-detail-box, .guarantee-card p {
+      font-size: var(--dashboard-text-sm);
+      line-height: 1.65;
+    }
+    .card-title { font-size: var(--dashboard-text-lg); line-height: 1.35; font-weight: 700; }
+    .checks-section-heading { font-size: 1rem; line-height: 1.4; font-weight: 700; }
+    .form-label { font-size: var(--dashboard-text-sm); line-height: 1.45; font-weight: 650; color: #cbd5e1; }
+    .input-box, select.input-box, textarea.input-box {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      line-height: 1.55;
+    }
+    .input-box::placeholder { color: #8292a8; opacity: 1; }
+    .metric-label, .preset-label, .metric-sub, .check-explain,
+    .check-tech-id, .check-badge, .verdict-risk-tag {
+      font-size: var(--dashboard-text-xs);
+      line-height: 1.5;
+    }
+    .metric-label { letter-spacing: 0.045em; }
+    .check-friendly-name { font-size: var(--dashboard-text-sm); line-height: 1.4; }
+    .check-explain { color: #a8b5c8; }
+    .check-tech-id { color: #aebbd0; }
+    .tab-nav { gap: 0.4rem; }
+    .tab-nav .tab-btn {
+      min-height: 2.9rem;
+      min-width: 145px;
+      padding: 0.7rem 0.85rem;
+      font-size: 0.875rem;
+      line-height: 1.35;
+      font-weight: 650;
+    }
+    .tab-nav .tab-btn > i {
+      width: 1.35rem;
+      min-width: 1.35rem;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+    .btn, .btn-secondary, .preset-chip {
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+    .preset-chip { min-height: 2.35rem; }
+    .glass-card, .metric-card, .check-card, .guarantee-card { min-width: 0; }
+    :where(button, a, input, select, textarea):focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 3px;
+    }
+    @media (max-width: 768px) {
+      main { padding: 1.25rem 1rem; gap: 1.25rem; }
+      .tab-nav .tab-btn { min-width: 128px; padding: 0.65rem 0.75rem; font-size: 0.8125rem; }
+      .glass-card { padding: 1.25rem; }
+      .form-label { font-size: 0.875rem; }
+      .card-subtitle, .overview-hero p, .action-guidance-text { font-size: 0.875rem; }
+      .metric-grid { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); }
+    }
+    @media (max-width: 420px) {
+      main { padding-inline: 0.85rem; }
+      .glass-card { padding: 1rem; }
+      .tab-nav .tab-btn { min-width: 118px; }
+      .metric-value { font-size: 1.45rem; }
+    }
+
 </style>
 </head>
 <body>
@@ -2586,28 +2669,28 @@ header .pill-secondary {
         <i class="fa-solid fa-compass"></i> Overview
       </button>
       <button class="tab-btn" onclick="switchTab('url-sentinel')">
-        <i class="fa-solid fa-magnifying-glass-chart"></i> URL Sentinel
+        <i class="fa-solid fa-link"></i> URL Sentinel
       </button>
       <button class="tab-btn" onclick="switchTab('payment-guard')">
-        <i class="fa-solid fa-vault"></i> Payment Guard
+        <i class="fa-solid fa-credit-card"></i> Payment Guard
       </button>
       <button class="tab-btn" onclick="switchTab('calldata-inspector')">
-        <i class="fa-solid fa-binary"></i> Calldata Inspector
+        <i class="fa-solid fa-file-code"></i> Calldata Inspector
       </button>
       <button class="tab-btn" onclick="switchTab('token-security')">
         <i class="fa-solid fa-coins"></i> Token Security
       </button>
       <button class="tab-btn" onclick="switchTab('address-security')">
-        <i class="fa-solid fa-address-card"></i> Address Security
+        <i class="fa-solid fa-user-shield"></i> Address Security
       </button>
       <button class="tab-btn" onclick="switchTab('wallet-scanner')">
-        <i class="fa-solid fa-radar"></i> Base Wallet Scanner
+        <i class="fa-solid fa-wallet"></i> Base Wallet Scanner
       </button>
       <button class="tab-btn" onclick="switchTab('threat-report')">
         <i class="fa-solid fa-file-shield"></i> Threat Reports
       </button>
       <button class="tab-btn" onclick="switchTab('near-security')">
-        <i class="fa-solid fa-atom"></i> NEAR Security
+        <i class="fa-solid fa-circle-nodes"></i> NEAR Security
       </button>
       <button class="tab-btn" onclick="switchTab('system-health')">
         <i class="fa-solid fa-heart-pulse"></i> System Health
@@ -2622,8 +2705,8 @@ header .pill-secondary {
           <h2>Verify before you connect, sign, or send.</h2>
           <p>Analyze a URL, token, wallet address, transaction calldata, or x402 payment request before interacting. PayGuard provides evidence-based, advisory checks and never asks for private keys or seed phrases.</p>
           <div class="overview-hero-actions">
-            <button class="btn overview-primary-action" type="button" onclick="switchTab('wallet-scanner')"><i class="fa-solid fa-radar"></i> Scan a wallet</button>
-            <button class="btn btn-secondary" type="button" onclick="switchTab('url-sentinel')"><i class="fa-solid fa-magnifying-glass-chart"></i> Analyze a URL</button>
+            <button class="btn overview-primary-action" type="button" onclick="switchTab('wallet-scanner')"><i class="fa-solid fa-wallet"></i> Scan a wallet</button>
+            <button class="btn btn-secondary" type="button" onclick="switchTab('url-sentinel')"><i class="fa-solid fa-link"></i> Analyze a URL</button>
           </div>
         </div>
         <aside class="overview-posture" aria-label="PayGuard protection status">
@@ -2647,7 +2730,7 @@ header .pill-secondary {
         <div class="overview-scan-grid">
           <button class="overview-scan-card" type="button" onclick="switchTab('url-sentinel')"><i class="fa-solid fa-globe"></i><span>Website</span><small>Phishing and impersonation</small></button>
           <button class="overview-scan-card" type="button" onclick="switchTab('token-security')"><i class="fa-solid fa-coins"></i><span>Token</span><small>Honeypot and contract risks</small></button>
-          <button class="overview-scan-card" type="button" onclick="switchTab('address-security')"><i class="fa-solid fa-address-card"></i><span>Address</span><small>Known threat signals</small></button>
+          <button class="overview-scan-card" type="button" onclick="switchTab('address-security')"><i class="fa-solid fa-user-shield"></i><span>Address</span><small>Known threat signals</small></button>
           <button class="overview-scan-card" type="button" onclick="switchTab('calldata-inspector')"><i class="fa-solid fa-code-branch"></i><span>Transaction</span><small>Approvals and calldata intent</small></button>
         </div>
       </section>
@@ -2693,7 +2776,7 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-magnifying-glass-chart" style="color: var(--cyan);"></i> URL Sentinel Phishing & Impersonation Inspector</div>
+            <div class="card-title"><i class="fa-solid fa-link" style="color: var(--cyan);"></i> URL Sentinel Phishing & Impersonation Inspector</div>
             <div class="card-subtitle">Examines target URLs for Unicode homoglyphs, lookalikes, brand impersonation, and suffix attacks.</div>
           </div>
         </div>
@@ -2797,7 +2880,7 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-vault" style="color: var(--cyan);"></i> x402 Payment Policy Check</div>
+            <div class="card-title"><i class="fa-solid fa-credit-card" style="color: var(--cyan);"></i> x402 Payment Policy Check</div>
             <div class="card-subtitle">Compare x402 payment requirements with a policy defined by the caller, including recipient, amount, asset, and network constraints. The result is advisory and does not authorize or execute a payment.</div>
           </div>
         </div>
@@ -2865,7 +2948,7 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-binary" style="color: var(--cyan);"></i> EVM Transaction Calldata Inspector</div>
+            <div class="card-title"><i class="fa-solid fa-file-code" style="color: var(--cyan);"></i> EVM Transaction Calldata Inspector</div>
             <div class="card-subtitle">Decode and evaluate proposed EVM transactions against configurable allowlists and maximum caps before signing.</div>
           </div>
         </div>
@@ -3025,7 +3108,7 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-address-card" style="color: var(--cyan);"></i> Base Address Security</div>
+            <div class="card-title"><i class="fa-solid fa-user-shield" style="color: var(--cyan);"></i> Base Address Security</div>
             <div class="card-subtitle">Screen EVM counterparty wallets and contracts on Base Mainnet for phishing, theft attacks, OFAC sanctions, cybercrime, and honeypot affiliation.</div>
           </div>
         </div>
@@ -3058,7 +3141,7 @@ header .pill-secondary {
 
         <div style="margin-bottom: 1.5rem;">
           <button class="btn" id="btn-check-address" onclick="runAddressSecurity()">
-            <i class="fa-solid fa-address-card"></i> Check Address Reputation
+            <i class="fa-solid fa-user-shield"></i> Check Address Reputation
           </button>
         </div>
 
@@ -3101,7 +3184,7 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-radar" style="color: var(--cyan);"></i> Automatic Base Wallet Token Scanner</div>
+            <div class="card-title"><i class="fa-solid fa-wallet" style="color: var(--cyan);"></i> Automatic Base Wallet Token Scanner</div>
             <div class="card-subtitle">Inspects discoverable ERC-20 holdings in a Base wallet for threat-intelligence flags, suspicious token attributes, and possible impersonation.</div>
           </div>
         </div>
@@ -3124,7 +3207,7 @@ header .pill-secondary {
               <div id="wallet-mode-b-address" style="font-size:0.8rem; color:var(--text-muted); font-family:monospace;"></div>
             </div>
             <button class="btn" id="btn-scan-my-wallet" onclick="scanMyWallet()" style="background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.4); color:var(--emerald); flex-shrink:0;">
-              <i class="fa-solid fa-radar"></i> Scan My Wallet Holdings
+              <i class="fa-solid fa-wallet"></i> Scan My Wallet Holdings
             </button>
           </div>
           <div style="font-size:0.78rem; color:var(--text-dim); margin-top:0.6rem;">
@@ -3153,7 +3236,7 @@ header .pill-secondary {
 
         <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
           <button class="btn" id="btn-scan-wallet" onclick="runWalletTokenScan()">
-            <i class="fa-solid fa-radar"></i> Scan Wallet Token Portfolio
+            <i class="fa-solid fa-wallet"></i> Scan Wallet Token Portfolio
           </button>
           <span style="font-size: 0.85rem; color: var(--text-dim);"><i class="fa-solid fa-shield"></i> Read-only public audit • Base Mainnet (8453)</span>
         </div>
@@ -3281,7 +3364,7 @@ header .pill-secondary {
       <div class="glass-card">
         <div class="card-header">
           <div>
-            <div class="card-title"><i class="fa-solid fa-atom" style="color: var(--cyan);"></i> Experimental NEAR Security Checks</div>
+            <div class="card-title"><i class="fa-solid fa-circle-nodes" style="color: var(--cyan);"></i> Experimental NEAR Security Checks</div>
             <div class="card-subtitle">Experimental integration outside the current Base-first scope documented in Whitepaper v1.2.0.</div>
           </div>
         </div>
@@ -3304,13 +3387,13 @@ header .pill-secondary {
         </div>
 
         <div class="form-group" style="margin-bottom:1.25rem">
-          <label class="form-label" for="near-account-id"><span><i class="fa-solid fa-atom" style="color: var(--cyan); margin-right: 0.35rem;"></i> NEAR Account ID to Inspect</span></label>
+          <label class="form-label" for="near-account-id"><span><i class="fa-solid fa-circle-nodes" style="color: var(--cyan); margin-right: 0.35rem;"></i> NEAR Account ID to Inspect</span></label>
           <input type="text" id="near-account-id" class="input-box" placeholder="alice.near, implicit64hexaccount, 0xEthImplicit..." value="wrap.near" autocomplete="off" spellcheck="false">
         </div>
 
         <div style="margin-bottom:1.5rem">
           <button class="btn" id="btn-near-scan" onclick="runNearSecurity()">
-            <i class="fa-solid fa-atom"></i> Run NEAR Security Analysis
+            <i class="fa-solid fa-circle-nodes"></i> Run NEAR Security Analysis
           </button>
         </div>
 
@@ -4317,7 +4400,7 @@ header .pill-secondary {
       } catch (err) {
         alert('Address security query failed: ' + err.message);
       } finally {
-        btn.innerHTML = '<i class="fa-solid fa-address-card"></i> Check Address Reputation';
+        btn.innerHTML = '<i class="fa-solid fa-user-shield"></i> Check Address Reputation';
         btn.disabled = false;
         updateTelemetry();
       }
@@ -4380,7 +4463,7 @@ header .pill-secondary {
           <div class="check-card ${statusClass}">
             <div class="check-card-header">
               <div class="check-title-group">
-                <i class="fa-solid fa-address-card" style="color: var(--cyan); font-size: 0.95rem;"></i>
+                <i class="fa-solid fa-user-shield" style="color: var(--cyan); font-size: 0.95rem;"></i>
                 <span class="check-friendly-name">${f.code.replace(/_/g, ' ')}</span>
               </div>
               <span class="check-badge"><i class="${statusIcon}"></i> ${severity.toUpperCase()}</span>
@@ -4447,7 +4530,7 @@ header .pill-secondary {
       try {
         await runWalletTokenScan({ isModeB: true, expectedWallet: _walletAddress });
       } finally {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-radar"></i> Scan My Wallet Holdings'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wallet"></i> Scan My Wallet Holdings'; }
       }
     }
 
@@ -4529,7 +4612,7 @@ header .pill-secondary {
         }
       } finally {
         if (btn) {
-          btn.innerHTML = '<i class="fa-solid fa-radar"></i> Scan Wallet Token Portfolio';
+          btn.innerHTML = '<i class="fa-solid fa-wallet"></i> Scan Wallet Token Portfolio';
           btn.disabled = false;
         }
         updateTelemetry();
@@ -5121,7 +5204,7 @@ header .pill-secondary {
       } catch (err) {
         alert('NEAR security scan failed: ' + err.message);
       } finally {
-        btn.innerHTML = '<i class="fa-solid fa-atom"></i> Run NEAR Security Analysis';
+        btn.innerHTML = '<i class="fa-solid fa-circle-nodes"></i> Run NEAR Security Analysis';
         btn.disabled = false;
         updateTelemetry();
       }
@@ -5174,7 +5257,7 @@ header .pill-secondary {
           return `
             <div class="check-card ${cls}">
               <div class="check-card-header">
-                <div class="check-title-group"><i class="fa-solid fa-atom" style="color:var(--cyan);font-size:0.95rem"></i><span class="check-friendly-name">${title}</span></div>
+                <div class="check-title-group"><i class="fa-solid fa-circle-nodes" style="color:var(--cyan);font-size:0.95rem"></i><span class="check-friendly-name">${title}</span></div>
                 <span class="check-badge"><i class="fa-solid ${icon}"></i> ${label}</span>
               </div>
               <div class="check-explain">${f.message || f.detail || ''}</div>
