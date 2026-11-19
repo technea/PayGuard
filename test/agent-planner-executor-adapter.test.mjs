@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mapPlannerToolInput, createPlannerExecutorAdapter } from "../src/agent/planner-executor-adapter.mjs";
+import { mapPlannerToolInput, createPlannerExecutorAdapter, compilePayGuardToolInputSchemas } from "../src/agent/planner-executor-adapter.mjs";
 import { dispatchValidatedPlannerOutput } from "../src/agent/planner-dispatcher.mjs";
 
 const MAINNET = { planId: "p-1", network: "base-mainnet", chainId: 8453 };
@@ -94,4 +94,70 @@ test("adapter is exposed as a trusted callback for dependency scheduler integrat
   );
   assert.equal(result, true);
   assert.equal(invoked[0].name, "payguard_analyze_url");
+});
+
+
+test("compiles the registered input schemas for all seven planner tools", () => {
+  const validators = compilePayGuardToolInputSchemas();
+  assert.equal(validators.size, 7);
+  for (const name of [
+    "payguard_check_payment_intent",
+    "payguard_analyze_url",
+    "payguard_prepare_threat_report",
+    "payguard_inspect_calldata",
+    "payguard_check_token_security",
+    "payguard_check_address_security",
+    "payguard_scan_wallet_tokens"
+  ]) {
+    assert.equal(typeof validators.get(name), "function", name + " schema should be compiled");
+  }
+});
+
+test("rejects malformed mapped payloads before crossing invokeTool boundary", async () => {
+  const invoked = [];
+  const adapter = createPlannerExecutorAdapter({
+    targetPlugin: {
+      invokeTool: async (name, input) => {
+        invoked.push({ name, input });
+        return true;
+      }
+    }
+  });
+
+  await assert.rejects(
+    adapter(
+      call("payguard_scan_wallet_tokens", A, {
+        walletAddress: A,
+        customTokenAddresses: "not-an-array"
+      }),
+      MAINNET
+    ),
+    error => error.code === "PLANNER_TOOL_INPUT_SCHEMA_INVALID" &&
+      error.toolName === "payguard_scan_wallet_tokens" &&
+      Array.isArray(error.validationErrors) &&
+      error.validationErrors.length > 0
+  );
+  assert.equal(invoked.length, 0, "invalid mapped inputs must never invoke the plugin");
+});
+
+test("valid mapped inputs pass registered plugin schema before invokeTool", async () => {
+  const invoked = [];
+  const adapter = createPlannerExecutorAdapter({
+    targetPlugin: {
+      invokeTool: async (name, input) => {
+        invoked.push({ name, input });
+        return true;
+      }
+    }
+  });
+
+  const result = await adapter(
+    call("payguard_check_token_security", A, { contractAddress: A }),
+    MAINNET
+  );
+  assert.equal(result, true);
+  assert.deepEqual(invoked, [{
+    name: "payguard_check_token_security",
+    input: { contractAddress: A, chainId: 8453 }
+  }]);
 });
