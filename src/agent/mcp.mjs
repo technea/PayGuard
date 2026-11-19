@@ -1,12 +1,14 @@
 /**
  * @module agent/mcp
- * @section Optional MCP integration for bounded investigations
- * Adds one aggregate read-only investigation tool without changing the base
- * PayGuard plugin or replacing its existing tools.
+ * @section Optional MCP integration for bounded investigations and Core Agent
+ * Exposes the legacy investigation adapter and the strict versioned Core Agent
+ * contract as separate read-only tools.
  */
 
 import plugin, { startMcpServer } from "../plugin.mjs";
 import { runPayGuardInvestigation } from "./investigation.mjs";
+import { runPayGuardAgent } from "./core-agent.mjs";
+import { AGENT_INPUT_SCHEMA } from "./input-schema.mjs";
 
 export const PAYGUARD_INVESTIGATION_TOOL = Object.freeze({
   id: "payguard_run_investigation",
@@ -66,6 +68,18 @@ export const PAYGUARD_INVESTIGATION_TOOL = Object.freeze({
   run: null
 });
 
+export const PAYGUARD_CORE_AGENT_TOOL = Object.freeze({
+  id: "payguard_run_agent",
+  name: "payguard_run_agent",
+  title: "PayGuard Core Security Agent",
+  description: "Validate a versioned, strict, read-only Base security investigation request and execute its explicit allowlisted checks within caller-supplied limits. Evidence Core remains the sole source of the deterministic assessment and decision. No signing, broadcasting, or transaction execution.",
+  inputSchema: AGENT_INPUT_SCHEMA,
+  outputSchema: { type: "object" },
+  handler: null,
+  execute: null,
+  run: null
+});
+
 export function createPayGuardAgentMcpPlugin({ targetPlugin = plugin } = {}) {
   if (!targetPlugin || typeof targetPlugin.invokeTool !== "function" || !Array.isArray(targetPlugin.tools)) {
     throw new TypeError("targetPlugin must expose invokeTool(name, input) and a tools array.");
@@ -77,13 +91,22 @@ export function createPayGuardAgentMcpPlugin({ targetPlugin = plugin } = {}) {
     execute: input => runPayGuardInvestigation({ ...input, targetPlugin }),
     run: input => runPayGuardInvestigation({ ...input, targetPlugin })
   });
+  const coreAgentTool = Object.freeze({
+    ...PAYGUARD_CORE_AGENT_TOOL,
+    handler: input => runPayGuardAgent(input, { targetPlugin }),
+    execute: input => runPayGuardAgent(input, { targetPlugin }),
+    run: input => runPayGuardAgent(input, { targetPlugin })
+  });
 
   return Object.freeze({
     ...targetPlugin,
-    tools: Object.freeze([...targetPlugin.tools, investigationTool]),
+    tools: Object.freeze([...targetPlugin.tools, investigationTool, coreAgentTool]),
     invokeTool(name, input) {
       if (name === investigationTool.name) {
         return runPayGuardInvestigation({ ...(input || {}), targetPlugin });
+      }
+      if (name === coreAgentTool.name) {
+        return runPayGuardAgent(input, { targetPlugin });
       }
       return targetPlugin.invokeTool(name, input);
     },
