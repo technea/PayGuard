@@ -62,8 +62,8 @@ export function normalizeToolStatus(toolName, result) {
   if (toolName === "payguard_scan_wallet_tokens") {
     if (walletHasRisk(result)) return { status: "RISK_DETECTED", reason: "One or more wallet holdings contain explicit risk findings." };
     if (Number(result.summary?.unverifiedCount || 0) > 0) return { status: "UNVERIFIED", reason: "One or more wallet holdings could not be verified." };
-    if (result.discoveryMode && result.discoveryMode !== "FULL_INDEXER") {
-      return { status: "UNVERIFIED", reason: "Wallet discovery was partial; holdings outside the discovered scope were not checked." };
+    if (result.discoveryMode !== "FULL_INDEXER") {
+      return { status: "UNVERIFIED", reason: "Full-indexer wallet discovery was not confirmed; undiscovered holdings may remain unchecked." };
     }
     if (["SUCCESS", "COMPLETED", "PASS"].includes(explicit)) {
       return { status: "VERIFIED", reason: "The discovered wallet holdings passed implemented checks; this is not a safety guarantee." };
@@ -87,7 +87,7 @@ export function normalizeToolStatus(toolName, result) {
     if (verdict === "PASS" && data === "AVAILABLE") {
       return { status: "VERIFIED", reason: "The provider returned data and implemented checks found no flagged issue; this is not a safety guarantee." };
     }
-    if (verdict === "UNVERIFIED") return { status: "UNVERIFIED", reason: "Provider data or supported coverage was insufficient." };
+    return { status: "UNVERIFIED", reason: "Provider data or supported coverage was insufficient or not explicitly confirmed." };
   }
 
   if (toolName === "payguard_check_payment_intent") {
@@ -99,13 +99,12 @@ export function normalizeToolStatus(toolName, result) {
     }
   }
 
-  if (explicit === "PASS" || verdict === "PASS" || verdict === "VERIFIED") {
-    return { status: "VERIFIED", reason: "Implemented checks passed; this is not a guarantee of safety." };
+  if (explicit === "ERROR" || explicit === "TIMEOUT" || explicit === "FAILED") {
+    return { status: "ERROR", reason: "The tool reported an execution failure." };
   }
-  if (explicit === "UNVERIFIED" || UNKNOWN_VERDICTS.has(verdict) || result.error) {
-    return { status: "UNVERIFIED", reason: "The tool result is incomplete or inconclusive." };
-  }
-  return { status: EVIDENCE_STATUSES.includes(explicit) ? explicit : "UNVERIFIED", reason: "No recognized verdict was present." };
+  return { status: EVIDENCE_STATUSES.includes(explicit) && explicit !== "VERIFIED"
+    ? explicit
+    : "UNVERIFIED", reason: "Tool-specific verification requirements were not satisfied." };
 }
 
 export function resolveStatus(statuses) {
