@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { validatePlannerOutput, PlannerOutputValidationError } from "../src/agent/planner-validation.mjs";
 
 const valid = () => ({
-  schemaVersion: "1.0.1",
+  schemaVersion: "1.0.2",
   planId: "plan-001",
   network: "base-mainnet",
   chainId: 8453,
@@ -13,7 +13,8 @@ const valid = () => ({
     toolName: "payguard_analyze_url",
     purpose: "domain_reputation",
     priority: 1,
-    targetRef: "https://example.com"
+    targetRef: "https://example.com",
+    toolInput: { url: "https://example.com" }
   }],
   stopReason: null
 });
@@ -57,4 +58,22 @@ test("accepts a consistent insufficient-input response with no calls", () => {
   value.toolCalls = [];
   value.stopReason = "insufficient_input";
   assert.equal(validatePlannerOutput(value), value);
+});
+
+test("rejects extra properties inside strict toolInput objects", () => {
+  const value = valid();
+  value.toolCalls[0].toolInput.extra = true;
+  assert.throws(() => validatePlannerOutput(value), PlannerOutputValidationError);
+});
+
+test("rejects toolInput paired with a different registered tool", () => {
+  const value = valid();
+  value.toolCalls[0].toolName = "payguard_check_token_security";
+  assert.throws(() => validatePlannerOutput(value), PlannerOutputValidationError);
+});
+
+test("rejects missing toolInput", () => {
+  const value = valid();
+  delete value.toolCalls[0].toolInput;
+  assert.throws(() => validatePlannerOutput(value), PlannerOutputValidationError);
 });
