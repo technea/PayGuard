@@ -104,3 +104,7 @@ Use trusted policy values for `intent`; do not construct the user's policy from 
 - No real-world detection benchmark or performance metric is claimed.
 
 Phase C is a deterministic orchestration foundation, not an autonomous agent.
+
+## 8. Integration baseline
+
+Phase C is based directly on `main`, which already contains the merged Phase B Evidence Core. This branch does not duplicate Phase B files or carry a dependency on the former Phase B feature branch.
