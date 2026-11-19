@@ -125,7 +125,7 @@ function categoryFor(source, ruleId) {
   if (/gas/.test(sourceText) || /gas/.test(ruleText)) return "GAS_ANOMALY";
   if (/simulation/.test(sourceText) || /simulation/.test(ruleText)) return "SIMULATION";
   if (/approval|allowance|permit/.test(ruleText)) return "APPROVAL";
-  if (sourceText.includes("inspect_calldata")) return "CALLDATA";
+  if (sourceText.includes("inspect_calldata") || sourceText.includes("correlation")) return "CALLDATA";
   return "REPUTATION";
 }
 
