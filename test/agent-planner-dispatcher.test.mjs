@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { dispatchValidatedPlannerOutput } from "../src/agent/planner-dispatcher.mjs";
 
 const validPlan = () => ({
-  schemaVersion: "1.0.1",
+  schemaVersion: "1.0.2",
   planId: "plan-001",
   network: "base-mainnet",
   chainId: 8453,
@@ -14,7 +14,8 @@ const validPlan = () => ({
     toolName: "payguard_analyze_url",
     purpose: "domain_reputation",
     priority: 1,
-    targetRef: "https://example.com"
+    targetRef: "https://example.com",
+    toolInput: { url: "https://example.com" }
   }]
 });
 
@@ -77,6 +78,8 @@ test("validates the complete dependency graph before dispatch", async () => {
       callId: "b",
       toolName: "payguard_check_token_security",
       purpose: "token_security",
+      targetRef: "0x1111111111111111111111111111111111111111",
+      toolInput: { contractAddress: "0x1111111111111111111111111111111111111111" },
       dependsOn: ["a"]
     }
   ];
@@ -99,6 +102,8 @@ test("dispatches dependency chain in order and passes prior results", async () =
       callId: "second",
       toolName: "payguard_check_address_security",
       purpose: "address_reputation",
+      targetRef: "0x2222222222222222222222222222222222222222",
+      toolInput: { address: "0x2222222222222222222222222222222222222222" },
       dependsOn: ["first"]
     },
     {
