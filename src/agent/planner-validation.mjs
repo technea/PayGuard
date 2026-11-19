@@ -35,6 +35,27 @@ export class PlannerOutputValidationError extends TypeError {
  * Returns the original value on success; never coerces or mutates planner data.
  */
 export function validatePlannerOutput(value) {
+  // Preserve a distinct authorization error for attempted non-catalogue tools,
+  // even though v1.0.2 also constrains toolName through per-tool oneOf branches.
+  if (value && typeof value === "object" && Array.isArray(value.toolCalls)) {
+    const denied = [];
+    for (const [index, call] of value.toolCalls.entries()) {
+      if (call && typeof call === "object" && !Array.isArray(call) &&
+          typeof call.toolName === "string" && !isKnownPayGuardTool(call.toolName)) {
+        denied.push({
+          instancePath: `/toolCalls/${index}/toolName`,
+          keyword: "toolAllowlist",
+          message: "Tool is not registered in the trusted PayGuard tool catalogue."
+        });
+      }
+    }
+    if (denied.length) {
+      const error = new PlannerOutputValidationError(denied);
+      error.code = "PLANNER_OUTPUT_TOOL_NOT_ALLOWED";
+      throw error;
+    }
+  }
+
   if (!validateSchema(value)) {
     const errors = (validateSchema.errors ?? []).map(error => ({
       instancePath: error.instancePath,
