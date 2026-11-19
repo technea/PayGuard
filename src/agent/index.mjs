@@ -2,7 +2,8 @@
  * @module agent
  * @section Public deterministic agent API
  * Exposes evidence, planning, bounded orchestration, correlation, and MCP integration.
- * No model, signing, or transaction execution is included.
+ * The Core Agent accepts a strict versioned request and delegates final decisions
+ * to Evidence Core. No model, signing, or transaction execution is included.
  */
 
 export { EVIDENCE_STATUSES, STATUS_PRECEDENCE, EVIDENCE_SCHEMA_VERSION, TOOL_CATALOG } from "./constants.mjs";
@@ -21,4 +22,11 @@ export { correlatePaymentAndTransaction, CORRELATION_SOURCE } from "./correlatio
 export { runInvestigation } from "./runner.mjs";
 export { createPayGuardToolExecutor } from "./payguard-executor.mjs";
 export { runPayGuardInvestigation } from "./investigation.mjs";
-export { createPayGuardAgentMcpPlugin, startPayGuardAgentMcpServer, PAYGUARD_INVESTIGATION_TOOL } from "./mcp.mjs";
+export { AGENT_INPUT_SCHEMA_VERSION, AGENT_INPUT_SCHEMA, validateAgentInput } from "./input-schema.mjs";
+export { runPayGuardAgent } from "./core-agent.mjs";
+export {
+  createPayGuardAgentMcpPlugin,
+  startPayGuardAgentMcpServer,
+  PAYGUARD_INVESTIGATION_TOOL,
+  PAYGUARD_CORE_AGENT_TOOL
+} from "./mcp.mjs";
