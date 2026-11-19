@@ -40,7 +40,7 @@ export const RISK_WEIGHTS = Object.freeze({
 const MAX_RULE_ID_LENGTH = 256;
 const MAX_DESCRIPTION_LENGTH = 4096;
 const MAX_EVIDENCE_REFS = 32;
-const MAX_ASSESSMENT_FINDINGS = 3200;
+const MAX_ASSESSMENT_FINDINGS = 9600;
 const ASSESSMENT_KEYS = Object.freeze([
   "riskScore",
   "confidence",
