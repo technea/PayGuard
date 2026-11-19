@@ -117,8 +117,8 @@ test("Core Agent delegates to bounded investigation and preserves Evidence Core 
 
 test("invalid Core Agent input is rejected before any security tool is invoked", async () => {
   const targetPlugin = fakePlugin();
-  await assert.rejects(
-    runPayGuardAgent(validInput({ constraints: {
+  assert.throws(
+    () => runPayGuardAgent(validInput({ constraints: {
       readOnly: false,
       maxToolCalls: 1,
       maxExecutionTimeMs: 5000
