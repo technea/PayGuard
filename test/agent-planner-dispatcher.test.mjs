@@ -36,6 +36,26 @@ test("validates then dispatches the planner call with trusted plan context", asy
   assert.equal(dispatched.context.chainId, 8453);
   assert.deepEqual(dispatched.context.dependencyResults, {});
   assert.equal(result.executions[0].status, "COMPLETED");
+  assert.equal(result.evidence[0].status, "UNVERIFIED");
+  assert.equal(result.assessment.overallStatus, "UNVERIFIED");
+  assert.equal(result.finalDecision, "WARN");
+});
+
+test("Evidence Core, not the planner, determines the final security decision", async () => {
+  const result = await dispatchValidatedPlannerOutput({
+    plannerOutput: validPlan(),
+    dispatchToolCall: async () => ({
+      verdict: "CAUTION",
+      riskLevel: "HIGH",
+      findings: [{ code: "PHISHING_SIGNAL", severity: "HIGH" }]
+    })
+  });
+
+  assert.equal(result.plannerDisposition, "investigate");
+  assert.equal(result.evidence[0].status, "RISK_DETECTED");
+  assert.equal(result.assessment.decision, "BLOCK");
+  assert.equal(result.finalDecision, "BLOCK");
+  assert.notEqual(result.finalDecision, result.plannerDisposition);
 });
 
 test("does not dispatch if schema validation fails", async () => {
@@ -125,9 +145,11 @@ test("dispatches dependency chain in order and passes prior results", async () =
   assert.deepEqual(order, ["first", "second"]);
   assert.equal(receivedDependency, "0xabc");
   assert.deepEqual(result.executions.map(item => item.status), ["COMPLETED", "COMPLETED"]);
+  assert.equal(result.evidence.length, 2);
+  assert.equal(result.assessment.evidenceCoverage.length, 2);
 });
 
-test("returns a validated no-dispatch outcome for non-investigate decisions", async () => {
+test("returns a validated no-dispatch outcome for non-investigate planner disposition", async () => {
   let dispatches = 0;
   const plannerOutput = validPlan();
   plannerOutput.decision = "insufficient_input";
@@ -139,7 +161,9 @@ test("returns a validated no-dispatch outcome for non-investigate decisions", as
     dispatchToolCall: async () => { dispatches++; }
   });
 
-  assert.equal(result.decision, "insufficient_input");
+  assert.equal(result.plannerDisposition, "insufficient_input");
+  assert.equal(result.assessment.overallStatus, "NOT_CHECKED");
+  assert.equal(result.finalDecision, "WARN");
   assert.deepEqual(result.executions, []);
   assert.equal(dispatches, 0);
 });
