@@ -27,7 +27,7 @@ The agent coordinates and explains. It does not replace the deterministic tools 
 | Threat-intelligence adapters (feeds, additional providers) | Planned | A feed-refresh design exists on an unmerged branch |
 | Explanation layer (language model) | Planned | Writes the report from evidence |
 | Evaluation suite | Planned | Required before any release |
-| Agent API and MCP tool (`payguard_investigate`, name provisional) | Planned | |
+| Strict Core Agent MCP tool (`payguard_run_agent`) | Implemented on development branch | Draft 2020-12 input contract, runtime validation, allowlisted checks and bounded read-only execution; no HTTP Agent endpoint |
 
 ---
 
@@ -85,7 +85,7 @@ The report would reuse PayGuard's existing conventions so downstream consumers n
 }
 ```
 
-This is an illustrative shape for a design discussion. Field names are provisional and no endpoint returns it today.
+This is an illustrative future explanation/report shape, not the current response schema. The current Core Agent returns the existing normalized investigation report, execution metadata, correlation result (when requested), and Evidence Core assessment. An LLM explanation object and this illustrative verdict/confidence format are not implemented.
 
 ---
 
