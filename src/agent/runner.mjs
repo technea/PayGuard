@@ -63,6 +63,184 @@ function validatePlan(checks, executeTool) {
   });
 }
 
+/**
+ * Validate and execute planner tool calls in dependency order.
+ *
+ * A call is dispatchable only after every declared dependency has resolved.
+ * A rejected dispatch marks that call FAILED and all downstream dependants BLOCKED.
+ * Independent calls continue, subject to the fixed concurrency cap.
+ *
+ * dispatchToolCall is supplied by the trusted host and remains responsible for
+ * translating the validated planner call into the existing tool's input contract.
+ * This scheduler does not discover tools, interpret evidence verdicts, or authorize
+ * transactions.
+ */
+export async function runDependentToolCalls({
+  toolCalls,
+  dispatchToolCall,
+  maxConcurrency = DEFAULT_CONCURRENCY
+} = {}) {
+  if (!Array.isArray(toolCalls) || toolCalls.length === 0) {
+    throw new TypeError("toolCalls must be a non-empty array.");
+  }
+  if (toolCalls.length > 7) {
+    throw new RangeError("Planner output exceeds the seven-call execution limit.");
+  }
+  if (typeof dispatchToolCall !== "function") {
+    throw new TypeError("dispatchToolCall must be a function supplied by the trusted host.");
+  }
+  const concurrency = requireIntegerInRange(
+    maxConcurrency,
+    "maxConcurrency",
+    1,
+    MAX_CONCURRENCY,
+    DEFAULT_CONCURRENCY
+  );
+
+  const calls = toolCalls.map((call, index) => {
+    if (!call || typeof call !== "object" || Array.isArray(call)) {
+      throw new TypeError("Each planner tool call must be an object.");
+    }
+    if (typeof call.callId !== "string" || !call.callId.trim()) {
+      throw new TypeError("Each planner tool call requires a non-empty callId.");
+    }
+    if (!isKnownPayGuardTool(call.toolName)) {
+      throw new TypeError("Unknown PayGuard tool in planner call " + index + ".");
+    }
+    const dependencies = call.dependsOn === undefined ? [] : call.dependsOn;
+    if (!Array.isArray(dependencies) || dependencies.some(id => typeof id !== "string" || !id.trim())) {
+      throw new TypeError("dependsOn must contain non-empty callId strings.");
+    }
+    if (new Set(dependencies).size !== dependencies.length) {
+      throw new TypeError("Duplicate dependencies are not allowed for " + call.callId + ".");
+    }
+    return { call: cloneJsonValue(call), index, dependencies: [...dependencies] };
+  });
+
+  const byId = new Map();
+  for (const item of calls) {
+    if (byId.has(item.call.callId)) {
+      throw new TypeError("Duplicate planner callId: " + item.call.callId + ".");
+    }
+    byId.set(item.call.callId, item);
+  }
+
+  for (const item of calls) {
+    for (const dependencyId of item.dependencies) {
+      if (dependencyId === item.call.callId) {
+        throw new TypeError("A planner call cannot depend on itself: " + dependencyId + ".");
+      }
+      if (!byId.has(dependencyId)) {
+        throw new TypeError("Unknown dependency " + dependencyId + " for " + item.call.callId + ".");
+      }
+    }
+  }
+
+  // Reject cycles before any tool is dispatched.
+  const indegree = new Map(calls.map(item => [item.call.callId, item.dependencies.length]));
+  const dependants = new Map(calls.map(item => [item.call.callId, []]));
+  for (const item of calls) {
+    for (const dependencyId of item.dependencies) {
+      dependants.get(dependencyId).push(item.call.callId);
+    }
+  }
+  const readyForCycleCheck = calls
+    .filter(item => indegree.get(item.call.callId) === 0)
+    .map(item => item.call.callId);
+  let visited = 0;
+  while (readyForCycleCheck.length > 0) {
+    const callId = readyForCycleCheck.shift();
+    visited++;
+    for (const dependantId of dependants.get(callId)) {
+      const nextDegree = indegree.get(dependantId) - 1;
+      indegree.set(dependantId, nextDegree);
+      if (nextDegree === 0) readyForCycleCheck.push(dependantId);
+    }
+  }
+  if (visited !== calls.length) {
+    throw new TypeError("Planner tool-call dependencies contain a cycle.");
+  }
+
+  const states = new Map(calls.map(item => [item.call.callId, {
+    status: "PENDING",
+    result: undefined,
+    error: undefined
+  }]));
+  const results = new Array(calls.length);
+  let pendingCount = calls.length;
+
+  while (pendingCount > 0) {
+    let changed = false;
+
+    // A failed prerequisite blocks dependants without dispatching them.
+    for (const item of calls) {
+      const state = states.get(item.call.callId);
+      if (state.status !== "PENDING") continue;
+      const failedDependency = item.dependencies.find(id => {
+        const dependencyStatus = states.get(id).status;
+        return dependencyStatus === "FAILED" || dependencyStatus === "BLOCKED";
+      });
+      if (failedDependency) {
+        state.status = "BLOCKED";
+        state.error = "Dependency " + failedDependency + " did not complete successfully.";
+        results[item.index] = {
+          callId: item.call.callId,
+          toolName: item.call.toolName,
+          status: "BLOCKED",
+          blockedBy: failedDependency
+        };
+        pendingCount--;
+        changed = true;
+      }
+    }
+
+    const ready = calls.filter(item => {
+      if (states.get(item.call.callId).status !== "PENDING") return false;
+      return item.dependencies.every(id => states.get(id).status === "COMPLETED");
+    });
+
+    if (ready.length === 0) {
+      if (!changed && pendingCount > 0) {
+        throw new Error("Dependency scheduler reached an invalid non-progress state.");
+      }
+      continue;
+    }
+
+    const batch = ready.slice(0, concurrency);
+    await Promise.all(batch.map(async item => {
+      const state = states.get(item.call.callId);
+      state.status = "RUNNING";
+      try {
+        const dependencyResults = Object.fromEntries(
+          item.dependencies.map(id => [id, states.get(id).result])
+        );
+        const result = await dispatchToolCall(cloneJsonValue(item.call), dependencyResults);
+        state.status = "COMPLETED";
+        state.result = result;
+        results[item.index] = {
+          callId: item.call.callId,
+          toolName: item.call.toolName,
+          status: "COMPLETED",
+          result
+        };
+      } catch (error) {
+        state.status = "FAILED";
+        state.error = error;
+        results[item.index] = {
+          callId: item.call.callId,
+          toolName: item.call.toolName,
+          status: "FAILED",
+          errorCode: "TOOL_DISPATCH_FAILED",
+          error: error instanceof Error ? error.message : "Tool dispatch failed."
+        };
+      }
+      pendingCount--;
+    }));
+  }
+
+  return results;
+}
+
 function raceWithTimeout(promise, timeoutMs) {
   let timer;
   const timeout = new Promise(resolve => {
