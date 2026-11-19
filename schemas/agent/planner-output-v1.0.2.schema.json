@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://payguard.dev/schemas/agent/planner-output-v1.0.2.json",
+  "title": "PayGuard Planner Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "planId",
+    "network",
+    "chainId",
+    "decision",
+    "toolCalls",
+    "stopReason"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.2"
+    },
+    "planId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "network": {
+      "enum": [
+        "base-mainnet",
+        "base-sepolia"
+      ]
+    },
+    "chainId": {
+      "type": "integer",
+      "enum": [
+        8453,
+        84532
+      ]
+    },
+    "decision": {
+      "enum": [
+        "investigate",
+        "insufficient_input",
+        "unsupported_target"
+      ]
+    },
+    "toolCalls": {
+      "type": "array",
+      "maxItems": 7,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/paymentIntentCall"
+          },
+          {
+            "$ref": "#/$defs/urlCall"
+          },
+          {
+            "$ref": "#/$defs/threatReportCall"
+          },
+          {
+            "$ref": "#/$defs/calldataCall"
+          },
+          {
+            "$ref": "#/$defs/tokenCall"
+          },
+          {
+            "$ref": "#/$defs/addressCall"
+          },
+          {
+            "$ref": "#/$defs/walletCall"
+          }
+        ]
+      }
+    },
+    "stopReason": {
+      "enum": [
+        "insufficient_input",
+        "unsupported_target",
+        null
+      ]
+    }
+  },
+  "$defs": {
+    "baseCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "callId",
+        "toolName",
+        "purpose",
+        "priority",
+        "targetRef",
+        "toolInput"
+      ],
+      "properties": {
+        "callId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "toolName": {
+          "type": "string"
+        },
+        "purpose": {
+          "enum": [
+            "identity_verification",
+            "contract_security",
+            "token_security",
+            "transaction_analysis",
+            "address_reputation",
+            "domain_reputation",
+            "evidence_enrichment"
+          ]
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7
+        },
+        "targetRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "toolInput": {
+          "type": "object"
+        },
+        "dependsOn": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 7
+        }
+      }
+    },
+    "paymentIntentInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "No planner-supplied payment data. The adapter requires payment intent policy and payment requirements from trusted application context."
+    },
+    "urlInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      }
+    },
+    "threatReportInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      }
+    },
+    "calldataInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "No planner-supplied transaction data. The adapter requires a transaction snapshot from trusted application context."
+    },
+    "tokenInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractAddress"
+      ],
+      "properties": {
+        "contractAddress": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        }
+      }
+    },
+    "addressInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "address"
+      ],
+      "properties": {
+        "address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        }
+      }
+    },
+    "walletInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "walletAddress"
+      ],
+      "properties": {
+        "walletAddress": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "customTokenAddresses": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{40}$"
+          }
+        }
+      }
+    },
+    "paymentIntentCall": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseCall"
+        },
+        {
+          "properties": {
+            "toolName": {
+              "const": "payguard_check_payment_intent"
+            },
+            "toolInput": {
+              "$ref": "#/$defs/paymentIntentInput"
+            }
+          }
+        }
+      ]
+    },
+    "urlCall": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseCall"
+        },
+        {
+          "properties": {
+            "toolName": {
+              "const": "payguard_analyze_url"
+            },
+            "toolInput": {
+              "$ref": "#/$defs/urlInput"
+            }
+          }
+        }
+      ]
+    },
+    "threatReportCall": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseCall"
+        },
+        {
+          "properties": {
+            "toolName": {
+              "const": "payguard_prepare_threat_report"
+            },
+            "toolInput": {
+              "$ref": "#/$defs/threatReportInput"
+            }
+          }
+        }
+      ]
+    },
+    "calldataCall": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseCall"
+        },
+        {
+          "properties": {
+            "toolName": {
+              "const": "payguard_inspect_calldata"
+            },
+            "toolInput": {
+              "$ref": "#/$defs/calldataInput"
+            }
+          }
+        }
+      ]
+    },
+    "tokenCall": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseCall"
+        },
+        {
+          "properties": {
+            "toolName": {
+              "const": "payguard_check_token_security"
+            },
+            "toolInput": {
+              "$ref": "#/$defs/tokenInput"
+            }
+          }
+        }
+      ]
+    },
+    "addressCall": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseCall"
+        },
+        {
+          "properties": {
+            "toolName": {
+              "const": "payguard_check_address_security"
+            },
+            "toolInput": {
+              "$ref": "#/$defs/addressInput"
+            }
+          }
+        }
+      ]
+    },
+    "walletCall": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/baseCall"
+        },
+        {
+          "properties": {
+            "toolName": {
+              "const": "payguard_scan_wallet_tokens"
+            },
+            "toolInput": {
+              "$ref": "#/$defs/walletInput"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "network": {
+              "const": "base-mainnet"
+            },
+            "chainId": {
+              "const": 8453
+            }
+          }
+        },
+        {
+          "properties": {
+            "network": {
+              "const": "base-sepolia"
+            },
+            "chainId": {
+              "const": 84532
+            }
+          }
+        }
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "decision": {
+              "const": "investigate"
+            },
+            "stopReason": {
+              "const": null
+            },
+            "toolCalls": {
+              "minItems": 1,
+              "maxItems": 7
+            }
+          }
+        },
+        {
+          "properties": {
+            "decision": {
+              "const": "insufficient_input"
+            },
+            "stopReason": {
+              "const": "insufficient_input"
+            },
+            "toolCalls": {
+              "maxItems": 0
+            }
+          }
+        },
+        {
+          "properties": {
+            "decision": {
+              "const": "unsupported_target"
+            },
+            "stopReason": {
+              "const": "unsupported_target"
+            },
+            "toolCalls": {
+              "maxItems": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
