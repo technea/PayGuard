@@ -127,3 +127,34 @@ test('wallet scanner summary risk counts and impersonation are preserved as risk
   });
   assert.equal(result.status, 'RISK_DETECTED');
 });
+
+
+test('tool-specific verification requirements cannot be bypassed by a generic PASS', () => {
+  const tokenWithoutAvailability = normalizeToolResult('payguard_check_token_security', {
+    verdict: 'PASS'
+  });
+  const addressWithoutAvailability = normalizeToolResult('payguard_check_address_security', {
+    verdict: 'PASS', dataStatus: 'UNKNOWN'
+  });
+  const urlGenericPass = normalizeToolResult('payguard_analyze_url', {
+    verdict: 'PASS'
+  });
+  const walletWithoutFullDiscovery = normalizeToolResult('payguard_scan_wallet_tokens', {
+    status: 'SUCCESS',
+    summary: { highRiskCount: 0, suspiciousCount: 0, unverifiedCount: 0 },
+    tokens: []
+  });
+
+  assert.equal(tokenWithoutAvailability.status, 'UNVERIFIED');
+  assert.equal(addressWithoutAvailability.status, 'UNVERIFIED');
+  assert.equal(urlGenericPass.status, 'UNVERIFIED');
+  assert.equal(walletWithoutFullDiscovery.status, 'UNVERIFIED');
+});
+
+test('provider PASS is verified only when provider data is explicitly available', () => {
+  const result = normalizeToolResult('payguard_check_token_security', {
+    verdict: 'PASS',
+    dataStatus: 'AVAILABLE'
+  });
+  assert.equal(result.status, 'VERIFIED');
+});
