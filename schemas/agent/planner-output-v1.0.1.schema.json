@@ -104,7 +104,6 @@
       "enum": [
         "insufficient_input",
         "unsupported_target",
-        "plan_complete",
         null
       ]
     }
