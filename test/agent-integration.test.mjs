@@ -197,7 +197,7 @@ test("MCP integration exposes a separate aggregate investigation tool", async ()
   assert.equal(agentPlugin.tools[0].name, "payguard_run_investigation");
   assert.equal(PAYGUARD_INVESTIGATION_TOOL.inputSchema.properties.checks.maxItems, 32);
   const report = await agentPlugin.invokeTool("payguard_run_investigation", {
-    checks: [{ toolName: "payguard_analyze_url", input: { url: "https://example.org" } }],
+    checks: [{ toolName: "payguard_check_payment_intent", input: {} }],
     targetPlugin: undefined
   });
   assert.equal(report.execution.mode, "EXPLICIT_PLAN");
