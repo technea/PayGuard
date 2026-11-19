@@ -27,8 +27,12 @@ function requireAddress(value, name) {
 }
 
 function requireTargetMatch(targetRef, actual, label) {
-  if (typeof targetRef !== "string" || typeof actual !== "string" ||
-      targetRef.toLowerCase() !== actual.toLowerCase()) {
+  const bothAddresses = typeof targetRef === "string" && typeof actual === "string" &&
+    EVM_ADDRESS.test(targetRef) && EVM_ADDRESS.test(actual);
+  const matches = bothAddresses
+    ? targetRef.toLowerCase() === actual.toLowerCase()
+    : targetRef === actual;
+  if (!matches) {
     throw new TypeError("Planner targetRef does not match " + label + ".");
   }
 }
