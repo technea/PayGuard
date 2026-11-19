@@ -63,6 +63,12 @@ test("Core Agent accepts a valid versioned Base request and returns a defensive 
   assert.notEqual(validated.checks, input.checks);
 });
 
+test("Core Agent rejects non-JSON values instead of silently coercing them", () => {
+  assert.throws(() => validateAgentInput(validInput({
+    context: { userIntent: undefined }
+  })), /undefined field/);
+});
+
 test("Core Agent rejects unsupported schema versions, unknown nested fields, and mismatched networks", () => {
   assert.throws(() => validateAgentInput(validInput({ schemaVersion: "2.0.0" })), /schemaVersion/);
   assert.throws(() => validateAgentInput(validInput({
