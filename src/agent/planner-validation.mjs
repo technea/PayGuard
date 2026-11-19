@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { isKnownPayGuardTool } from "./tool-catalog.mjs";
 
-const schemaUrl = new URL("../../schemas/agent/planner-output-v1.0.1.schema.json", import.meta.url);
+const schemaUrl = new URL("../../schemas/agent/planner-output-v1.0.2.schema.json", import.meta.url);
 export const PLANNER_OUTPUT_SCHEMA = JSON.parse(readFileSync(fileURLToPath(schemaUrl), "utf8"));
 
 const ajv = new Ajv2020({
