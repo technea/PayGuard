@@ -11,6 +11,7 @@ import { cloneJsonValue } from "./canonical-json.mjs";
 import { isKnownPayGuardTool } from "./tool-catalog.mjs";
 import { validatePlannerOutput } from "./planner-validation.mjs";
 import { runDependentToolCalls } from "./runner.mjs";
+import { createPlannerExecutorAdapter } from "./planner-executor-adapter.mjs";
 
 /**
  * Validate a complete planner response and dispatch its authorized tool calls.
@@ -25,11 +26,13 @@ import { runDependentToolCalls } from "./runner.mjs";
 export async function dispatchValidatedPlannerOutput({
   plannerOutput,
   dispatchToolCall,
+  targetPlugin,
+  trustedContext = {},
   maxConcurrency = 3
 } = {}) {
-  if (typeof dispatchToolCall !== "function") {
-    throw new TypeError("dispatchToolCall must be a trusted host function.");
-  }
+  const trustedDispatch = typeof dispatchToolCall === "function"
+    ? dispatchToolCall
+    : createPlannerExecutorAdapter({ targetPlugin, trustedContext });
 
   // First gate: JSON Schema + planner tool allowlist.
   validatePlannerOutput(plannerOutput);
@@ -68,7 +71,7 @@ export async function dispatchValidatedPlannerOutput({
         throw error;
       }
 
-      return dispatchToolCall(
+      return trustedDispatch(
         cloneJsonValue(toolCall),
         Object.freeze({
           ...dispatchContext,
