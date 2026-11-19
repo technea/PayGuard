@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://payguard.dev/schemas/agent/planner-output-v1.0.1.json",
+  "title": "PayGuard Planner Output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "planId",
+    "network",
+    "chainId",
+    "decision",
+    "toolCalls",
+    "stopReason"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.1"
+    },
+    "planId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "network": {
+      "enum": [
+        "base-mainnet",
+        "base-sepolia"
+      ]
+    },
+    "chainId": {
+      "type": "integer",
+      "enum": [
+        8453,
+        84532
+      ]
+    },
+    "decision": {
+      "enum": [
+        "investigate",
+        "insufficient_input",
+        "unsupported_target"
+      ]
+    },
+    "toolCalls": {
+      "type": "array",
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "callId",
+          "toolName",
+          "purpose",
+          "priority",
+          "targetRef"
+        ],
+        "properties": {
+          "callId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "toolName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "purpose": {
+            "enum": [
+              "identity_verification",
+              "contract_security",
+              "token_security",
+              "transaction_analysis",
+              "address_reputation",
+              "domain_reputation",
+              "evidence_enrichment"
+            ]
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 7
+          },
+          "targetRef": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "dependsOn": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "maxItems": 7
+          }
+        }
+      }
+    },
+    "stopReason": {
+      "enum": [
+        "insufficient_input",
+        "unsupported_target",
+        "plan_complete",
+        null
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "network": {
+              "const": "base-mainnet"
+            },
+            "chainId": {
+              "const": 8453
+            }
+          }
+        },
+        {
+          "properties": {
+            "network": {
+              "const": "base-sepolia"
+            },
+            "chainId": {
+              "const": 84532
+            }
+          }
+        }
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "decision": {
+              "const": "investigate"
+            },
+            "stopReason": {
+              "const": null
+            },
+            "toolCalls": {
+              "minItems": 1,
+              "maxItems": 7
+            }
+          }
+        },
+        {
+          "properties": {
+            "decision": {
+              "const": "insufficient_input"
+            },
+            "stopReason": {
+              "const": "insufficient_input"
+            },
+            "toolCalls": {
+              "maxItems": 0
+            }
+          }
+        },
+        {
+          "properties": {
+            "decision": {
+              "const": "unsupported_target"
+            },
+            "stopReason": {
+              "const": "unsupported_target"
+            },
+            "toolCalls": {
+              "maxItems": 0
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
