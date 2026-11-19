@@ -127,3 +127,27 @@ test("enforces the existing tool allowlist and concurrency cap", async () => {
 test("accepts an empty validated plan without dispatching", async () => {
   assert.deepEqual(await runDependentToolCalls({ toolCalls: [] }), []);
 });
+
+test("respects the concurrency limit for independent calls", async () => {
+  let active = 0;
+  let peak = 0;
+  const toolCalls = [
+    call("one", "payguard_analyze_url"),
+    call("two", "payguard_check_token_security"),
+    call("three", "payguard_check_address_security")
+  ];
+
+  await runDependentToolCalls({
+    toolCalls,
+    maxConcurrency: 2,
+    dispatchToolCall: async item => {
+      active++;
+      peak = Math.max(peak, active);
+      await new Promise(resolve => setTimeout(resolve, 5));
+      active--;
+      return { callId: item.callId };
+    }
+  });
+
+  assert.equal(peak, 2);
+});
