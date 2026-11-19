@@ -193,8 +193,9 @@ test("integrated investigation still rejects unknown tools before invoking plugi
 test("MCP integration exposes a separate aggregate investigation tool", async () => {
   const fakePlugin = integrationPlugin();
   const agentPlugin = createPayGuardAgentMcpPlugin({ targetPlugin: fakePlugin });
-  assert.equal(agentPlugin.tools.length, 1);
+  assert.equal(agentPlugin.tools.length, 2);
   assert.equal(agentPlugin.tools[0].name, "payguard_run_investigation");
+  assert.equal(agentPlugin.tools[1].name, "payguard_run_agent");
   assert.equal(PAYGUARD_INVESTIGATION_TOOL.inputSchema.properties.checks.maxItems, 32);
   const report = await agentPlugin.invokeTool("payguard_run_investigation", {
     checks: [{ toolName: "payguard_check_payment_intent", input: {} }],
