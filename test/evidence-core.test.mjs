@@ -49,11 +49,11 @@ test("unavailable required evidence cannot become ALLOW", () => {
     dataStatus: "UNAVAILABLE",
     findings: []
   });
-  const report = buildEvidenceReport({ type: "token", value: "0xabc" }, [unavailable]);
+  const assessment = buildEvidenceCore([unavailable], "UNVERIFIED");
 
-  assert.equal(report.decision, "WARN");
-  assert.equal(report.confidence, 0);
-  assert.equal(report.recommendedActions.length, 1);
+  assert.equal(assessment.decision, "WARN");
+  assert.equal(assessment.confidence, 0);
+  assert.equal(assessment.recommendedActions.length, 1);
 });
 
 test("risk findings are normalized into the restricted category and severity vocabularies", () => {
@@ -103,7 +103,7 @@ test("schema rejects invalid ruleId, category, severity and decision values", ()
       category: "REPUTATION",
       severity: "MEDIUM",
       description: "A risk signal was detected.",
-      metadata: { source: tokenTool }
+      metadata: { source: tokenTool, evidenceId: "evidence-1" }
     }],
     recommendedActions: [{
       decision: "WARN",
@@ -215,7 +215,7 @@ test("validator rejects ALLOW with findings, zero confidence, or no evidence cov
       category: "REPUTATION",
       severity: "MEDIUM",
       description: "A risk signal was detected.",
-      metadata: { source: tokenTool }
+      metadata: { source: tokenTool, evidenceId: "verified-1" }
     }]
   }), false);
   assert.equal(validateEvidenceCore({ ...valid, confidence: 0 }), false);
