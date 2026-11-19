@@ -128,3 +128,14 @@ test("runner status normalization remains fail-closed for unqualified PASS resul
     "VERIFIED"
   );
 });
+
+
+test("falsy promise rejection remains an explicit ERROR", async () => {
+  const result = await runInvestigation({
+    checks: [{ toolName: "payguard_analyze_url", input: {} }],
+    executeTool: () => Promise.reject(null)
+  });
+  assert.equal(result.evidence[0].status, "ERROR");
+  assert.equal(result.evidence[0].errorCode, "TOOL_EXECUTION_FAILED");
+  assert.equal(result.overallStatus, "ERROR");
+});
