@@ -22,3 +22,4 @@ export { runInvestigation } from "./runner.mjs";
 export { createPayGuardToolExecutor } from "./payguard-executor.mjs";
 export { runPayGuardInvestigation } from "./investigation.mjs";
 export { createPayGuardAgentMcpPlugin, startPayGuardAgentMcpServer, PAYGUARD_INVESTIGATION_TOOL } from "./mcp.mjs";
+export { validatePlannerOutput, getPlannerOutputSchemaErrors, PlannerOutputValidationError, PLANNER_OUTPUT_SCHEMA } from "./planner-validation.mjs";
