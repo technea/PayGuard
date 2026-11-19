@@ -1,8 +1,8 @@
 /**
  * @module agent
  * @section Public deterministic agent API
- * Exposes evidence, planning, bounded orchestration, and correlation primitives.
- * No model, public REST route, MCP tool registration, signing, or execution is included.
+ * Exposes evidence, planning, bounded orchestration, correlation, and MCP integration.
+ * No model, signing, or transaction execution is included.
  */
 
 export { EVIDENCE_STATUSES, STATUS_PRECEDENCE, EVIDENCE_SCHEMA_VERSION, TOOL_CATALOG } from "./constants.mjs";
@@ -21,3 +21,4 @@ export { correlatePaymentAndTransaction, CORRELATION_SOURCE } from "./correlatio
 export { runInvestigation } from "./runner.mjs";
 export { createPayGuardToolExecutor } from "./payguard-executor.mjs";
 export { runPayGuardInvestigation } from "./investigation.mjs";
+export { createPayGuardAgentMcpPlugin, startPayGuardAgentMcpServer, PAYGUARD_INVESTIGATION_TOOL } from "./mcp.mjs";
