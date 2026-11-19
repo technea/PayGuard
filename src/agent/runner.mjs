@@ -69,7 +69,7 @@ function raceWithTimeout(promise, timeoutMs) {
     timer = setTimeout(() => resolve({ timedOut: true }), timeoutMs);
   });
   return Promise.race([
-    Promise.resolve(promise).then(value => ({ value }), error => ({ error })),
+    Promise.resolve(promise).then(value => ({ value }), error => ({ rejected: true, error })),
     timeout
   ]).finally(() => clearTimeout(timer));
 }
@@ -93,7 +93,7 @@ async function executeCheck(check, executeTool, timeoutMs) {
         errorCode: "TOOL_TIMEOUT"
       });
     }
-    if (outcome.error) {
+    if (outcome.rejected) {
       return createErrorEvidence(check.toolName, outcome.error, {
         checkId: check.checkId,
         required: check.required,
