@@ -80,9 +80,10 @@ export async function runDependentToolCalls({
   dispatchToolCall,
   maxConcurrency = DEFAULT_CONCURRENCY
 } = {}) {
-  if (!Array.isArray(toolCalls) || toolCalls.length === 0) {
-    throw new TypeError("toolCalls must be a non-empty array.");
+  if (!Array.isArray(toolCalls)) {
+    throw new TypeError("toolCalls must be an array.");
   }
+  if (toolCalls.length === 0) return [];
   if (toolCalls.length > 7) {
     throw new RangeError("Planner output exceeds the seven-call execution limit.");
   }
