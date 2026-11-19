@@ -6,6 +6,8 @@
 
 export const AGENT_INPUT_SCHEMA_VERSION = "1.0.0";
 
+import { canonicalJson, cloneJsonValue } from "./canonical-json.mjs";
+
 const TOOL_NAMES = Object.freeze([
   "payguard_check_payment_intent",
   "payguard_analyze_url",
@@ -141,9 +143,9 @@ function validateJsonObject(value, path) {
   if (!isRecord(value)) throw new TypeError(path + " must be a JSON object.");
   let encoded;
   try {
-    encoded = JSON.stringify(value);
+    encoded = canonicalJson(value);
   } catch {
-    throw new TypeError(path + " must contain JSON-serializable data.");
+    throw new TypeError(path + " must contain strict JSON-compatible data.");
   }
   if (typeof encoded !== "string" || encoded.length > 65536) {
     throw new RangeError(path + " exceeds the 65536-character JSON limit.");
@@ -247,7 +249,7 @@ export function validateAgentInput(input) {
     boundedInteger(input.constraints.perToolTimeoutMs, "constraints.perToolTimeoutMs", 1, 15000);
   }
 
-  return JSON.parse(JSON.stringify(input));
+  return cloneJsonValue(input);
 }
 
 export function runAgentInput(input, { runInvestigation } = {}) {
