@@ -6,11 +6,93 @@
  * schema-validated tool inputs. Payment policy/requirements and transaction
  * payloads are injected only from trusted application context.
  */
+import Ajv2020 from "ajv/dist/2020.js";
+import plugin from "../plugin.mjs";
 import { cloneJsonValue } from "./canonical-json.mjs";
 import { isKnownPayGuardTool } from "./tool-catalog.mjs";
 import { createPayGuardToolExecutor } from "./payguard-executor.mjs";
 
+
 const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
+const TOOL_INPUT_VALIDATION_OPTIONS = Object.freeze({
+  allErrors: true,
+  strict: true,
+  validateFormats: false,
+  messages: true,
+  coerceTypes: false,
+  useDefaults: false,
+  removeAdditional: false
+});
+
+export class PlannerToolInputValidationError extends TypeError {
+  constructor(toolName, errors) {
+    super("Mapped input failed the registered PayGuard tool schema: " + toolName + ".");
+    this.name = "PlannerToolInputValidationError";
+    this.code = "PLANNER_TOOL_INPUT_SCHEMA_INVALID";
+    this.toolName = toolName;
+    this.validationErrors = errors;
+  }
+}
+
+/**
+ * Compile the actual inputSchema exposed by the plugin for every planner-
+ * allowlisted tool. Missing/duplicate schemas or invalid schemas fail closed
+ * during adapter initialization, before any tool can be dispatched.
+ */
+export function compilePayGuardToolInputSchemas(targetPlugin = plugin) {
+  const sourcePlugin = targetPlugin && Array.isArray(targetPlugin.tools)
+    ? targetPlugin
+    : plugin;
+  if (!sourcePlugin || !Array.isArray(sourcePlugin.tools)) {
+    throw new TypeError("PayGuard plugin must expose its registered tools and inputSchema definitions.");
+  }
+
+  const ajv = new Ajv2020(TOOL_INPUT_VALIDATION_OPTIONS);
+  const validators = new Map();
+  for (const tool of sourcePlugin.tools) {
+    if (!tool || typeof tool.name !== "string" || !isKnownPayGuardTool(tool.name)) continue;
+    if (validators.has(tool.name)) {
+      throw new TypeError("Duplicate registered plugin tool schema: " + tool.name + ".");
+    }
+    if (!tool.inputSchema || typeof tool.inputSchema !== "object") {
+      throw new TypeError("Registered plugin tool is missing inputSchema: " + tool.name + ".");
+    }
+    validators.set(tool.name, ajv.compile(tool.inputSchema));
+  }
+
+  const expectedTools = [
+    "payguard_check_payment_intent",
+    "payguard_analyze_url",
+    "payguard_prepare_threat_report",
+    "payguard_inspect_calldata",
+    "payguard_check_token_security",
+    "payguard_check_address_security",
+    "payguard_scan_wallet_tokens"
+  ];
+  const missing = expectedTools.filter(name => !validators.has(name));
+  if (missing.length) {
+    throw new TypeError("Plugin is missing inputSchema for allowlisted tool(s): " + missing.join(", ") + ".");
+  }
+  return validators;
+}
+
+function validateMappedToolInput(toolName, input, validators) {
+  const validate = validators.get(toolName);
+  if (typeof validate !== "function") {
+    throw new TypeError("No compiled input schema exists for registered tool: " + toolName + ".");
+  }
+  if (!validate(input)) {
+    const errors = (validate.errors ?? []).map(error => ({
+      instancePath: error.instancePath,
+      schemaPath: error.schemaPath,
+      keyword: error.keyword,
+      message: error.message,
+      params: error.params
+    }));
+    throw new PlannerToolInputValidationError(toolName, errors);
+  }
+  return input;
+}
 
 function requireRecord(value, name) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -162,6 +244,7 @@ export function createPlannerExecutorAdapter({
   trustedContext = {}
 } = {}) {
   const executeTool = createPayGuardToolExecutor(targetPlugin);
+  const schemaValidators = compilePayGuardToolInputSchemas(targetPlugin);
   const trustedSnapshot = cloneJsonValue(trustedContext);
 
   return async function dispatchPlannerToolCall(toolCall, planContext) {
@@ -171,6 +254,7 @@ export function createPlannerExecutorAdapter({
       throw error;
     }
     const input = mapPlannerToolInput(toolCall, planContext, trustedSnapshot);
+    validateMappedToolInput(toolCall.toolName, input, schemaValidators);
     return executeTool(toolCall.toolName, input);
   };
 }
