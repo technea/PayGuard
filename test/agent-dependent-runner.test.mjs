@@ -35,14 +35,14 @@ test("passes completed dependency results to the dependent dispatch", async () =
       call("first", "payguard_analyze_url"),
       call("second", "payguard_check_address_security", ["first"])
     ],
-    dispatchToolCall: async item => {
+    dispatchToolCall: async (item, dependencyResults) => {
       if (item.callId === "first") return { reference: "resolved-domain" };
-      received = item;
+      received = dependencyResults.first.reference;
       return { ok: true };
     }
   });
 
-  assert.equal(received.callId, "second");
+  assert.equal(received, "resolved-domain");
 });
 
 test("blocks dependants when a prerequisite dispatch fails", async () => {
@@ -122,4 +122,8 @@ test("enforces the existing tool allowlist and concurrency cap", async () => {
   }), /maxConcurrency/);
 
   assert.equal(dispatches, 0);
+});
+
+test("accepts an empty validated plan without dispatching", async () => {
+  assert.deepEqual(await runDependentToolCalls({ toolCalls: [] }), []);
 });
