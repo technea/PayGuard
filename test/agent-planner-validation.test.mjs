@@ -77,3 +77,28 @@ test("rejects missing toolInput", () => {
   delete value.toolCalls[0].toolInput;
   assert.throws(() => validatePlannerOutput(value), PlannerOutputValidationError);
 });
+
+test("accepts the strict toolInput contract for each of the seven registered tools", () => {
+  const address = "0x1111111111111111111111111111111111111111";
+  const cases = [
+    ["payguard_check_payment_intent", "https://merchant.example", {}],
+    ["payguard_analyze_url", "https://example.com", { url: "https://example.com" }],
+    ["payguard_prepare_threat_report", "https://example.com", { url: "https://example.com" }],
+    ["payguard_inspect_calldata", address, {}],
+    ["payguard_check_token_security", address, { contractAddress: address }],
+    ["payguard_check_address_security", address, { address }],
+    ["payguard_scan_wallet_tokens", address, { walletAddress: address }]
+  ];
+  for (const [toolName, targetRef, toolInput] of cases) {
+    const value = valid();
+    value.toolCalls[0] = {
+      callId: "call-" + toolName,
+      toolName,
+      purpose: "evidence_enrichment",
+      priority: 1,
+      targetRef,
+      toolInput
+    };
+    assert.equal(validatePlannerOutput(value), value, toolName);
+  }
+});
