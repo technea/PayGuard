@@ -127,6 +127,58 @@ test("dispatches dependency chain in order and passes prior results", async () =
   assert.deepEqual(result.executions.map(item => item.status), ["COMPLETED", "COMPLETED"]);
 });
 
+test("structured ERROR evidence blocks dependent calls as NOT_CHECKED", async () => {
+  let dependentDispatches = 0;
+  const plannerOutput = validPlan();
+  plannerOutput.toolCalls = [
+    { ...plannerOutput.toolCalls[0], callId: "prerequisite" },
+    {
+      ...plannerOutput.toolCalls[0],
+      callId: "dependent",
+      toolName: "payguard_prepare_threat_report",
+      purpose: "threat_report",
+      targetRef: "https://example.com",
+      toolInput: { url: "https://example.com" },
+      dependsOn: ["prerequisite"]
+    }
+  ];
+  const result = await dispatchValidatedPlannerOutput({
+    plannerOutput,
+    dispatchToolCall: async call => {
+      if (call.callId === "dependent") dependentDispatches++;
+      return { status: "ERROR", error: "provider unavailable" };
+    }
+  });
+  assert.equal(result.executions[0].evidence.status, "ERROR");
+  assert.equal(result.executions[1].evidence.status, "NOT_CHECKED");
+  assert.equal(dependentDispatches, 0);
+});
+
+test("planner per-tool timeout is ERROR and total budget leaves unstarted calls NOT_CHECKED", async () => {
+  const plannerOutput = validPlan();
+  plannerOutput.toolCalls = [
+    { ...plannerOutput.toolCalls[0], callId: "slow-first" },
+    {
+      ...plannerOutput.toolCalls[0],
+      callId: "never-started",
+      toolName: "payguard_prepare_threat_report",
+      purpose: "threat_report",
+      targetRef: "https://example.com",
+      toolInput: { url: "https://example.com" }
+    }
+  ];
+  const result = await dispatchValidatedPlannerOutput({
+    plannerOutput,
+    maxConcurrency: 1,
+    perToolTimeoutMs: 100,
+    totalTimeoutMs: 15,
+    dispatchToolCall: () => new Promise(() => {})
+  });
+  assert.equal(result.executions[0].evidence.status, "ERROR");
+  assert.equal(result.executions[0].errorCode, "TOOL_TIMEOUT");
+  assert.equal(result.executions[1].evidence.status, "NOT_CHECKED");
+});
+
 test("returns a validated no-dispatch outcome for non-investigate decisions", async () => {
   let dispatches = 0;
   const plannerOutput = validPlan();
