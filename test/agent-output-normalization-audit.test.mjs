@@ -152,3 +152,22 @@ test("risk verdict without itemized findings is converted into a safe fallback f
   assert.equal(assessment.decision, "BLOCK");
   assert.equal(assessment.findings[0].severity, "HIGH");
 });
+
+test("wallet high-risk securityStatus is not masked by a non-risk verdict field", () => {
+  const record = normalizeToolResult(tools[6], {
+    status: "SUCCESS",
+    scanCompletionStatus: "COMPLETE",
+    discoveryMode: "BLOCKSCOUT_INDEXER",
+    summary: { highRiskCount: 1, suspiciousCount: 0, unverifiedCount: 0 },
+    tokens: [{
+      contractAddress: "0x7777777777777777777777777777777777777777",
+      verdict: "UNVERIFIED",
+      securityStatus: "HIGH RISK",
+      riskLevel: "UNKNOWN",
+      isImpersonation: false
+    }]
+  });
+  assert.equal(record.status, "RISK_DETECTED");
+  assert.equal(record.evidence[0].severity, "HIGH");
+  assert.equal(buildEvidenceCore([record]).decision, "BLOCK");
+});
