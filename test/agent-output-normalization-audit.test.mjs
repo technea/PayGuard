@@ -85,6 +85,8 @@ test("skipped dependency calls are explicitly marked NOT_CHECKED for evidence ma
     dispatchToolCall: async () => { throw new Error("simulated dispatch failure"); }
   });
   assert.equal(result[0].evidenceStatus, "ERROR");
+  assert.equal(result[0].evidence.status, "ERROR");
   assert.equal(result[1].status, "BLOCKED");
   assert.equal(result[1].evidenceStatus, "NOT_CHECKED");
+  assert.equal(result[1].evidence.status, "NOT_CHECKED");
 });
