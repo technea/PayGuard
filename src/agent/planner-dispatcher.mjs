@@ -11,7 +11,7 @@ import { cloneJsonValue } from "./canonical-json.mjs";
 import { isKnownPayGuardTool } from "./tool-catalog.mjs";
 import { validatePlannerOutput } from "./planner-validation.mjs";
 import { runDependentToolCalls } from "./runner.mjs";
-import { createPlannerExecutorAdapter } from "./planner-executor-adapter.mjs";
+import { createPlannerExecutorAdapter, validatePlannerToolCallInputs } from "./planner-executor-adapter.mjs";
 
 /**
  * Validate a complete planner response and dispatch its authorized tool calls.
@@ -30,9 +30,10 @@ export async function dispatchValidatedPlannerOutput({
   trustedContext = {},
   maxConcurrency = 3
 } = {}) {
-  const trustedDispatch = typeof dispatchToolCall === "function"
-    ? dispatchToolCall
-    : createPlannerExecutorAdapter({ targetPlugin, trustedContext });
+  const usesBuiltInAdapter = typeof dispatchToolCall !== "function";
+  const trustedDispatch = usesBuiltInAdapter
+    ? createPlannerExecutorAdapter({ targetPlugin, trustedContext })
+    : dispatchToolCall;
 
   // First gate: JSON Schema + planner tool allowlist.
   validatePlannerOutput(plannerOutput);
@@ -56,6 +57,18 @@ export async function dispatchValidatedPlannerOutput({
       error.code = "PLANNER_OUTPUT_TOOL_NOT_ALLOWED";
       throw error;
     }
+  }
+
+  // Preflight every built-in tool mapping before the scheduler can dispatch
+  // any call. Missing trusted payment/transaction context or invalid tool input
+  // therefore rejects the complete plan without partial execution.
+  if (usesBuiltInAdapter) {
+    validatePlannerToolCallInputs({
+      toolCalls: validatedPlan.toolCalls,
+      planContext: dispatchContext,
+      trustedContext,
+      targetPlugin
+    });
   }
 
   const executions = await runDependentToolCalls({
