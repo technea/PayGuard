@@ -210,7 +210,7 @@ export async function runDependentToolCalls({
       }
     }
 
-    if (Date.now() >= deadline) {
+    if (Date.now() + 1 >= deadline) {
       for (const item of calls) {
         const state = states.get(item.call.callId);
         if (state.status !== "PENDING") continue;
@@ -252,7 +252,7 @@ export async function runDependentToolCalls({
       state.status = "RUNNING";
       try {
         const remainingMs = Math.max(0, deadline - Date.now());
-        if (remainingMs <= 0) {
+        if (remainingMs <= 1) {
           state.status = "BLOCKED";
           state.evidenceStatus = "NOT_CHECKED";
           results[item.index] = {
@@ -421,7 +421,7 @@ export async function runInvestigation({
       const index = cursor++;
       if (index >= plan.length) return;
       const remainingMs = deadline - Date.now();
-      if (remainingMs <= 0) {
+      if (remainingMs <= 1) {
         records[index] = createNotCheckedEvidence(plan[index].toolName, {
           checkId: plan[index].checkId,
           required: plan[index].required,
