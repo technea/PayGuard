@@ -190,6 +190,10 @@ export async function runDependentToolCalls({
           status: "BLOCKED",
           evidenceStatus: "NOT_CHECKED",
           reason: "This step was skipped because a dependency did not complete.",
+          evidence: createNotCheckedEvidence(item.call.toolName, {
+            checkId: item.call.callId,
+            reason: "Skipped because dependency " + failedDependency + " did not complete."
+          }),
           blockedBy: failedDependency
         };
         pendingCount--;
@@ -224,7 +228,11 @@ export async function runDependentToolCalls({
           callId: item.call.callId,
           toolName: item.call.toolName,
           status: "COMPLETED",
-          result
+          result,
+          evidence: normalizeToolResult(item.call.toolName, result, {
+            checkId: item.call.callId,
+            required: true
+          })
         };
       } catch (error) {
         state.status = "FAILED";
@@ -234,6 +242,10 @@ export async function runDependentToolCalls({
           toolName: item.call.toolName,
           status: "FAILED",
           evidenceStatus: "ERROR",
+          evidence: createErrorEvidence(item.call.toolName, error, {
+            checkId: item.call.callId,
+            errorCode: "TOOL_DISPATCH_FAILED"
+          }),
           errorCode: "TOOL_DISPATCH_FAILED",
           error: error instanceof Error ? error.message : "Tool dispatch failed."
         };
