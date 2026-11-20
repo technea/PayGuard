@@ -12,6 +12,7 @@ import { isKnownPayGuardTool } from "./tool-catalog.mjs";
 import { validatePlannerOutput } from "./planner-validation.mjs";
 import { runDependentToolCalls } from "./runner.mjs";
 import { createPlannerExecutorAdapter, validatePlannerToolCallInputs } from "./planner-executor-adapter.mjs";
+import { buildEvidenceCore } from "../core/evidence.mjs";
 
 /**
  * Validate a complete planner response and dispatch its authorized tool calls.
@@ -100,6 +101,7 @@ export async function dispatchValidatedPlannerOutput({
     chainId: dispatchContext.chainId,
     decision: validatedPlan.decision,
     stopReason: validatedPlan.stopReason,
-    executions
+    executions,
+    assessment: buildEvidenceCore(executions.map(execution => execution.evidence))
   };
 }
