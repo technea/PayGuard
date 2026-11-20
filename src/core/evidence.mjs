@@ -146,10 +146,10 @@ function findingFromRecord(record, item, index) {
       ...(typeof record.rawOutputSha256 === "string"
         ? { rawOutputSha256: record.rawOutputSha256 }
         : {}),
-      ...(typeof item.severity === "string" ? { sourceSeverity: item.severity } : {}),
-      ...(typeof item.target === "string" ? { affectedTarget: item.target.slice(0, 512) } : {}),
-      ...(typeof item.category === "string" ? { sourceCategory: item.category.slice(0, 128) } : {}),
-      ...(isJsonRecord(item.metadata) ? { sourceMetadata: item.metadata } : {})
+      ...(typeof item?.severity === "string" ? { sourceSeverity: item.severity } : {}),
+      ...(typeof item?.target === "string" ? { affectedTarget: item.target.slice(0, 512) } : {}),
+      ...(typeof item?.category === "string" ? { sourceCategory: item.category.slice(0, 128) } : {}),
+      ...(isJsonRecord(item?.metadata) ? { sourceMetadata: item.metadata } : {})
     }
   };
 }
