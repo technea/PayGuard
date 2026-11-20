@@ -21,15 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Regenerate the dependency lockfile with npm
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-      - name: Upload npm-generated lockfile for repository sync
-        uses: actions/upload-artifact@v4
-        with:
-          name: payguard-npm-generated-lockfile
-          path: package-lock.json
-          if-no-files-found: error
-      - name: Install dependencies from the generated lockfile
+      - name: Install dependencies
         run: npm ci
       - name: Build distributable artifacts
         run: npm run build
