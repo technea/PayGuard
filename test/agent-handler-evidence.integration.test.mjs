@@ -1,10 +1,14 @@
-import test from "node:test";
+import test, { beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import plugin from "../src/plugin.mjs";
 import { normalizeToolResult } from "../src/agent/normalize-result.mjs";
 import { buildEvidenceCore } from "../src/core/evidence.mjs";
 import { runDependentToolCalls } from "../src/agent/runner.mjs";
+import { dispatchValidatedPlannerOutput } from "../src/agent/planner-dispatcher.mjs";
 import { clearTokenCache } from "../src/token-security.mjs";
+
+beforeEach(() => clearTokenCache());
+afterEach(() => clearTokenCache());
 
 const WALLET = "0x1111111111111111111111111111111111111111";
 const TOKEN = "0x2222222222222222222222222222222222222222";
@@ -186,6 +190,48 @@ test("actual seven registered handlers preserve high-risk provider signals into 
   }
 
   assert.ok(provider.calls.some(call => call.url.includes("api.gopluslabs.io")));
+});
+
+test("planner-to-Evidence-Core pipeline validates, adapts, invokes the registered handler, and preserves CRITICAL risk", async () => {
+  const provider = createProviderMock();
+  const registeredPlugin = {
+    tools: plugin.tools,
+    invokeTool(name, input) {
+      const tool = plugin.tools.find(candidate => candidate.name === name);
+      assert.ok(tool, "adapter dispatches only a registered plugin tool");
+      return tool.handler(input, { fetchImpl: provider.fetchImpl });
+    }
+  };
+  const plannerOutput = {
+    schemaVersion: "1.0.2",
+    planId: "full-pipeline-token-risk",
+    network: "base-mainnet",
+    chainId: 8453,
+    decision: "investigate",
+    stopReason: null,
+    toolCalls: [{
+      callId: "token-security-1",
+      toolName: "payguard_check_token_security",
+      purpose: "token_security",
+      priority: 1,
+      targetRef: TOKEN,
+      toolInput: { contractAddress: TOKEN }
+    }]
+  };
+
+  const result = await dispatchValidatedPlannerOutput({
+    plannerOutput,
+    targetPlugin: registeredPlugin,
+    perToolTimeoutMs: 3000,
+    totalTimeoutMs: 5000
+  });
+
+  assert.equal(result.executions.length, 1);
+  assert.equal(result.executions[0].status, "COMPLETED");
+  assert.equal(result.executions[0].evidence.status, "RISK_DETECTED");
+  assert.equal(result.assessment.decision, "BLOCK");
+  assert.ok(result.assessment.findings.some(finding => finding.severity === "CRITICAL"));
+  assert.ok(provider.calls.some(call => call.url.includes("/api/v1/token_security/")));
 });
 
 test("actual wallet handler consumes a complete Alchemy indexer response and retains token risk", async () => {
