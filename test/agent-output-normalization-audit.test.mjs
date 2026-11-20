@@ -21,7 +21,7 @@ test("all seven tool families fail closed on inconclusive or partial outputs", (
     [tools[3], { verdict: "UNKNOWN" }],
     [tools[4], { verdict: "UNVERIFIED", dataStatus: "UNAVAILABLE" }],
     [tools[5], { verdict: "UNVERIFIED", dataStatus: "INCOMPLETE" }],
-    [tools[6], { status: "SUCCESS", discoveryMode: "REGISTRY_AND_CUSTOM_PARTIAL", tokens: [], summary: { unverifiedCount: 1 } }]
+    [tools[6], { status: "SUCCESS", scanCompletionStatus: "PARTIAL", discoveryMode: "REGISTRY_AND_CUSTOM_PARTIAL", tokens: [], summary: { unverifiedCount: 0 } }]
   ];
   for (const [tool, output] of cases) {
     assert.equal(normalizeToolStatus(tool, output).status, "UNVERIFIED", tool);
@@ -31,7 +31,8 @@ test("all seven tool families fail closed on inconclusive or partial outputs", (
 test("wallet token severity and target metadata survive normalization into Evidence Core", () => {
   const record = normalizeToolResult(tools[6], {
     status: "SUCCESS",
-    discoveryMode: "FULL_INDEXER",
+    scanCompletionStatus: "COMPLETE",
+    discoveryMode: "ALCHEMY_INDEXER",
     walletAddress: "0x1111111111111111111111111111111111111111",
     tokens: [{
       contractAddress: "0x2222222222222222222222222222222222222222",
@@ -40,12 +41,14 @@ test("wallet token severity and target metadata survive normalization into Evide
       verdict: "BLOCK",
       riskLevel: "CRITICAL",
       isImpersonation: true,
-      reason: "Impersonates an official asset"
+      reason: "Impersonates an official asset",
+      findings: [{ code: "goplus_honeypot", severity: "critical", message: "Token sell simulation failed." }]
     }],
     summary: { highRiskCount: 1, suspiciousCount: 0, unverifiedCount: 0 }
   });
   assert.equal(record.status, "RISK_DETECTED");
   assert.ok(record.evidence.some(item => item.severity === "CRITICAL"));
+  assert.ok(record.evidence.some(item => item.code === "goplus_honeypot"));
   const assessment = buildEvidenceCore([record]);
   assert.equal(assessment.decision, "BLOCK");
   assert.ok(assessment.findings.some(f => f.severity === "CRITICAL"));
@@ -89,4 +92,30 @@ test("skipped dependency calls are explicitly marked NOT_CHECKED for evidence ma
   assert.equal(result[1].status, "BLOCKED");
   assert.equal(result[1].evidenceStatus, "NOT_CHECKED");
   assert.equal(result[1].evidence.status, "NOT_CHECKED");
+});
+
+test("wallet scanner's actual Blockscout complete shape is VERIFIED when no risks or unknown holdings exist", () => {
+  const record = normalizeToolResult(tools[6], {
+    status: "SUCCESS",
+    scanCompletionStatus: "COMPLETE",
+    discoveryMode: "BLOCKSCOUT_INDEXER",
+    tokens: [{ contractAddress: "0x3333333333333333333333333333333333333333", securityStatus: "NO KNOWN ISSUES FOUND", verdict: "PASS", riskLevel: "LOW" }],
+    summary: { totalTokensScanned: 1, highRiskCount: 0, suspiciousCount: 0, cleanCount: 1, unverifiedCount: 0 }
+  });
+  assert.equal(record.status, "VERIFIED");
+});
+
+test("mixed payment alternatives with a failing policy check retain risk evidence", () => {
+  const record = normalizeToolResult(tools[0], {
+    status: "REVIEW",
+    summary: "Payment options are mixed.",
+    checks: [
+      { id: "candidate", status: "block", detail: "Payment option 0: BLOCK." },
+      { id: "recipient", status: "fail", detail: "Recipient does not match the trusted allowlist." },
+      { id: "scheme", status: "unknown", detail: "Payment scheme is missing." }
+    ]
+  });
+  assert.equal(record.status, "RISK_DETECTED");
+  assert.ok(record.evidence.some(item => item.code === "recipient" && item.severity === "HIGH"));
+  assert.equal(buildEvidenceCore([record]).decision, "BLOCK");
 });
