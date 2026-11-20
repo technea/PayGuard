@@ -119,3 +119,36 @@ test("mixed payment alternatives with a failing policy check retain risk evidenc
   assert.ok(record.evidence.some(item => item.code === "recipient" && item.severity === "HIGH"));
   assert.equal(buildEvidenceCore([record]).decision, "BLOCK");
 });
+
+test("risk verdicts from all seven actual tool output families reach Evidence Core", () => {
+  const outputs = [
+    [tools[0], { status: "BLOCK", summary: "All payment candidates violate policy.", checks: [{ id: "recipient", status: "fail", detail: "Recipient is not allowlisted." }] }, "BLOCK"],
+    [tools[1], { verdict: "SUSPICIOUS", riskLevel: "HIGH", checks: [{ id: "base_ecosystem_impersonation", severity: "high", status: "fail", detail: "Base lookalike domain." }] }, "BLOCK"],
+    [tools[2], { verdict: "KNOWN_MALICIOUS", riskLevel: "CRITICAL", findings: [{ id: "threat_intelligence_match", severity: "critical", status: "fail", detail: "Threat intelligence match." }] }, "BLOCK"],
+    [tools[3], { verdict: "BLOCK", riskLevel: "CRITICAL", reasons: ["UNLIMITED_ALLOWANCE_UINT256_MAX"], checks: [{ id: "unlimited_allowance", status: "FAIL", detail: "Unlimited token approval." }] }, "BLOCK"],
+    [tools[4], { verdict: "BLOCK", riskLevel: "CRITICAL", dataStatus: "AVAILABLE", contractAddress: "0x4444444444444444444444444444444444444444", findings: [{ code: "HONEYPOT", severity: "critical", message: "Sell transactions are blocked." }] }, "BLOCK"],
+    [tools[5], { verdict: "REVIEW", riskLevel: "MEDIUM", dataStatus: "AVAILABLE", address: "0x5555555555555555555555555555555555555555", findings: [{ code: "PHISHING_RELATED", severity: "medium", message: "Address is associated with phishing reports." }] }, "WARN"],
+    [tools[6], { status: "SUCCESS", scanCompletionStatus: "COMPLETE", discoveryMode: "ALCHEMY_INDEXER", summary: { highRiskCount: 1, suspiciousCount: 0, unverifiedCount: 0 }, tokens: [{ name: "Malicious", symbol: "BAD", contractAddress: "0x6666666666666666666666666666666666666666", securityStatus: "HIGH RISK", verdict: "BLOCK", riskLevel: "CRITICAL", findings: [{ code: "HONEYPOT", severity: "critical", message: "Sell blocked." }] }] }, "BLOCK"]
+  ];
+  for (const [tool, output, expectedDecision] of outputs) {
+    const record = normalizeToolResult(tool, output);
+    assert.equal(record.status, "RISK_DETECTED", tool);
+    assert.ok(record.evidence.length > 0, tool);
+    const assessment = buildEvidenceCore([record]);
+    assert.equal(assessment.decision, expectedDecision, tool);
+    assert.ok(assessment.findings.length > 0, tool);
+  }
+});
+
+test("risk verdict without itemized findings is converted into a safe fallback finding", () => {
+  const record = normalizeToolResult(tools[1], {
+    verdict: "SUSPICIOUS",
+    riskLevel: "HIGH",
+    summary: "Suspicious URL result."
+  });
+  assert.equal(record.status, "RISK_DETECTED");
+  assert.equal(record.evidence.length, 0);
+  const assessment = buildEvidenceCore([record]);
+  assert.equal(assessment.decision, "BLOCK");
+  assert.equal(assessment.findings[0].severity, "HIGH");
+});
