@@ -78,7 +78,9 @@ function validatePlan(checks, executeTool) {
 export async function runDependentToolCalls({
   toolCalls,
   dispatchToolCall,
-  maxConcurrency = DEFAULT_CONCURRENCY
+  maxConcurrency = DEFAULT_CONCURRENCY,
+  perToolTimeoutMs = DEFAULT_PER_TOOL_TIMEOUT_MS,
+  totalTimeoutMs = DEFAULT_TOTAL_TIMEOUT_MS
 } = {}) {
   if (!Array.isArray(toolCalls)) {
     throw new TypeError("toolCalls must be an array.");
@@ -97,6 +99,11 @@ export async function runDependentToolCalls({
     MAX_CONCURRENCY,
     DEFAULT_CONCURRENCY
   );
+
+  const perToolBudget = requireIntegerInRange(perToolTimeoutMs, "perToolTimeoutMs", 1, MAX_PER_TOOL_TIMEOUT_MS, DEFAULT_PER_TOOL_TIMEOUT_MS);
+  const totalBudget = requireIntegerInRange(totalTimeoutMs, "totalTimeoutMs", 1, MAX_TOTAL_TIMEOUT_MS, DEFAULT_TOTAL_TIMEOUT_MS);
+  const startedAtMs = Date.now();
+  const deadline = startedAtMs + totalBudget;
 
   const calls = toolCalls.map((call, index) => {
     if (!call || typeof call !== "object" || Array.isArray(call)) {
@@ -178,11 +185,13 @@ export async function runDependentToolCalls({
       const state = states.get(item.call.callId);
       if (state.status !== "PENDING") continue;
       const failedDependency = item.dependencies.find(id => {
-        const dependencyStatus = states.get(id).status;
-        return dependencyStatus === "FAILED" || dependencyStatus === "BLOCKED";
+        const dependencyState = states.get(id);
+        return dependencyState.status === "FAILED" || dependencyState.status === "BLOCKED" ||
+          dependencyState.evidenceStatus === "ERROR";
       });
       if (failedDependency) {
         state.status = "BLOCKED";
+        state.evidenceStatus = "NOT_CHECKED";
         state.error = "Dependency " + failedDependency + " did not complete successfully.";
         results[item.index] = {
           callId: item.call.callId,
@@ -201,9 +210,33 @@ export async function runDependentToolCalls({
       }
     }
 
+    if (Date.now() >= deadline) {
+      for (const item of calls) {
+        const state = states.get(item.call.callId);
+        if (state.status !== "PENDING") continue;
+        state.status = "BLOCKED";
+        state.evidenceStatus = "NOT_CHECKED";
+        results[item.index] = {
+          callId: item.call.callId,
+          toolName: item.call.toolName,
+          status: "NOT_CHECKED",
+          evidenceStatus: "NOT_CHECKED",
+          reason: "The total planner execution budget expired before this call started.",
+          evidence: createNotCheckedEvidence(item.call.toolName, {
+            checkId: item.call.callId,
+            reason: "The total planner execution budget expired before this call started."
+          })
+        };
+        pendingCount--;
+        changed = true;
+      }
+      continue;
+    }
+
     const ready = calls.filter(item => {
       if (states.get(item.call.callId).status !== "PENDING") return false;
-      return item.dependencies.every(id => states.get(id).status === "COMPLETED");
+      return item.dependencies.every(id => states.get(id).status === "COMPLETED" &&
+        states.get(id).evidenceStatus !== "ERROR");
     });
 
     if (ready.length === 0) {
@@ -218,24 +251,68 @@ export async function runDependentToolCalls({
       const state = states.get(item.call.callId);
       state.status = "RUNNING";
       try {
+        const remainingMs = Math.max(0, deadline - Date.now());
+        if (remainingMs <= 0) {
+          state.status = "BLOCKED";
+          state.evidenceStatus = "NOT_CHECKED";
+          results[item.index] = {
+            callId: item.call.callId,
+            toolName: item.call.toolName,
+            status: "NOT_CHECKED",
+            evidenceStatus: "NOT_CHECKED",
+            evidence: createNotCheckedEvidence(item.call.toolName, {
+              checkId: item.call.callId,
+              reason: "The total planner execution budget expired before this call started."
+            })
+          };
+          return;
+        }
         const dependencyResults = Object.fromEntries(
           item.dependencies.map(id => [id, states.get(id).result])
         );
-        const result = await dispatchToolCall(cloneJsonValue(item.call), dependencyResults);
-        state.status = "COMPLETED";
-        state.result = result;
-        results[item.index] = {
-          callId: item.call.callId,
-          toolName: item.call.toolName,
-          status: "COMPLETED",
-          result,
-          evidence: normalizeToolResult(item.call.toolName, result, {
+        const pending = Promise.resolve().then(() =>
+          dispatchToolCall(cloneJsonValue(item.call), dependencyResults)
+        );
+        const outcome = await raceWithTimeout(pending, Math.min(perToolBudget, remainingMs));
+        if (outcome.timedOut) {
+          const error = new Error("Planner tool execution timed out.");
+          state.status = "FAILED";
+          state.evidenceStatus = "ERROR";
+          state.error = error;
+          results[item.index] = {
+            callId: item.call.callId,
+            toolName: item.call.toolName,
+            status: "FAILED",
+            evidenceStatus: "ERROR",
+            errorCode: "TOOL_TIMEOUT",
+            evidence: createErrorEvidence(item.call.toolName, error, {
+              checkId: item.call.callId,
+              errorCode: "TOOL_TIMEOUT"
+            })
+          };
+        } else if (outcome.rejected) {
+          throw outcome.error;
+        } else {
+          const result = outcome.value;
+          const evidence = normalizeToolResult(item.call.toolName, result, {
             checkId: item.call.callId,
             required: true
-          })
-        };
+          });
+          state.result = result;
+          state.evidenceStatus = evidence.status;
+          state.status = evidence.status === "ERROR" ? "FAILED" : "COMPLETED";
+          results[item.index] = {
+            callId: item.call.callId,
+            toolName: item.call.toolName,
+            status: state.status,
+            evidenceStatus: evidence.status,
+            result,
+            evidence
+          };
+        }
       } catch (error) {
         state.status = "FAILED";
+        state.evidenceStatus = "ERROR";
         state.error = error;
         results[item.index] = {
           callId: item.call.callId,
