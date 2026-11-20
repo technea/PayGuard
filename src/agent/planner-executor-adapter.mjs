@@ -17,6 +17,7 @@ const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 const TOOL_INPUT_VALIDATION_OPTIONS = Object.freeze({
   allErrors: true,
   strict: true,
+  allowUnionTypes: true,
   validateFormats: false,
   messages: true,
   coerceTypes: false,
