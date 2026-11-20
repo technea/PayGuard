@@ -235,6 +235,33 @@ export function mapPlannerToolInput(toolCall, planContext, trustedContext = {}) 
   }
 }
 
+
+/**
+ * Preflight every mapped tool input before the dependency scheduler can invoke
+ * the first tool. This prevents a malformed later call or missing trusted
+ * context from causing a partially dispatched plan.
+ */
+export function validatePlannerToolCallInputs({
+  toolCalls,
+  planContext,
+  trustedContext = {},
+  targetPlugin
+} = {}) {
+  if (!Array.isArray(toolCalls)) {
+    throw new TypeError("toolCalls must be an array.");
+  }
+  requireRecord(planContext, "planContext");
+  requireRecord(trustedContext, "trustedContext");
+  const validators = compilePayGuardToolInputSchemas(targetPlugin);
+  const trustedSnapshot = cloneJsonValue(trustedContext);
+
+  for (const toolCall of toolCalls) {
+    const input = mapPlannerToolInput(toolCall, planContext, trustedSnapshot);
+    validateMappedToolInput(toolCall.toolName, input, validators);
+  }
+  return true;
+}
+
 /**
  * Create the trusted dispatch callback consumed by dispatchValidatedPlannerOutput.
  * Existing plugin.invokeTool remains the only tool execution boundary.
