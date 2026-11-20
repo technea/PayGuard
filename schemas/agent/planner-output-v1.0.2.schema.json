@@ -378,7 +378,8 @@
             },
             "toolCalls": {
               "minItems": 1,
-              "maxItems": 7
+              "maxItems": 7,
+              "type": "array"
             }
           }
         },
@@ -391,7 +392,8 @@
               "const": "insufficient_input"
             },
             "toolCalls": {
-              "maxItems": 0
+              "maxItems": 0,
+              "type": "array"
             }
           }
         },
@@ -404,7 +406,8 @@
               "const": "unsupported_target"
             },
             "toolCalls": {
-              "maxItems": 0
+              "maxItems": 0,
+              "type": "array"
             }
           }
         }
