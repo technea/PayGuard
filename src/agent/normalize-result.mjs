@@ -70,13 +70,16 @@ function summarizeEvidence(result) {
   // Wallet scans report token-level risk separately from top-level findings.
   if (Array.isArray(result.tokens)) {
     for (const token of result.tokens.slice(0, 100)) {
-      const tokenRisk = String(token?.verdict || token?.securityStatus || "").toUpperCase();
+      const tokenVerdict = String(token?.verdict || "").toUpperCase();
+      const tokenSecurityStatus = String(token?.securityStatus || "").toUpperCase();
       const riskLevel = severityFrom(token?.riskLevel,
-        token?.isImpersonation === true || ["BLOCK", "SUSPICIOUS", "KNOWN_MALICIOUS"].includes(tokenRisk)
-          ? "HIGH"
-          : ["HIGH RISK", "SUSPICIOUS"].includes(tokenRisk) ? "HIGH" : null);
+        token?.isImpersonation === true ||
+        ["BLOCK", "SUSPICIOUS", "KNOWN_MALICIOUS", "HIGH RISK"].includes(tokenVerdict) ||
+        ["HIGH RISK", "SUSPICIOUS"].includes(tokenSecurityStatus)
+          ? "HIGH" : null);
       const risky = token?.isImpersonation === true ||
-        ["BLOCK", "SUSPICIOUS", "KNOWN_MALICIOUS", "RISK_DETECTED", "HIGH RISK"].includes(tokenRisk) ||
+        ["BLOCK", "SUSPICIOUS", "KNOWN_MALICIOUS", "RISK_DETECTED", "HIGH RISK"].includes(tokenVerdict) ||
+        ["HIGH RISK", "SUSPICIOUS"].includes(tokenSecurityStatus) ||
         ["HIGH", "CRITICAL"].includes(riskLevel);
       if (risky) {
         const target = token?.contractAddress || token?.tokenAddress || token?.address;
