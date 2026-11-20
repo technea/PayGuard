@@ -4,6 +4,7 @@ import plugin from "../src/plugin.mjs";
 import { normalizeToolResult } from "../src/agent/normalize-result.mjs";
 import { buildEvidenceCore } from "../src/core/evidence.mjs";
 import { runDependentToolCalls } from "../src/agent/runner.mjs";
+import { clearTokenCache } from "../src/token-security.mjs";
 
 const WALLET = "0x1111111111111111111111111111111111111111";
 const TOKEN = "0x2222222222222222222222222222222222222222";
@@ -216,6 +217,7 @@ test("actual wallet handler consumes a complete Blockscout indexer response and 
 });
 
 test("UNVERIFIED handler output and ERROR/NOT_CHECKED runner states cannot become ALLOW", async () => {
+  clearTokenCache();
   const provider = createProviderMock({ tokenRisk: false });
   const raw = await registeredHandler("payguard_check_token_security")(
     { contractAddress: TOKEN, chainId: "8453" },
