@@ -243,6 +243,8 @@ test("actual wallet handler consumes a complete Alchemy indexer response and ret
 
   assert.equal(raw.scanCompletionStatus, "COMPLETE");
   assert.equal(raw.discoveryMode, "ALCHEMY_INDEXER");
+  assert.ok(provider.calls.some(call => call.body && JSON.parse(call.body).method === "alchemy_getTokenBalances"));
+  assert.ok(provider.calls.some(call => call.url.includes("/api/v1/token_security/")));
   const evidence = normalizeToolResult(WALLET_TOOL, raw);
   assert.equal(evidence.status, "RISK_DETECTED");
   assert.equal(buildEvidenceCore([evidence]).decision, "BLOCK");
@@ -257,9 +259,25 @@ test("actual wallet handler consumes a complete Blockscout indexer response and 
 
   assert.equal(raw.scanCompletionStatus, "COMPLETE");
   assert.equal(raw.discoveryMode, "BLOCKSCOUT_INDEXER");
+  assert.ok(provider.calls.some(call => call.url.includes("/addresses/") && call.url.includes("/tokens?type=ERC-20")));
+  assert.ok(provider.calls.some(call => call.url.includes("/api/v1/token_security/")));
   const evidence = normalizeToolResult(WALLET_TOOL, raw);
   assert.equal(evidence.status, "RISK_DETECTED");
   assert.equal(buildEvidenceCore([evidence]).decision, "BLOCK");
+});
+
+test("unkeyed CRITICAL findings retain severity and message with a deterministic identifier", () => {
+  const raw = {
+    status: "UNVERIFIED",
+    findings: [{ severity: "CRITICAL", message: "Critical exploit indicator without a source identifier." }]
+  };
+  const first = normalizeToolResult(URL_TOOL, raw);
+  const second = normalizeToolResult(URL_TOOL, raw);
+  assert.equal(first.evidence.length, 1);
+  assert.equal(first.evidence[0].severity, "CRITICAL");
+  assert.equal(first.evidence[0].message, raw.findings[0].message);
+  assert.equal(first.evidence[0].code, second.evidence[0].code);
+  assert.match(first.evidence[0].code, /^CRITICAL_FINDING_[A-F0-9]{16}$/);
 });
 
 test("UNVERIFIED handler output and ERROR/NOT_CHECKED runner states cannot become ALLOW", async () => {
