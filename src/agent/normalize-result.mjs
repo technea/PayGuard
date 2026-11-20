@@ -44,7 +44,20 @@ function summarizeEvidence(result) {
 
   if (Array.isArray(result.findings)) {
     for (const finding of result.findings.slice(0, 100)) {
-      add(finding?.code || finding?.id, finding?.severity, finding);
+      const severity = severityFrom(finding?.severity);
+      const message = typeof finding?.message === "string" && finding.message.trim()
+        ? finding.message
+        : typeof finding?.detail === "string" && finding.detail.trim()
+          ? finding.detail
+          : null;
+      const fallbackCode = severity === "CRITICAL" && message
+        ? "CRITICAL_FINDING_" + createHash("sha256").update(canonicalJson({
+          message: message.trim(),
+          target: finding?.target ?? null,
+          category: finding?.category ?? null
+        }), "utf8").digest("hex").slice(0, 16).toUpperCase()
+        : undefined;
+      add(finding?.code || finding?.id || fallbackCode, severity || finding?.severity, finding);
     }
   }
   if (Array.isArray(result.reasonCodes)) {
