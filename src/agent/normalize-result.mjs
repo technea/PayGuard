@@ -58,8 +58,11 @@ function summarizeEvidence(result) {
   }
   if (Array.isArray(result.checks)) {
     for (const check of result.checks.slice(0, 100)) {
-      if (["fail", "failed", "warning", "unknown"].includes(String(check?.status || "").toLowerCase())) {
-        add(check?.id || check?.code, check?.severity, check);
+      if (["fail", "failed", "warning", "unknown", "block"].includes(String(check?.status || "").toLowerCase())) {
+        const fallbackSeverity = String(check?.status || "").toLowerCase() === "fail" ||
+          String(check?.status || "").toLowerCase() === "failed" ||
+          String(check?.status || "").toLowerCase() === "block" ? "HIGH" : null;
+        add(check?.id || check?.code, check?.severity || fallbackSeverity, check);
       }
     }
   }
@@ -76,19 +79,41 @@ function summarizeEvidence(result) {
         ["BLOCK", "SUSPICIOUS", "KNOWN_MALICIOUS", "RISK_DETECTED", "HIGH RISK"].includes(tokenRisk) ||
         ["HIGH", "CRITICAL"].includes(riskLevel);
       if (risky) {
-        add(token?.contractAddress || token?.tokenAddress || token?.address || token?.symbol || "WALLET_TOKEN_RISK",
-          riskLevel || "HIGH", {
+        const target = token?.contractAddress || token?.tokenAddress || token?.address;
+        const tokenFindings = Array.isArray(token?.findings) ? token.findings.slice(0, 50) : [];
+        if (tokenFindings.length > 0) {
+          for (const finding of tokenFindings) {
+            add(finding?.code || finding?.id || target || token?.symbol || "WALLET_TOKEN_RISK",
+              finding?.severity || riskLevel || "HIGH", {
+                message: finding?.message || finding?.detail || token?.reason || token?.riskReason ||
+                  token?.securityStatus || token?.verdict || "Wallet token risk signal.",
+                target,
+                category: finding?.category || "WALLET_TOKEN",
+                metadata: {
+                  tokenName: token?.name || token?.tokenName,
+                  tokenSymbol: token?.symbol || token?.tokenSymbol,
+                  verdict: token?.verdict,
+                  securityStatus: token?.securityStatus,
+                  isImpersonation: token?.isImpersonation,
+                  provider: token?.provider
+                }
+              });
+          }
+        } else {
+          add(target || token?.symbol || "WALLET_TOKEN_RISK", riskLevel || "HIGH", {
             message: token?.reason || token?.riskReason || token?.securityStatus || token?.verdict || "Wallet token risk signal.",
-            target: token?.contractAddress || token?.tokenAddress || token?.address,
+            target,
             category: "WALLET_TOKEN",
             metadata: {
-              tokenName: token?.tokenName,
-              tokenSymbol: token?.tokenSymbol,
+              tokenName: token?.name || token?.tokenName,
+              tokenSymbol: token?.symbol || token?.tokenSymbol,
               verdict: token?.verdict,
               securityStatus: token?.securityStatus,
-              isImpersonation: token?.isImpersonation
+              isImpersonation: token?.isImpersonation,
+              provider: token?.provider
             }
           });
+        }
       }
     }
   }
