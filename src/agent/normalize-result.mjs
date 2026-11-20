@@ -34,7 +34,10 @@ function summarizeEvidence(result) {
       }
     }
     if (details.metadata && typeof details.metadata === "object" && !Array.isArray(details.metadata)) {
-      item.metadata = cloneJsonValue(details.metadata);
+      const metadata = Object.fromEntries(Object.entries(details.metadata).filter(([, value]) =>
+        value !== undefined && (value === null || ["string", "number", "boolean"].includes(typeof value))
+      ));
+      if (Object.keys(metadata).length > 0) item.metadata = metadata;
     }
     findings.push(item);
   };
@@ -62,9 +65,9 @@ function summarizeEvidence(result) {
       const riskLevel = severityFrom(token?.riskLevel,
         token?.isImpersonation === true || ["BLOCK", "SUSPICIOUS", "KNOWN_MALICIOUS"].includes(tokenRisk)
           ? "HIGH"
-          : tokenRisk.includes("SUSPICIOUS") ? "MEDIUM" : null);
+          : ["HIGH RISK", "SUSPICIOUS"].includes(tokenRisk) ? "HIGH" : null);
       const risky = token?.isImpersonation === true ||
-        ["BLOCK", "SUSPICIOUS", "KNOWN_MALICIOUS", "RISK_DETECTED"].includes(tokenRisk) ||
+        ["BLOCK", "SUSPICIOUS", "KNOWN_MALICIOUS", "RISK_DETECTED", "HIGH RISK"].includes(tokenRisk) ||
         ["HIGH", "CRITICAL"].includes(riskLevel);
       if (risky) {
         add(token?.contractAddress || token?.tokenAddress || token?.address || token?.symbol || "WALLET_TOKEN_RISK",
