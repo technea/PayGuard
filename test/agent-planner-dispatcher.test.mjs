@@ -136,7 +136,7 @@ test("structured ERROR evidence blocks dependent calls as NOT_CHECKED", async ()
       ...plannerOutput.toolCalls[0],
       callId: "dependent",
       toolName: "payguard_prepare_threat_report",
-      purpose: "threat_report",
+      purpose: "evidence_enrichment",
       targetRef: "https://example.com",
       toolInput: { url: "https://example.com" },
       dependsOn: ["prerequisite"]
@@ -162,7 +162,7 @@ test("planner per-tool timeout is ERROR and total budget leaves unstarted calls 
       ...plannerOutput.toolCalls[0],
       callId: "never-started",
       toolName: "payguard_prepare_threat_report",
-      purpose: "threat_report",
+      purpose: "evidence_enrichment",
       targetRef: "https://example.com",
       toolInput: { url: "https://example.com" }
     }
