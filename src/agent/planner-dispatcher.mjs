@@ -29,7 +29,9 @@ export async function dispatchValidatedPlannerOutput({
   dispatchToolCall,
   targetPlugin,
   trustedContext = {},
-  maxConcurrency = 3
+  maxConcurrency = 3,
+  perToolTimeoutMs,
+  totalTimeoutMs
 } = {}) {
   const usesBuiltInAdapter = typeof dispatchToolCall !== "function";
   const trustedDispatch = usesBuiltInAdapter
@@ -75,6 +77,8 @@ export async function dispatchValidatedPlannerOutput({
   const executions = await runDependentToolCalls({
     toolCalls: validatedPlan.toolCalls,
     maxConcurrency,
+    perToolTimeoutMs,
+    totalTimeoutMs,
     dispatchToolCall: async (toolCall, dependencyResults) => {
       // Last-moment gate immediately before the trusted dispatcher is invoked.
       if (!isKnownPayGuardTool(toolCall.toolName)) {
