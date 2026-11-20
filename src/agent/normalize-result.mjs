@@ -50,6 +50,12 @@ function summarizeEvidence(result) {
   if (Array.isArray(result.reasonCodes)) {
     for (const code of result.reasonCodes.slice(0, 100)) add(code, result.riskLevel);
   }
+  if (Array.isArray(result.reasons)) {
+    for (const reason of result.reasons.slice(0, 100)) {
+      if (typeof reason === "string") add(reason, result.riskLevel);
+      else add(reason?.code || reason?.id, reason?.severity || result.riskLevel, reason);
+    }
+  }
   if (Array.isArray(result.checks)) {
     for (const check of result.checks.slice(0, 100)) {
       if (["fail", "failed", "warning", "unknown"].includes(String(check?.status || "").toLowerCase())) {
