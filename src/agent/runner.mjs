@@ -188,6 +188,8 @@ export async function runDependentToolCalls({
           callId: item.call.callId,
           toolName: item.call.toolName,
           status: "BLOCKED",
+          evidenceStatus: "NOT_CHECKED",
+          reason: "This step was skipped because a dependency did not complete.",
           blockedBy: failedDependency
         };
         pendingCount--;
@@ -231,6 +233,7 @@ export async function runDependentToolCalls({
           callId: item.call.callId,
           toolName: item.call.toolName,
           status: "FAILED",
+          evidenceStatus: "ERROR",
           errorCode: "TOOL_DISPATCH_FAILED",
           error: error instanceof Error ? error.message : "Tool dispatch failed."
         };
