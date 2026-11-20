@@ -265,6 +265,7 @@ export async function runDependentToolCalls({
               reason: "The total planner execution budget expired before this call started."
             })
           };
+          pendingCount--;
           return;
         }
         const dependencyResults = Object.fromEntries(
