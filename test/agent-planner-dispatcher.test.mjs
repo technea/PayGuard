@@ -143,3 +143,30 @@ test("returns a validated no-dispatch outcome for non-investigate decisions", as
   assert.deepEqual(result.executions, []);
   assert.equal(dispatches, 0);
 });
+
+
+test("validated dispatcher returns Evidence Core assessment and normalized tool evidence", async () => {
+  const plan = {
+    schemaVersion: "1.0.2", planId: "p-evidence", network: "base-mainnet", chainId: 8453,
+    decision: "investigate", stopReason: null,
+    toolCalls: [{
+      callId: "url-1",
+      toolName: "payguard_analyze_url",
+      purpose: "domain_reputation",
+      priority: 1,
+      targetRef: "https://evil.example",
+      toolInput: { url: "https://evil.example" }
+    }]
+  };
+  const result = await dispatchValidatedPlannerOutput({
+    plannerOutput: plan,
+    dispatchToolCall: async () => ({
+      verdict: "KNOWN_MALICIOUS",
+      riskLevel: "CRITICAL",
+      checks: [{ id: "threat_match", severity: "CRITICAL", status: "fail", detail: "Known phishing domain." }]
+    })
+  });
+  assert.equal(result.executions[0].evidence.status, "RISK_DETECTED");
+  assert.equal(result.assessment.decision, "BLOCK");
+  assert.ok(result.assessment.findings.some(f => f.severity === "CRITICAL"));
+});
