@@ -983,9 +983,9 @@ async function scanBaseWalletTokens(input = {}, options = {}) {
     },
     tokens: evaluatedTokens,
     advisoryNotice: discoveryMode === "ALCHEMY_INDEXER"
-      ? "Complete wallet portfolio indexed via Alchemy Base Mainnet API. Threat analysis evaluated via GoPlus Security and Base Official Asset Registry."
+      ? "Complete wallet portfolio indexed via on-chain asset discovery. Threat analysis evaluated via multi-signal threat intelligence and Base Official Asset Registry."
       : discoveryMode === "BLOCKSCOUT_INDEXER"
-        ? "Wallet token holdings indexed via Blockscout API. Threat screening evaluated via GoPlus Security."
+        ? "Wallet token holdings indexed via on-chain asset discovery. Threat screening evaluated via multi-signal threat intelligence."
         : "Partial discovery mode active: Audited canonical Base ecosystem registry and caller-specified custom tokens via Base on-chain RPC. Unsolicited tokens outside this scope require explicit contract input.",
     timestamp: new Date().toISOString()
   };

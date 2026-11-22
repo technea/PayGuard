@@ -13,12 +13,21 @@
 
 import { CoinbaseWalletSDK, createCoinbaseWalletSDK } from "@coinbase/wallet-sdk";
 import { inspectCalldata } from "./calldata-inspector.mjs";
+import {
+  BASE_MAINNET_CHAIN_ID,
+  BASE_SEPOLIA_CHAIN_ID,
+  BASE_SEPOLIA_CHAIN_ID_HEX,
+  BASE_SEPOLIA_RPC_URL,
+  BASE_MAINNET_RPC_URL
+} from "./core/base-constants.mjs";
 
-export const BASE_MAINNET_CHAIN_ID = 8453;
-export const BASE_SEPOLIA_CHAIN_ID = 84532;
-export const BASE_SEPOLIA_CHAIN_ID_HEX = "0x14a34";
-export const BASE_SEPOLIA_RPC_URL = "https://sepolia.base.org";
-export const BASE_MAINNET_RPC_URL = "https://mainnet.base.org";
+export {
+  BASE_MAINNET_CHAIN_ID,
+  BASE_SEPOLIA_CHAIN_ID,
+  BASE_SEPOLIA_CHAIN_ID_HEX,
+  BASE_SEPOLIA_RPC_URL,
+  BASE_MAINNET_RPC_URL
+};
 
 /**
  * Creates and configures a Base Smart Wallet SDK instance and provider.

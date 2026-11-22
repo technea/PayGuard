@@ -10,6 +10,8 @@ const srcWalletScannerFile = new URL('../src/wallet-token-scanner.mjs', import.m
 const srcNearSecurityFile = new URL('../src/near-security.mjs', import.meta.url);
 const srcNearDir = new URL('../src/near/', import.meta.url);
 const destNearDir = new URL('../dist/near/', import.meta.url);
+const srcCoreDir = new URL('../src/core/', import.meta.url);
+const destCoreDir = new URL('../dist/core/', import.meta.url);
 const destPluginMjs = new URL('../dist/plugin.mjs', import.meta.url);
 const destIndexMjs = new URL('../dist/index.mjs', import.meta.url);
 const destIndexJs = new URL('../dist/index.js', import.meta.url);
@@ -61,6 +63,7 @@ await writeFile(destAddressSecurityMjs, addressSecurityContent, 'utf8');
 await writeFile(destWalletScannerMjs, walletScannerContent, 'utf8');
 await writeFile(destNearSecurityMjs, nearSecurityContent, 'utf8');
 await cp(srcNearDir, destNearDir, { recursive: true });
+await cp(srcCoreDir, destCoreDir, { recursive: true });
 
 // 3. Generate CommonJS bundles (index.cjs, plugin.cjs, calldata-inspector.cjs, token-security.cjs, address-security.cjs, near-security.cjs)
 function toCommonJS(esmCode) {
@@ -118,6 +121,7 @@ module.exports = cjsExport;
 
 function toCalldataCJS(esmCode) {
   let cjs = esmCode
+    .replace(/^import\s*\{[\s\S]*?\}\s*from\s*['"]\.\/core\/erc8021-decoder\.mjs['"];?/gm, "const { extractERC8021Suffix, ERC8021_MAGIC_MARKER, ERC8021_MAGIC_MARKER_BYTES, ERC8021_MIN_SUFFIX_BYTES } = require('./core/erc8021-decoder.mjs');")
     .replace(/^export\s+async\s+function\s+([a-zA-Z0-9_$]+)/gm, 'async function $1')
     .replace(/^export\s+function\s+([a-zA-Z0-9_$]+)/gm, 'function $1')
     .replace(/^export\s+const\s+([a-zA-Z0-9_$]+)/gm, 'const $1')
