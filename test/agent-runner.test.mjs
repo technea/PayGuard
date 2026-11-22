@@ -122,8 +122,10 @@ test("runner status normalization remains fail-closed for unqualified PASS resul
   assert.equal(
     normalizeToolStatus("payguard_scan_wallet_tokens", {
       status: "SUCCESS",
-      discoveryMode: "FULL_INDEXER",
-      tokens: []
+      scanCompletionStatus: "COMPLETE",
+      discoveryMode: "ALCHEMY_INDEXER",
+      tokens: [],
+      summary: { highRiskCount: 0, suspiciousCount: 0, unverifiedCount: 0 }
     }).status,
     "VERIFIED"
   );

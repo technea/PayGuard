@@ -4,6 +4,7 @@ name: PayGuard CI
   push:
     branches:
       - main
+      - feat/agent-ajv-runtime-validation
   pull_request:
   workflow_dispatch:
 

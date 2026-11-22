@@ -13,7 +13,7 @@ import { cloneJsonValue } from "./canonical-json.mjs";
 import { isKnownPayGuardTool } from "./tool-catalog.mjs";
 import { validatePlannerOutput } from "./planner-validation.mjs";
 import { runDependentToolCalls } from "./runner.mjs";
-import { createPlannerExecutorAdapter } from "./planner-executor-adapter.mjs";
+import { createPlannerExecutorAdapter, validatePlannerToolCallInputs } from "./planner-executor-adapter.mjs";
 import { normalizeToolResult } from "./normalize-result.mjs";
 import { createErrorEvidence } from "./evidence-record.mjs";
 import { buildEvidenceReport } from "./report.mjs";
@@ -21,10 +21,15 @@ import { buildEvidenceCore } from "../core/evidence.mjs";
 
 /**
  * Convert bounded dispatcher outcomes into the existing Evidence Core record
- * contract. A failed, blocked, or missing result is never treated as VERIFIED.
+ * contract. Prefer evidence already normalized by the bounded runner so
+ * ERROR and NOT_CHECKED states are not accidentally flattened or reclassified.
  */
 function executionsToEvidence(executions, completedAt) {
   return executions.map(execution => {
+    if (execution.evidence && typeof execution.evidence === "object") {
+      return execution.evidence;
+    }
+
     const required = true;
     if (execution.status === "COMPLETED") {
       return normalizeToolResult(execution.toolName, execution.result, {
@@ -36,19 +41,30 @@ function executionsToEvidence(executions, completedAt) {
     }
 
     const error = new Error(
-      execution.status === "BLOCKED"
-        ? "A required dependency did not complete."
+      execution.status === "BLOCKED" || execution.status === "NOT_CHECKED"
+        ? "A required dependency or execution budget prevented this check."
         : execution.error || "The tool call did not complete."
     );
-    return createErrorEvidence(execution.toolName, error, {
-      id: execution.callId,
-      checkId: execution.callId,
-      required,
-      completedAt,
-      errorCode: execution.status === "BLOCKED"
-        ? "TOOL_DEPENDENCY_BLOCKED"
-        : "TOOL_DISPATCH_FAILED"
-    });
+    return execution.status === "NOT_CHECKED"
+      ? {
+          ...createErrorEvidence(execution.toolName, error, {
+            id: execution.callId,
+            checkId: execution.callId,
+            required,
+            completedAt,
+            errorCode: "TOOL_NOT_CHECKED"
+          }),
+          status: "NOT_CHECKED"
+        }
+      : createErrorEvidence(execution.toolName, error, {
+          id: execution.callId,
+          checkId: execution.callId,
+          required,
+          completedAt,
+          errorCode: execution.status === "BLOCKED"
+            ? "TOOL_DEPENDENCY_BLOCKED"
+            : "TOOL_DISPATCH_FAILED"
+        });
   });
 }
 
@@ -65,8 +81,12 @@ export async function dispatchValidatedPlannerOutput({
   dispatchToolCall,
   targetPlugin,
   trustedContext = {},
-  maxConcurrency = 3
+  maxConcurrency = 3,
+  perToolTimeoutMs,
+  totalTimeoutMs
 } = {}) {
+  const usesBuiltInAdapter = typeof dispatchToolCall !== "function";
+
   // First gate: JSON Schema + planner tool allowlist.
   validatePlannerOutput(plannerOutput);
 
@@ -79,9 +99,9 @@ export async function dispatchValidatedPlannerOutput({
     chainId: validatedPlan.chainId
   });
 
-  const trustedDispatch = typeof dispatchToolCall === "function"
-    ? dispatchToolCall
-    : createPlannerExecutorAdapter({ targetPlugin, trustedContext });
+  const trustedDispatch = usesBuiltInAdapter
+    ? createPlannerExecutorAdapter({ targetPlugin, trustedContext })
+    : dispatchToolCall;
 
   // Second gate: verify every tool against the trusted registry before any
   // dispatch, rather than discovering an unauthorized call part-way through.
@@ -95,9 +115,22 @@ export async function dispatchValidatedPlannerOutput({
     }
   }
 
+  // Preflight every built-in tool mapping before the scheduler can dispatch
+  // any call. Missing trusted context or invalid input rejects the whole plan.
+  if (usesBuiltInAdapter) {
+    validatePlannerToolCallInputs({
+      toolCalls: validatedPlan.toolCalls,
+      planContext: dispatchContext,
+      trustedContext,
+      targetPlugin
+    });
+  }
+
   const executions = await runDependentToolCalls({
     toolCalls: validatedPlan.toolCalls,
     maxConcurrency,
+    perToolTimeoutMs,
+    totalTimeoutMs,
     dispatchToolCall: async (toolCall, dependencyResults) => {
       // Last-moment gate immediately before the trusted dispatcher is invoked.
       if (!isKnownPayGuardTool(toolCall.toolName)) {
@@ -131,7 +164,7 @@ export async function dispatchValidatedPlannerOutput({
     }))
   };
 
-  // Evidence Core receives only normalized evidence records and independently
+  // Evidence Core receives normalized evidence records and independently
   // derives status, findings, risk score, confidence, and final decision.
   const assessment = buildEvidenceCore(evidence);
   const report = buildEvidenceReport(subject, evidence, {

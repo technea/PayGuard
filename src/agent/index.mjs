@@ -25,4 +25,4 @@ export { createPayGuardAgentMcpPlugin, startPayGuardAgentMcpServer, PAYGUARD_INV
 export { validatePlannerOutput, getPlannerOutputSchemaErrors, PlannerOutputValidationError, PLANNER_OUTPUT_SCHEMA } from "./planner-validation.mjs";
 export { dispatchValidatedPlannerOutput } from "./planner-dispatcher.mjs";
 
-export { mapPlannerToolInput, createPlannerExecutorAdapter, compilePayGuardToolInputSchemas, PlannerToolInputValidationError } from "./planner-executor-adapter.mjs";
+export { mapPlannerToolInput, createPlannerExecutorAdapter, compilePayGuardToolInputSchemas, validatePlannerToolCallInputs, PlannerToolInputValidationError } from "./planner-executor-adapter.mjs";

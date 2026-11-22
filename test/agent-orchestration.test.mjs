@@ -39,7 +39,8 @@ test('bounded worker pool never exceeds configured concurrency', async () => {
     }
     return {
       status: 'SUCCESS',
-      discoveryMode: 'FULL_INDEXER',
+      scanCompletionStatus: 'COMPLETE',
+      discoveryMode: 'ALCHEMY_INDEXER',
       summary: { totalTokensScanned: 1, highRiskCount: 0, suspiciousCount: 0, cleanCount: 1, unverifiedCount: 0 },
       tokens: [{ verdict: 'PASS', riskLevel: 'LOW', securityStatus: 'NO KNOWN ISSUES FOUND' }]
     };

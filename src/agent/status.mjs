@@ -62,8 +62,10 @@ export function normalizeToolStatus(toolName, result) {
   if (toolName === "payguard_scan_wallet_tokens") {
     if (walletHasRisk(result)) return { status: "RISK_DETECTED", reason: "One or more wallet holdings contain explicit risk findings." };
     if (Number(result.summary?.unverifiedCount || 0) > 0) return { status: "UNVERIFIED", reason: "One or more wallet holdings could not be verified." };
-    if (result.discoveryMode !== "FULL_INDEXER") {
-      return { status: "UNVERIFIED", reason: "Full-indexer wallet discovery was not confirmed; undiscovered holdings may remain unchecked." };
+    const completeIndexer = result.scanCompletionStatus === "COMPLETE" &&
+      ["ALCHEMY_INDEXER", "BLOCKSCOUT_INDEXER"].includes(result.discoveryMode);
+    if (!completeIndexer) {
+      return { status: "UNVERIFIED", reason: "Wallet discovery was partial or did not use a confirmed complete indexer; undiscovered holdings may remain unchecked." };
     }
     if (["SUCCESS", "COMPLETED", "PASS"].includes(explicit)) {
       return { status: "VERIFIED", reason: "The discovered wallet holdings passed implemented checks; this is not a safety guarantee." };
@@ -91,6 +93,12 @@ export function normalizeToolStatus(toolName, result) {
   }
 
   if (toolName === "payguard_check_payment_intent") {
+    const hasFailedPolicyCheck = Array.isArray(result.checks) && result.checks.some(check =>
+      ["FAIL", "FAILED", "BLOCK"].includes(String(check?.status || "").toUpperCase())
+    );
+    if (hasFailedPolicyCheck) {
+      return { status: "RISK_DETECTED", reason: "One or more offered payment options violate explicit payment policy." };
+    }
     if (explicit === "PASS" || verdict === "PASS") {
       return { status: "VERIFIED", reason: "Supplied payment fields matched explicit policy; merchant legitimacy and chain execution were not verified." };
     }
