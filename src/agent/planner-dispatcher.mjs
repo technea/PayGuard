@@ -1,18 +1,72 @@
 /**
  * @module agent/planner-dispatcher
- * @section Validated planner-to-tool dispatch boundary
+ * @section Validated planner-to-tool dispatch and Evidence Core handoff
  *
  * Accepts untrusted planner output, validates its Draft 2020-12 contract,
- * snapshots the validated JSON, and dispatches only registered PayGuard tools.
- * The host dispatcher remains responsible for mapping targetRef and trusted
- * context into the existing tool's established input contract.
+ * dispatches only registered PayGuard tools, normalizes their results into
+ * evidence records, and delegates the final verdict to Evidence Core.
+ *
+ * Planner decision fields are orchestration hints only. They are never returned
+ * as the security verdict and cannot override the Evidence Core assessment.
  */
 import { cloneJsonValue } from "./canonical-json.mjs";
 import { isKnownPayGuardTool } from "./tool-catalog.mjs";
 import { validatePlannerOutput } from "./planner-validation.mjs";
 import { runDependentToolCalls } from "./runner.mjs";
 import { createPlannerExecutorAdapter, validatePlannerToolCallInputs } from "./planner-executor-adapter.mjs";
+import { normalizeToolResult } from "./normalize-result.mjs";
+import { createErrorEvidence } from "./evidence-record.mjs";
+import { buildEvidenceReport } from "./report.mjs";
 import { buildEvidenceCore } from "../core/evidence.mjs";
+
+/**
+ * Convert bounded dispatcher outcomes into the existing Evidence Core record
+ * contract. Prefer evidence already normalized by the bounded runner so
+ * ERROR and NOT_CHECKED states are not accidentally flattened or reclassified.
+ */
+function executionsToEvidence(executions, completedAt) {
+  return executions.map(execution => {
+    if (execution.evidence && typeof execution.evidence === "object") {
+      return execution.evidence;
+    }
+
+    const required = true;
+    if (execution.status === "COMPLETED") {
+      return normalizeToolResult(execution.toolName, execution.result, {
+        id: execution.callId,
+        checkId: execution.callId,
+        required,
+        completedAt
+      });
+    }
+
+    const error = new Error(
+      execution.status === "BLOCKED" || execution.status === "NOT_CHECKED"
+        ? "A required dependency or execution budget prevented this check."
+        : execution.error || "The tool call did not complete."
+    );
+    return execution.status === "NOT_CHECKED"
+      ? {
+          ...createErrorEvidence(execution.toolName, error, {
+            id: execution.callId,
+            checkId: execution.callId,
+            required,
+            completedAt,
+            errorCode: "TOOL_NOT_CHECKED"
+          }),
+          status: "NOT_CHECKED"
+        }
+      : createErrorEvidence(execution.toolName, error, {
+          id: execution.callId,
+          checkId: execution.callId,
+          required,
+          completedAt,
+          errorCode: execution.status === "BLOCKED"
+            ? "TOOL_DEPENDENCY_BLOCKED"
+            : "TOOL_DISPATCH_FAILED"
+        });
+  });
+}
 
 /**
  * Validate a complete planner response and dispatch its authorized tool calls.
@@ -20,9 +74,7 @@ import { buildEvidenceCore } from "../core/evidence.mjs";
  * dispatchToolCall receives:
  *   (toolCall, { planId, network, chainId, dependencyResults })
  *
- * No dispatch occurs unless the entire plan passes schema, allowlist, and
- * dependency-graph validation. Tool names are checked again immediately before
- * crossing the host dispatcher boundary.
+ * Evidence Core is the sole authority for the final security decision.
  */
 export async function dispatchValidatedPlannerOutput({
   plannerOutput,
@@ -34,9 +86,6 @@ export async function dispatchValidatedPlannerOutput({
   totalTimeoutMs
 } = {}) {
   const usesBuiltInAdapter = typeof dispatchToolCall !== "function";
-  const trustedDispatch = usesBuiltInAdapter
-    ? createPlannerExecutorAdapter({ targetPlugin, trustedContext })
-    : dispatchToolCall;
 
   // First gate: JSON Schema + planner tool allowlist.
   validatePlannerOutput(plannerOutput);
@@ -49,6 +98,10 @@ export async function dispatchValidatedPlannerOutput({
     network: validatedPlan.network,
     chainId: validatedPlan.chainId
   });
+
+  const trustedDispatch = usesBuiltInAdapter
+    ? createPlannerExecutorAdapter({ targetPlugin, trustedContext })
+    : dispatchToolCall;
 
   // Second gate: verify every tool against the trusted registry before any
   // dispatch, rather than discovering an unauthorized call part-way through.
@@ -63,8 +116,7 @@ export async function dispatchValidatedPlannerOutput({
   }
 
   // Preflight every built-in tool mapping before the scheduler can dispatch
-  // any call. Missing trusted payment/transaction context or invalid tool input
-  // therefore rejects the complete plan without partial execution.
+  // any call. Missing trusted context or invalid input rejects the whole plan.
   if (usesBuiltInAdapter) {
     validatePlannerToolCallInputs({
       toolCalls: validatedPlan.toolCalls,
@@ -99,13 +151,37 @@ export async function dispatchValidatedPlannerOutput({
     }
   });
 
+  const completedAt = new Date().toISOString();
+  const evidence = executionsToEvidence(executions, completedAt);
+  const subject = {
+    type: "planner-investigation",
+    planId: dispatchContext.planId,
+    network: dispatchContext.network,
+    chainId: dispatchContext.chainId,
+    targets: validatedPlan.toolCalls.map(call => ({
+      toolName: call.toolName,
+      targetRef: call.targetRef
+    }))
+  };
+
+  // Evidence Core receives normalized evidence records and independently
+  // derives status, findings, risk score, confidence, and final decision.
+  const assessment = buildEvidenceCore(evidence);
+  const report = buildEvidenceReport(subject, evidence, {
+    investigationId: dispatchContext.planId,
+    createdAt: completedAt
+  });
+
   return {
     planId: dispatchContext.planId,
     network: dispatchContext.network,
     chainId: dispatchContext.chainId,
-    decision: validatedPlan.decision,
+    plannerDisposition: validatedPlan.decision,
     stopReason: validatedPlan.stopReason,
     executions,
-    assessment: buildEvidenceCore(executions.map(execution => execution.evidence))
+    evidence,
+    report,
+    assessment,
+    finalDecision: assessment.decision
   };
 }
