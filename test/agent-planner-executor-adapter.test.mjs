@@ -161,3 +161,32 @@ test("valid mapped inputs pass registered plugin schema before invokeTool", asyn
     input: { contractAddress: A, chainId: 8453 }
   }]);
 });
+
+
+test("preflights every mapped input before dispatching any tool in the plan", async () => {
+  const invoked = [];
+  const targetPlugin = {
+    invokeTool: async (name, input) => {
+      invoked.push({ name, input });
+      return { status: "UNVERIFIED" };
+    }
+  };
+  const plan = {
+    schemaVersion: "1.0.2", planId: "p-preflight", network: "base-mainnet", chainId: 8453,
+    decision: "investigate", stopReason: null,
+    toolCalls: [
+      call("payguard_analyze_url", "https://example.com", { url: "https://example.com" }),
+      {
+        ...call("payguard_check_payment_intent", "https://merchant.example", {}),
+        callId: "c-2",
+        priority: 2
+      }
+    ]
+  };
+
+  await assert.rejects(
+    dispatchValidatedPlannerOutput({ plannerOutput: plan, targetPlugin }),
+    /trustedContext.payment/
+  );
+  assert.equal(invoked.length, 0, "no tool may run if any mapped call fails preflight");
+});
