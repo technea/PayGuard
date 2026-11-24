@@ -186,3 +186,80 @@ test("11. unknown selector cannot downgrade a failed target allowlist policy", (
   assert.ok(result.reasons.includes("TARGET_NOT_IN_ALLOWLIST"));
   assert.ok(result.checks.some(check => check.id === "target_policy" && check.status === "FAIL"));
 });
+
+test("12. approve() with valid ERC-8021 suffix decodes ABI parameters and exposes attribution metadata", () => {
+  // Suffix for 'payguard': 7061796775617264 + 08 + 00 + 16 bytes marker
+  const suffix = "7061796775617264080080218021802180218021802180218021";
+  const calldata = SELECTORS.ERC20_APPROVE + padAddress(SPENDER) + padUint256(1000n) + suffix;
+
+  const result = inspectCalldata({ to: TOKEN, data: calldata });
+
+  assert.equal(result.verdict, "PASS");
+  assert.equal(result.riskLevel, "LOW");
+  assert.equal(result.operation, "ERC20_APPROVE");
+  assert.equal(result.details.spender, SPENDER.toLowerCase());
+  assert.equal(result.details.rawAmount, "1000");
+  assert.ok(result.details.attribution);
+  assert.equal(result.details.attribution.detected, true);
+  assert.equal(result.details.attribution.formatValid, true);
+  assert.deepEqual(result.details.attribution.builderCodes, ["payguard"]);
+  assert.equal(result.details.attribution.identityVerified, false);
+  assert.ok(result.checks.some(c => c.id === "erc8021_attribution" && c.status === "INFO"));
+});
+
+test("13. approve() with uint256.max and ERC-8021 suffix STILL returns REVIEW (builder code cannot bypass risk)", () => {
+  const suffix = "7061796775617264080080218021802180218021802180218021";
+  const calldata = SELECTORS.ERC20_APPROVE + padAddress(SPENDER) + padUint256(UINT256_MAX) + suffix;
+
+  const result = inspectCalldata({ to: TOKEN, data: calldata });
+
+  assert.equal(result.verdict, "REVIEW");
+  assert.equal(result.riskLevel, "MEDIUM");
+  assert.ok(result.reasons.includes("UNLIMITED_ALLOWANCE_UINT256_MAX"));
+  assert.equal(result.details.attribution.detected, true);
+  assert.equal(result.details.attribution.formatValid, true);
+});
+
+test("14. transfer() to unapproved recipient with ERC-8021 suffix STILL returns BLOCK (builder code cannot bypass policy)", () => {
+  const unapprovedRecipient = "0x7777777777777777777777777777777777777777";
+  const suffix = "7061796775617264080080218021802180218021802180218021";
+  const calldata = SELECTORS.ERC20_TRANSFER + padAddress(unapprovedRecipient) + padUint256(100n) + suffix;
+
+  const policy = { allowedRecipients: [RECIPIENT] };
+  const result = inspectCalldata({ to: TOKEN, data: calldata }, policy);
+
+  assert.equal(result.verdict, "BLOCK");
+  assert.equal(result.riskLevel, "HIGH");
+  assert.ok(result.reasons.includes("RECIPIENT_NOT_IN_ALLOWLIST"));
+  assert.equal(result.details.attribution.detected, true);
+});
+
+test("15. native ETH transfer with valid ERC-8021 suffix evaluates cleanly to PASS", () => {
+  const suffix = "7061796775617264080080218021802180218021802180218021";
+  const ethTransfer = {
+    to: RECIPIENT,
+    value: "1000000000000000000",
+    data: "0x" + suffix
+  };
+
+  const result = inspectCalldata(ethTransfer);
+
+  assert.equal(result.verdict, "PASS");
+  assert.equal(result.operation, "NATIVE_TRANSFER");
+  assert.equal(result.details.nativeValue, "1000000000000000000");
+  assert.equal(result.details.attribution.detected, true);
+  assert.equal(result.details.attribution.formatValid, true);
+});
+
+test("16. transfer() with malformed suffix fails closed with BLOCK because suffix is not stripped", () => {
+  // Suffix length claims 50 bytes (0x32) when payload is only 8 bytes
+  const badSuffix = "7061796775617264320080218021802180218021802180218021";
+  const calldata = SELECTORS.ERC20_TRANSFER + padAddress(RECIPIENT) + padUint256(100n) + badSuffix;
+
+  const result = inspectCalldata({ to: TOKEN, data: calldata });
+
+  assert.equal(result.verdict, "BLOCK");
+  assert.equal(result.operation, "ERC20_TRANSFER");
+  assert.ok(result.reasons.some(r => r.includes("Malformed transfer() calldata length")));
+  assert.equal(result.details.attribution.formatValid, false);
+});

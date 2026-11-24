@@ -11,6 +11,8 @@
  * standard operations; it does NOT guarantee the target contract bytecode is safe.
  */
 
+import { extractERC8021Suffix } from "./core/erc8021-decoder.mjs";
+
 export const UINT256_MAX = (1n << 256n) - 1n; // 2^256 - 1
 
 // Standard 4-byte ERC-20 Function Selectors
@@ -155,8 +157,28 @@ export function inspectCalldata(tx, policy = {}) {
     };
   }
 
-  // Standard ETH Transfer (empty calldata)
-  if (rawData === "0x" || rawData === "") {
+  // Pure ERC-8021 Attribution Suffix Extraction
+  // Suffix is extracted only if it passes strict validation. Unsupported or malformed suffixes remain unstripped.
+  const { cleanCalldata, attribution } = extractERC8021Suffix(rawData);
+
+  if (attribution.detected) {
+    if (attribution.formatValid) {
+      checks.push({
+        id: "erc8021_attribution",
+        status: "INFO",
+        detail: `Valid ERC-8021 attribution suffix detected (codes: ${attribution.builderCodes.join(", ")})`
+      });
+    } else {
+      checks.push({
+        id: "erc8021_attribution",
+        status: "WARN",
+        detail: `Malformed or unsupported ERC-8021 attribution suffix detected (${attribution.error || "UNKNOWN"})`
+      });
+    }
+  }
+
+  // Standard ETH Transfer (empty calldata or empty clean calldata after suffix extraction)
+  if (cleanCalldata === "0x" || cleanCalldata === "") {
     const hasFail = checks.some(c => c.status === "FAIL");
     return {
       verdict: hasFail ? "BLOCK" : "PASS",
@@ -167,25 +189,27 @@ export function inspectCalldata(tx, policy = {}) {
       details: {
         target,
         nativeValue: nativeValue.toString(),
-        dataLengthBytes: 0
+        dataLengthBytes: 0,
+        rawData,
+        attribution
       }
     };
   }
 
   // If calldata is present but less than 4 bytes (selector length)
-  if (rawData.length < 10) {
+  if (cleanCalldata.length < 10) {
     return {
       verdict: "REVIEW",
       riskLevel: "MEDIUM",
       operation: "TRUNCATED_CALLDATA",
       reasons: ["Calldata is shorter than 4-byte function selector"],
-      checks: [...checks, { id: "calldata_length", status: "WARN", detail: `Length ${rawData.length} is less than selector (10 chars)` }],
-      details: { target, rawData }
+      checks: [...checks, { id: "calldata_length", status: "WARN", detail: `Length ${cleanCalldata.length} is less than selector (10 chars)` }],
+      details: { target, rawData, cleanCalldata, attribution }
     };
   }
 
-  const selector = rawData.slice(0, 10).toLowerCase();
-  const payload = rawData.slice(10);
+  const selector = cleanCalldata.slice(0, 10).toLowerCase();
+  const payload = cleanCalldata.slice(10);
 
   // ----------------------------------------------------
   // Operation A: ERC-20 approve(address spender, uint256 amount)
@@ -197,9 +221,9 @@ export function inspectCalldata(tx, policy = {}) {
         verdict: "BLOCK",
         riskLevel: "HIGH",
         operation: "ERC20_APPROVE",
-        reasons: [`Malformed approve() calldata length: expected 68 bytes, got ${rawData.length / 2 - 1}`],
+        reasons: [`Malformed approve() calldata length: expected 68 bytes, got ${cleanCalldata.length / 2 - 1}`],
         checks: [...checks, { id: "calldata_decode", status: "FAIL", detail: "Invalid parameter payload size" }],
-        details: { selector, expectedBytes: 68 }
+        details: { selector, expectedBytes: 68, rawData, cleanCalldata, attribution }
       };
     }
 
@@ -268,7 +292,10 @@ export function inspectCalldata(tx, policy = {}) {
         spender,
         rawAmount: rawAmount.toString(),
         isUnlimited,
-        isUnusuallyLarge
+        isUnusuallyLarge,
+        rawData,
+        cleanCalldata,
+        attribution
       }
     };
   }
@@ -283,9 +310,9 @@ export function inspectCalldata(tx, policy = {}) {
         verdict: "BLOCK",
         riskLevel: "HIGH",
         operation: "ERC20_TRANSFER",
-        reasons: [`Malformed transfer() calldata length: expected 68 bytes, got ${rawData.length / 2 - 1}`],
+        reasons: [`Malformed transfer() calldata length: expected 68 bytes, got ${cleanCalldata.length / 2 - 1}`],
         checks: [...checks, { id: "calldata_decode", status: "FAIL", detail: "Invalid parameter payload size" }],
-        details: { selector, expectedBytes: 68 }
+        details: { selector, expectedBytes: 68, rawData, cleanCalldata, attribution }
       };
     }
 
@@ -338,7 +365,10 @@ export function inspectCalldata(tx, policy = {}) {
       details: {
         tokenContract: target,
         recipient,
-        amount: amount.toString()
+        amount: amount.toString(),
+        rawData,
+        cleanCalldata,
+        attribution
       }
     };
   }
@@ -353,9 +383,9 @@ export function inspectCalldata(tx, policy = {}) {
         verdict: "BLOCK",
         riskLevel: "HIGH",
         operation: "ERC20_TRANSFER_FROM",
-        reasons: [`Malformed transferFrom() calldata length: expected 100 bytes, got ${rawData.length / 2 - 1}`],
+        reasons: [`Malformed transferFrom() calldata length: expected 100 bytes, got ${cleanCalldata.length / 2 - 1}`],
         checks: [...checks, { id: "calldata_decode", status: "FAIL", detail: "Invalid parameter payload size" }],
-        details: { selector, expectedBytes: 100 }
+        details: { selector, expectedBytes: 100, rawData, cleanCalldata, attribution }
       };
     }
 
@@ -410,7 +440,10 @@ export function inspectCalldata(tx, policy = {}) {
         tokenContract: target,
         from,
         to,
-        amount: amount.toString()
+        amount: amount.toString(),
+        rawData,
+        cleanCalldata,
+        attribution
       }
     };
   }
@@ -436,7 +469,10 @@ export function inspectCalldata(tx, policy = {}) {
     details: {
       target,
       selector,
-      calldataByteLength: rawData.length / 2 - 1
+      calldataByteLength: rawData.length / 2 - 1,
+      rawData,
+      cleanCalldata,
+      attribution
     }
   };
 }

@@ -42,6 +42,6 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "4.4.0",
-    "ajv": "8.17.1"
+    "ajv": "8.20.0"
   }
 }
