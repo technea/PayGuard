@@ -16,9 +16,15 @@ Related: [MCP Tools](mcp-tools.md) (same checks as agent tools), [Architecture](
 | Rate limit | Per client IP, default 120 requests per 60 seconds (`MAX_REQUESTS_PER_WINDOW`) |
 | Concurrency | Default cap 100 in-flight requests (`MAX_CONCURRENT_REQUESTS`); above it returns 429 |
 | Authentication | None. See Security Model for the consequences |
-| CORS | `Access-Control-Allow-Origin: *`; `OPTIONS` returns 204 |
+| CORS | `Access-Control-Allow-Origin: *` on all `/api/*` responses; `OPTIONS` returns 204. Any browser origin can read responses. For public internet deployment, consider placing PayGuard behind a reverse proxy that restricts the `Origin` header. The `/mcp` endpoint uses a separate, stricter origin allowlist. |
 | Response headers | `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`, `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` |
 | Network | Base Mainnet (chain ID 8453) for provider-backed checks |
+
+### Deployment Security Notes
+
+**CORS:** The HTTP API serves `Access-Control-Allow-Origin: *` on all `/api/*` responses. This means any web page can make cross-origin requests to a locally running PayGuard server and read the JSON responses. No `Access-Control-Allow-Credentials: true` is set, which prevents cookie-based attacks, but advisory results (URL verdicts, wallet holdings) can be read cross-origin. In production deployments exposed to the internet, place PayGuard behind a reverse proxy (nginx, Caddy, Vercel rewrites) that restricts the `Origin` header to known trusted origins.
+
+**IP Rate Limiting and Trusted Proxy:** The rate limiter identifies clients by IP using the `X-Forwarded-For` request header (first value) or `X-Real-IP`, falling back to the socket's remote address. In a direct-exposure deployment (no reverse proxy in front), a caller can supply `X-Forwarded-For: 1.2.3.4` to impersonate any IP and bypass per-IP rate limits. This is the expected behavior for a tool running behind a trusted proxy (Vercel, nginx, Cloudflare). **Do not expose PayGuard directly on a public port without a trusted reverse proxy if rate-limit integrity matters.**
 
 ### Error responses
 
@@ -46,6 +52,7 @@ Invalid input to a check is usually reported inside a normal 200 response as a f
 | `POST /api/token-security` | Token risk screening | `payguard_check_token_security` |
 | `POST /api/address-security` | Address reputation screening | `payguard_check_address_security` |
 | `POST /api/scan-wallet-tokens` | Wallet token scan | `payguard_scan_wallet_tokens` |
+| `POST /api/near-security` | NEAR account security intelligence | `payguard_near_security_intelligence` |
 | `GET /api/capabilities` | Service and provider configuration | none |
 | `GET /health` | Liveness | none |
 | `GET /metrics` | Prometheus metrics | none |
@@ -261,6 +268,22 @@ Response when the indexer and provider were unreachable (trimmed):
 ```
 
 Read `discoveryMode` before trusting a count. `REGISTRY_AND_CUSTOM_PARTIAL` means only the canonical registry tokens and the supplied custom addresses were checked. A scan with all tokens `UNVERIFIED` and `highRiskCount: 0` means no evidence was available, not that the wallet is safe.
+
+---
+
+## POST /api/near-security
+
+Request field: `accountId` (required string) — NEAR account identifier (e.g. `alice.near`, `wrap.near`, or a 64-character implicit hex address).
+
+```bash
+curl -X POST http://localhost:8080/api/near-security \
+  -H "Content-Type: application/json" \
+  -d '{"accountId":"wrap.near"}'
+```
+
+Evaluates account existence, code hash, access keys, and impersonation risk via live FastNear RPC. Returns `verdict`, `riskLevel`, and structured `findings`.
+
+A network failure or unreachable RPC returns `verdict: "UNVERIFIED"`. Results are not cached.
 
 ---
 

@@ -15,7 +15,7 @@ PayGuard provides read-only, advisory security intelligence before wallet signin
          v                                                   v
 +-------------------------+                         +-------------------------+
 |     For Human Users     |                         |   For Autonomous Agents |
-|  - Interactive Web App  |                         |  - 7 Native MCP Tools   |
+|  - Interactive Web App  |                         |  - 8 Native MCP Tools   |
 |  - Phishing URL Scanner |                         |  - In-Memory Anti-SSRF  |
 |  - Base Wallet Scanner  |                         |  - Calldata Decoder     |
 |  - Honeypot Auditing    |                         |  - GoPlus Threat Feeds  |
@@ -40,9 +40,9 @@ Traditional web security assumptions fail in Web3. PayGuard is engineered around
 
 ---
 
-## The Seven MCP Tools
+## The Eight MCP Tools
 
-PayGuard exposes **seven Model Context Protocol (MCP) tools** compatible with Claude Desktop, Cursor, and any MCP-compliant autonomous agent framework:
+PayGuard exposes **eight Model Context Protocol (MCP) tools** compatible with Claude Desktop, Cursor, and any MCP-compliant autonomous agent framework:
 
 | Tool | Capability |
 |------|------------|
@@ -53,6 +53,7 @@ PayGuard exposes **seven Model Context Protocol (MCP) tools** compatible with Cl
 | `payguard_check_token_security` | GoPlus honeypot, tax, and owner balance privilege assessment (Base Mainnet 8453) |
 | `payguard_check_address_security` | GoPlus address reputation screening (phishing, sanctions, cybercrime, mixers) |
 | `payguard_scan_wallet_tokens` | Two-tier discovery scanning Base wallet holdings for honeypots and impersonators |
+| `payguard_near_security_intelligence` | NEAR Protocol account and contract security via live on-chain RPC (non-custodial) |
 
 All tools return structured JSON with a **verdict** (`PASS` / `REVIEW` / `BLOCK` / `UNVERIFIED`), **riskLevel**, and detailed **findings**.
 
@@ -148,7 +149,7 @@ console.log(calldataResult.verdict); // "PASS"
 
 - [Architecture Overview](docs/architecture.md)
 - [Security Model & Threat Landscape](docs/security-model.md)
-- [MCP Tools Reference (7 Tools)](docs/mcp-tools.md)
+- [MCP Tools Reference (8 Tools)](docs/mcp-tools.md)
 - [API Reference](docs/api-reference.md)
 - [AI Security Agent (planned design)](docs/ai-security-agent.md)
 - [Getting Started Guide](docs/getting-started.md)

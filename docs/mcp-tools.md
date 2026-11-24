@@ -1,6 +1,6 @@
 # PayGuard MCP Tools Reference
 
-PayGuard exposes seven Model Context Protocol (MCP) tools. All tools return structured JSON with a **verdict**, **riskLevel**, and **findings** or **checks** array. All tools are advisory — they do not execute payments, sign transactions, or block wallet operations outside of PayGuard-controlled paths.
+PayGuard exposes eight Model Context Protocol (MCP) tools. All tools return structured JSON with a **verdict**, **riskLevel**, and **findings** or **checks** array. All tools are advisory — they do not execute payments, sign transactions, or block wallet operations outside of PayGuard-controlled paths.
 
 ---
 
@@ -75,6 +75,9 @@ Validates an x402 payment requirement against an explicit user-supplied intent p
 - Conflicting `amount` / `maxAmountRequired` fields fail closed
 - Mixed acceptable/unacceptable alternatives do not receive an overall PASS
 
+> [!IMPORTANT]
+> Although the JSON Schema does not mark `maxTimeoutSeconds` as required, the runtime policy builder returns `REVIEW` if this field is absent or not a positive integer. Always supply it.
+
 ### Example Response
 
 ```json
@@ -136,8 +139,7 @@ Generates a privacy-conscious, redacted threat report draft for a suspicious URL
 ```json
 {
   "url": "https://phish.example/login?token=SECRET123",
-  "expectedDomain": "example.com",
-  "userNotes": "Found in phishing email"
+  "expectedDomain": "example.com"
 }
 ```
 
@@ -160,11 +162,13 @@ Decodes EVM transaction calldata for ERC-20 `approve`, `transfer`, and `transfer
   "data": "0x095ea7b30000000000000000000000001111111254fb6c44bac0bed2854e76f90643097dffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
   "policy": {
     "allowedSpenders": ["0x1111111254fb6c44bac0bed2854e76f90643097d"],
-    "allowedRecipients": ["0x2222222222222222222222222222222222222222"],
-    "allowUnlimitedApproval": false
+    "allowedRecipients": ["0x2222222222222222222222222222222222222222"]
   }
 }
 ```
+
+> [!NOTE]
+> Valid `policy` fields are: `allowedTargets`, `allowedSpenders`, `allowedRecipients`, `maxAllowance`, `maxTransferAmount`, `maxNativeValue`. Unrecognized fields are ignored.
 
 ### Findings Evaluated
 
@@ -174,8 +178,8 @@ Decodes EVM transaction calldata for ERC-20 `approve`, `transfer`, and `transfer
 | `UNAUTHORIZED_SPENDER` | HIGH / BLOCK | Spender not in `allowedSpenders` list |
 | `UNAUTHORIZED_RECIPIENT` | HIGH / BLOCK | Recipient not in `allowedRecipients` list |
 | `UNKNOWN_SELECTOR` | MEDIUM / REVIEW | Function selector outside recognized ERC-20 set |
-| `TRUNCATED_CALLDATA` | CRITICAL / BLOCK | Byte length shorter than expected parameter count |
-| `NON_ZERO_NATIVE_VALUE` | HIGH / REVIEW | Native ETH sent alongside token approval/transfer |
+| `TRUNCATED_CALLDATA` | MEDIUM / REVIEW | Byte length shorter than expected parameter count |
+| `NON_ZERO_NATIVE_VALUE` | HIGH / REVIEW | Native ETH sent alongside token approval/transfer; only fires when `policy.maxNativeValue` is explicitly set |
 
 ---
 
@@ -307,6 +311,39 @@ The tool verifies whether the contract address matches official canonical deploy
 
 ---
 
+## 8. `payguard_near_security_intelligence`
+
+Investigates NEAR Protocol accounts and smart contracts using live on-chain RPC nodes. Evaluates account existence, code hash, access keys, and impersonation risks. Read-only and non-custodial.
+
+> [!NOTE]
+> This tool makes live outbound calls to the FastNear RPC provider (`fastnear.com`). It is not cached. Results reflect on-chain state at the time of the call.
+
+### Input Schema
+
+```json
+{
+  "accountId": "wrap.near"
+}
+```
+
+Required fields:
+- `accountId` (string, required) — NEAR account identifier (e.g. `alice.near`, `wrap.near`, or a 64-character implicit hex address)
+
+### Key Evaluated Indicators
+
+- Account existence and state
+- Deployed code hash (distinguishes smart contracts from plain accounts)
+- Access key enumeration
+- Impersonation risk (lookalike canonical NEAR account names)
+
+### Limitations
+
+- Live RPC call; network unavailability returns `UNVERIFIED`
+- Result is not cached; every call contacts the FastNear RPC provider
+- Read-only; no signing or on-chain state modification
+
+---
+
 ## Caching Behavior (Tools 5, 6 & 7)
 
 | Behavior | Detail |
@@ -323,16 +360,23 @@ Errors are never cached. A transient network failure will trigger a fresh reques
 
 ## MCP Protocol Details
 
-PayGuard implements [MCP protocol version 2024-11-05](https://spec.modelcontextprotocol.io/specification/).
+PayGuard's remote MCP endpoint implements the **MCP Streamable HTTP transport** and supports the following protocol versions:
+
+| Protocol Version | Status |
+|-----------------|--------|
+| `2025-03-26` | Supported |
+| `2025-06-18` | Supported |
+| `2025-11-25` | Supported (default) |
+| `2024-11-05` | **Not supported** — this is the legacy dual-endpoint HTTP+SSE specification, which is intentionally excluded |
+
+The default and latest negotiated version is `2025-11-25`. Clients may request an earlier supported version via the `MCP-Protocol-Version` request header.
 
 **Supported methods:**
 - `initialize` — returns server info and capabilities
-- `tools/list` — returns all 7 tool descriptors with JSON Schema input schemas
+- `tools/list` — returns all 8 tool descriptors with JSON Schema input schemas
 - `tools/call` — invokes a tool by name with arguments
 - `ping` — health check
 
-**Both framing modes supported:**
-- Newline-delimited JSON (one message per line)
-- Content-Length framed JSON-RPC (standard MCP framing)
+**Transport:** Streamable HTTP only (single `/mcp` endpoint). The stdio transport uses `dist/index.js` / `dist/plugin.mjs` and is a separate interface.
 
 **Error handling:** Tool errors return an MCP result with `isError: true` and a text description — the server never crashes on bad input.
