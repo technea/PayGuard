@@ -12,6 +12,7 @@ import {
   payGuardScanWalletTokens,
   payGuardAnalyzeNearSecurity
 } from "./src/plugin.mjs";
+import { handleMcpHttpRequest } from "./src/mcp/streamable-http.mjs";
 import { BAZAAR_DISCOVERY_METADATA, build402Challenge, verifyPaymentProof } from "./paybox.mjs";
 
 import path from "node:path";
@@ -154,6 +155,7 @@ function routeLabel(path) {
   if (path === "/api/address-security") return "address_security";
   if (path === "/api/scan-wallet-tokens") return "scan_wallet_tokens";
   if (path === "/api/near-security") return "near_security";
+  if (path === "/mcp") return "mcp";
   if (path === "/api/capabilities") return "capabilities";
   if (path === "/whitepaper" || path === "/faq" || path === "/docs" || path.startsWith("/docs/")) return "docs";
   if (path === "/health") return "health";
@@ -308,6 +310,22 @@ async function requestHandler(req, res) {
   try {
     const parsed = new URL(req.url || "/", "http://localhost");
     route = routeLabel(parsed.pathname);
+
+    // Remote MCP Streamable HTTP transport endpoint
+    if (parsed.pathname === "/mcp") {
+      if (inFlight > MAX_CONCURRENT_REQUESTS) {
+        statusCode = 429;
+        return sendJson(res, statusCode, { error: "Server busy: maximum concurrency limit reached." });
+      }
+      const clientIp = getClientIp(req);
+      if (!checkRateLimit(clientIp)) {
+        statusCode = 429;
+        return sendJson(res, statusCode, { error: "Rate limit exceeded. Try again later." });
+      }
+      await handleMcpHttpRequest(req, res);
+      statusCode = res.statusCode || 200;
+      return;
+    }
 
     // Handle CORS preflight
     if (req.method === "OPTIONS") {
@@ -522,6 +540,7 @@ async function requestHandler(req, res) {
           whitepaper: "/whitepaper",
           faq: "/faq",
           health: "/health",
+          mcp: "/mcp",
           analyzeUrl: "/api/analyze-url",
           checkPayment: "/api/check-payment",
           threatReport: "/api/threat-report",
@@ -685,6 +704,6 @@ if (isDirectRun || process.env.PAYGUARD_START_LISTEN === "true") {
   process.on("SIGTERM", shutdown);
 }
 
-export { server, requestHandler, routes, checkRateLimit, sendJson, readJson };
+export { server, requestHandler, routes, checkRateLimit, sendJson, readJson, handleMcpHttpRequest };
 export default requestHandler;
 

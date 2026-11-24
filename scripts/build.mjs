@@ -12,6 +12,8 @@ const srcNearDir = new URL('../src/near/', import.meta.url);
 const destNearDir = new URL('../dist/near/', import.meta.url);
 const srcCoreDir = new URL('../src/core/', import.meta.url);
 const destCoreDir = new URL('../dist/core/', import.meta.url);
+const srcMcpDir = new URL('../src/mcp/', import.meta.url);
+const destMcpDir = new URL('../dist/mcp/', import.meta.url);
 const destPluginMjs = new URL('../dist/plugin.mjs', import.meta.url);
 const destIndexMjs = new URL('../dist/index.mjs', import.meta.url);
 const destIndexJs = new URL('../dist/index.js', import.meta.url);
@@ -64,6 +66,7 @@ await writeFile(destWalletScannerMjs, walletScannerContent, 'utf8');
 await writeFile(destNearSecurityMjs, nearSecurityContent, 'utf8');
 await cp(srcNearDir, destNearDir, { recursive: true });
 await cp(srcCoreDir, destCoreDir, { recursive: true });
+await cp(srcMcpDir, destMcpDir, { recursive: true });
 
 // 3. Generate CommonJS bundles (index.cjs, plugin.cjs, calldata-inspector.cjs, token-security.cjs, address-security.cjs, near-security.cjs)
 function toCommonJS(esmCode) {
