@@ -274,6 +274,7 @@ export declare const payGuardTokenSecurityTool: any;
 export declare const payGuardAddressSecurityTool: any;
 export declare const payGuardWalletScannerTool: any;
 export declare const payGuardNearSecurityTool: any;
+export declare const payGuardO1AlphaDiscoveryTool: any;
 export declare const payGuardScanWalletHoldingsTool: any;
 export declare const payGuardGetTokenBalanceTool: any;
 export declare const payGuardGetWalletPortfolioTool: any;
@@ -292,6 +293,7 @@ export declare function payGuardGetTokenBalance(input: any, options?: any): Prom
 export declare function payGuardGetWalletPortfolio(input: any, options?: any): Promise<any>;
 export declare function payGuardVerifyWalletScan(input: any, options?: any): Promise<any>;
 export declare function payGuardAnalyzeNearSecurity(input: any, options?: any): Promise<any>;
+export declare function payGuardDiscoverO1AlphaTokens(input?: any, options?: any): Promise<any>;
 export declare function startMcpServer(targetPlugin?: any): void;
 `;
 await writeFile(destDts, dtsContent, 'utf8');
