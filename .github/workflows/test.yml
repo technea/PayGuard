@@ -57,3 +57,56 @@ jobs:
             }
             console.log('Verified plugin exports:', names.join(', '));
           }).catch(error => { console.error(error); process.exit(1); })"
+  live-o1-alpha-smoke:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/feat/o1-alpha-token-discovery' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm ci
+      - name: Discover live Base Alpha tokens and screen with GoPlus
+        run: |
+          node --input-type=module <<'NODE'
+          import { payGuardDiscoverO1AlphaTokens } from './src/plugin.mjs';
+
+          const result = await payGuardDiscoverO1AlphaTokens({
+            networkId: 8453,
+            limit: 5,
+            screen: true
+          });
+
+          const report = {
+            status: result.status,
+            networkId: result.networkId,
+            source: result.source,
+            discoveredCount: result.discovery?.count ?? result.count ?? 0,
+            screenedCount: result.summary?.totalScreened ?? 0,
+            summary: result.summary ?? null,
+            tokens: (result.tokens ?? []).map(({ contractAddress, security }) => ({
+              contractAddress,
+              verdict: security?.verdict ?? 'UNVERIFIED',
+              riskLevel: security?.riskLevel ?? 'UNKNOWN',
+              dataStatus: security?.dataStatus ?? 'UNKNOWN',
+              reasonCodes: security?.reasonCodes ?? []
+            }))
+          };
+          console.log(JSON.stringify(report, null, 2));
+
+          if (result.status !== 'SUCCESS') {
+            console.error('Live o1 Alpha discovery did not succeed.');
+            process.exitCode = 1;
+          } else if (!result.summary?.totalScreened) {
+            console.error('o1 returned no Base Alpha addresses; GoPlus live screening could not be exercised.');
+            process.exitCode = 1;
+          } else if (result.summary.unverifiedCount > 0) {
+            console.error('One or more GoPlus checks were UNVERIFIED; live screening is not fully confirmed.');
+            process.exitCode = 1;
+          } else {
+            console.log('Live o1 discovery and GoPlus screening completed.');
+          }
+          NODE
