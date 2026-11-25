@@ -1,6 +1,7 @@
 import { inspectCalldata } from "./calldata-inspector.mjs";
 import { checkTokenSecurity } from "./token-security.mjs";
 import { checkAddressSecurity } from "./address-security.mjs";
+import { fetchO1AlphaTokenAddresses } from "./o1-alpha-client.mjs";
 import {
   scanBaseWalletTokens,
   getWalletTokenBalance,
@@ -458,6 +459,114 @@ const ADDRESS_SECURITY_SCHEMA = {
     }
   }
 };
+
+
+const O1_ALPHA_DISCOVERY_NAME = "payguard_discover_o1_alpha_tokens";
+const O1_ALPHA_DISCOVERY_DESCRIPTION =
+  "Discover o1 Alpha token contracts on Base and screen each discovered contract with PayGuard's existing GoPlus token-security engine. Read-only discovery and security analysis; no trading or transactions.";
+const O1_ALPHA_DISCOVERY_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    networkId: { type: "integer", enum: [8453], default: 8453, description: "Base Mainnet only (chain ID 8453)." },
+    limit: { type: "integer", minimum: 1, maximum: 25, default: 25, description: "Maximum number of Alpha contracts to screen in this request." },
+    screen: { type: "boolean", default: true, description: "Run GoPlus token-security checks for discovered contracts. Defaults to true." }
+  }
+};
+
+export async function payGuardDiscoverO1AlphaTokens(input = {}, options = {}) {
+  if (!isRecord(input)) {
+    return { status: "ERROR", networkId: "8453", source: "o1_alpha", tokens: [], count: 0, error: "INVALID_INPUT" };
+  }
+  const networkId = input.networkId === undefined ? 8453 : input.networkId;
+  if (String(networkId) !== "8453") {
+    return { status: "UNVERIFIED", networkId: String(networkId), source: "o1_alpha", tokens: [], count: 0, error: "UNSUPPORTED_CHAIN", supportedChainId: "8453" };
+  }
+  const limit = input.limit === undefined ? 25 : input.limit;
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 25) {
+    return { status: "ERROR", networkId: "8453", source: "o1_alpha", tokens: [], count: 0, error: "INVALID_LIMIT", allowedRange: "1-25" };
+  }
+  const shouldScreen = input.screen !== false;
+  const discovery = await fetchO1AlphaTokenAddresses({ networkId: 8453 }, options);
+  if (discovery.status !== "SUCCESS") {
+    return {
+      status: discovery.status,
+      networkId: "8453",
+      source: "o1_alpha",
+      tokens: [],
+      count: 0,
+      discovery,
+      safetyVerdict: "NOT_CHECKED"
+    };
+  }
+
+  const addresses = discovery.addresses.slice(0, limit);
+  if (!shouldScreen) {
+    return {
+      status: "SUCCESS",
+      networkId: "8453",
+      source: "o1_alpha",
+      count: addresses.length,
+      tokens: addresses.map(contractAddress => ({ contractAddress, securityStatus: "NOT_CHECKED", verdict: "UNVERIFIED" })),
+      safetyVerdict: "NOT_CHECKED",
+      note: "Discovery is not a safety assessment."
+    };
+  }
+
+  const tokens = [];
+  for (let index = 0; index < addresses.length; index += 5) {
+    const batch = addresses.slice(index, index + 5);
+    const results = await Promise.all(batch.map(async contractAddress => ({
+      contractAddress,
+      security: await checkTokenSecurity({
+        chainId: "8453",
+        contractAddress,
+        fetchImpl: options.fetchImpl,
+        timeoutMs: options.securityTimeoutMs,
+        apiKey: options.apiKey
+      })
+    })));
+    tokens.push(...results);
+  }
+
+  const summary = {
+    totalDiscovered: discovery.count,
+    totalScreened: tokens.length,
+    highRiskCount: tokens.filter(item => item.security.verdict === "BLOCK").length,
+    reviewCount: tokens.filter(item => item.security.verdict === "REVIEW").length,
+    passCount: tokens.filter(item => item.security.verdict === "PASS").length,
+    unverifiedCount: tokens.filter(item => item.security.verdict === "UNVERIFIED").length
+  };
+  return {
+    status: "SUCCESS",
+    networkId: "8453",
+    source: "o1_alpha",
+    count: tokens.length,
+    tokens,
+    summary,
+    safetyVerdict: "INDIVIDUAL_TOKEN_RESULTS",
+    limitations: [
+      "Alpha listing is a discovery signal, not an endorsement or safety guarantee.",
+      "GoPlus results are advisory and may be incomplete or unavailable.",
+      "No wallet connection, signing, trading, or transaction execution occurs."
+    ]
+  };
+}
+
+export const payGuardO1AlphaDiscoveryTool = Object.freeze({
+  id: O1_ALPHA_DISCOVERY_NAME,
+  name: O1_ALPHA_DISCOVERY_NAME,
+  title: O1_ALPHA_DISCOVERY_NAME,
+  description: O1_ALPHA_DISCOVERY_DESCRIPTION,
+  inputSchema: O1_ALPHA_DISCOVERY_SCHEMA,
+  input_schema: O1_ALPHA_DISCOVERY_SCHEMA,
+  outputSchema: { type: "object" },
+  output_schema: { type: "object" },
+  handler: payGuardDiscoverO1AlphaTokens,
+  execute: payGuardDiscoverO1AlphaTokens,
+  run: payGuardDiscoverO1AlphaTokens
+});
+
 
 const TOKEN_SECURITY_NAME = "payguard_check_token_security";
 const TOKEN_SECURITY_DESCRIPTION =
@@ -1445,6 +1554,7 @@ export {
 };
 
 export const tools = Object.freeze([
+  payGuardO1AlphaDiscoveryTool,
   payGuardTool,
   payGuardUrlSentinelTool,
   payGuardThreatReportTool,
@@ -1473,6 +1583,7 @@ export const plugin = Object.freeze({
     if (name === THREAT_REPORT_NAME) return prepareThreatReport(input);
     if (name === CALLDATA_INSPECTOR_NAME) return payGuardInspectCalldata(input);
     if (name === TOKEN_SECURITY_NAME) return payGuardCheckTokenSecurity(input);
+    if (name === O1_ALPHA_DISCOVERY_NAME) return payGuardDiscoverO1AlphaTokens(input);
     if (name === ADDRESS_SECURITY_NAME) return payGuardCheckAddressSecurity(input);
     if (name === WALLET_SCANNER_NAME || name === "scan_wallet_holdings" || name === "payguard_scan_wallet_holdings") return payGuardScanWalletTokens(input);
     if (name === "get_token_balance" || name === "payguard_get_token_balance") return payGuardGetTokenBalance(input);
