@@ -6,6 +6,7 @@ import {
 } from "../src/plugin.mjs";
 
 const ADDRESS = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const UNVERIFIED_ADDRESS = "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 
 function response(body, status = 200) {
   return {
@@ -73,4 +74,20 @@ test("keeps discovery distinct from safety when screening is disabled", async ()
   assert.equal(result.tokens[0].securityStatus, "NOT_CHECKED");
   assert.equal(result.tokens[0].verdict, "UNVERIFIED");
   assert.equal(result.safetyVerdict, "NOT_CHECKED");
+});
+
+test("keeps discovery successful but marks failed GoPlus screening UNVERIFIED", async () => {
+  const fetchImpl = async url => {
+    if (String(url).includes("/alpha-tokens")) return response([UNVERIFIED_ADDRESS]);
+    throw new Error("GoPlus unavailable");
+  };
+
+  const result = await payGuardDiscoverO1AlphaTokens({ networkId: 8453 }, { fetchImpl });
+
+  assert.equal(result.status, "SUCCESS");
+  assert.equal(result.count, 1);
+  assert.equal(result.tokens[0].contractAddress, UNVERIFIED_ADDRESS);
+  assert.equal(result.tokens[0].security.verdict, "UNVERIFIED");
+  assert.equal(result.summary.unverifiedCount, 1);
+  assert.equal(result.summary.passCount, 0);
 });
