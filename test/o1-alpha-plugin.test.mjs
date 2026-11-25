@@ -40,6 +40,7 @@ test("discovers Alpha contracts and sends each through the existing GoPlus engin
     if (String(url).includes("/alpha-tokens")) return response([ADDRESS]);
     return response({
       code: 1,
+      message: "OK",
       result: {
         [ADDRESS]: {
           token_name: "Alpha Example",
