@@ -44,7 +44,8 @@ jobs:
               'payguard_inspect_calldata',
               'payguard_check_token_security',
               'payguard_check_address_security',
-              'payguard_scan_wallet_tokens'
+              'payguard_scan_wallet_tokens',
+              'payguard_discover_o1_alpha_tokens'
             ];
             if (!p || !Array.isArray(p.tools) || p.tools.length < required.length) process.exit(1);
             const names = p.tools.map(t => t.name);
