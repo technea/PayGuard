@@ -174,11 +174,11 @@ function toAddressSecurityCJS(esmCode) {
 
 function toO1AlphaClientCJS(esmCode) {
   let cjs = esmCode
-    .replace(/^export\\s+async\\s+function\\s+([a-zA-Z0-9_$]+)/gm, 'async function $1')
-    .replace(/^export\\s+function\\s+([a-zA-Z0-9_$]+)/gm, 'function $1')
-    .replace(/^export\\s+const\\s+([a-zA-Z0-9_$]+)/gm, 'const $1')
-    .replace(/^export\\s+default\\s+([a-zA-Z0-9_$]+);?/gm, '');
-  cjs += `\\nmodule.exports = { O1_ALPHA_API_URL, O1_ALPHA_MAX_ADDRESSES, O1_ALPHA_DEFAULT_TIMEOUT_MS, fetchO1AlphaTokenAddresses };\\n`;
+    .replace(/^export\s+async\s+function\s+([a-zA-Z0-9_$]+)/gm, 'async function $1')
+    .replace(/^export\s+function\s+([a-zA-Z0-9_$]+)/gm, 'function $1')
+    .replace(/^export\s+const\s+([a-zA-Z0-9_$]+)/gm, 'const $1')
+    .replace(/^export\s+default\s+([a-zA-Z0-9_$]+);?/gm, '');
+  cjs += `\nmodule.exports = { O1_ALPHA_API_URL, O1_ALPHA_MAX_ADDRESSES, O1_ALPHA_DEFAULT_TIMEOUT_MS, fetchO1AlphaTokenAddresses };\n`;
   return cjs;
 }
 
