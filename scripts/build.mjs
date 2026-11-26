@@ -8,6 +8,7 @@ const srcTokenSecurityFile = new URL('../src/token-security.mjs', import.meta.ur
 const srcAddressSecurityFile = new URL('../src/address-security.mjs', import.meta.url);
 const srcWalletScannerFile = new URL('../src/wallet-token-scanner.mjs', import.meta.url);
 const srcNearSecurityFile = new URL('../src/near-security.mjs', import.meta.url);
+const srcO1AlphaClientFile = new URL('../src/o1-alpha-client.mjs', import.meta.url);
 const srcNearDir = new URL('../src/near/', import.meta.url);
 const destNearDir = new URL('../dist/near/', import.meta.url);
 const srcCoreDir = new URL('../src/core/', import.meta.url);
@@ -29,6 +30,8 @@ const destAddressSecurityCjs = new URL('../dist/address-security.cjs', import.me
 const destWalletScannerMjs = new URL('../dist/wallet-token-scanner.mjs', import.meta.url);
 const destWalletScannerCjs = new URL('../dist/wallet-token-scanner.cjs', import.meta.url);
 const destNearSecurityMjs = new URL('../dist/near-security.mjs', import.meta.url);
+const destO1AlphaClientMjs = new URL('../dist/o1-alpha-client.mjs', import.meta.url);
+const destO1AlphaClientCjs = new URL('../dist/o1-alpha-client.cjs', import.meta.url);
 const destNearSecurityCjs = new URL('../dist/near-security.cjs', import.meta.url);
 const destDts = new URL('../dist/index.d.ts', import.meta.url);
 const rootIndexJs = new URL('../index.js', import.meta.url);
@@ -43,6 +46,7 @@ const tokenSecurityContent = await readFile(srcTokenSecurityFile, 'utf8');
 const addressSecurityContent = await readFile(srcAddressSecurityFile, 'utf8');
 const walletScannerContent = await readFile(srcWalletScannerFile, 'utf8');
 const nearSecurityContent = await readFile(srcNearSecurityFile, 'utf8');
+const o1AlphaClientContent = await readFile(srcO1AlphaClientFile, 'utf8');
 
 // Verify that the source is self-contained with no external npm imports
 const importMatches = [...srcContent.matchAll(/^(?:import|export)\s+.*?\s+from\s+['"]([^'"]+)['"]/gm)].map(m => m[1]);
@@ -64,6 +68,7 @@ await writeFile(destTokenSecurityMjs, tokenSecurityContent, 'utf8');
 await writeFile(destAddressSecurityMjs, addressSecurityContent, 'utf8');
 await writeFile(destWalletScannerMjs, walletScannerContent, 'utf8');
 await writeFile(destNearSecurityMjs, nearSecurityContent, 'utf8');
+await writeFile(destO1AlphaClientMjs, o1AlphaClientContent, 'utf8');
 await cp(srcNearDir, destNearDir, { recursive: true });
 await cp(srcCoreDir, destCoreDir, { recursive: true });
 await cp(srcMcpDir, destMcpDir, { recursive: true });
@@ -74,6 +79,7 @@ function toCommonJS(esmCode) {
     .replace(/^import\s+.*?\s+from\s+['"]\.\/calldata-inspector\.mjs['"];?/gm, "const { inspectCalldata } = require('./calldata-inspector.cjs');")
     .replace(/^import\s+.*?\s+from\s+['"]\.\/token-security\.mjs['"];?/gm, "const { checkTokenSecurity } = require('./token-security.cjs');")
     .replace(/^import\s+.*?\s+from\s+['"]\.\/address-security\.mjs['"];?/gm, "const { checkAddressSecurity } = require('./address-security.cjs');")
+    .replace(/^import\s+.*?\s+from\s+['"]\.\/o1-alpha-client\.mjs['"];?/gm, "const { fetchO1AlphaTokenAddresses } = require('./o1-alpha-client.cjs');")
     .replace(/^import\s*\{[\s\S]*?\}\s*from\s*['"]\.\/wallet-token-scanner\.mjs['"];?/gm, "const { scanBaseWalletTokens, getWalletTokenBalance, getWalletPortfolio, verifyWalletScan } = require('./wallet-token-scanner.cjs');")
     .replace(/^import\s+.*?\s+from\s+['"]\.\/wallet-token-scanner\.mjs['"];?/gm, "const { scanBaseWalletTokens, getWalletTokenBalance, getWalletPortfolio, verifyWalletScan } = require('./wallet-token-scanner.cjs');")
     .replace(/^import\s*\{[\s\S]*?\}\s*from\s*['"]\.\/near-security\.mjs['"];?/gm, "const { analyzeNearSecurity, NEAR_AGENT_TOOL_NAME, NEAR_AGENT_TOOL_DESCRIPTION, NEAR_AGENT_INPUT_SCHEMA, payGuardNearSecurityTool } = require('./near-security.cjs');")
@@ -97,6 +103,8 @@ const cjsExport = Object.assign({}, plugin, {
   payGuardAddressSecurityTool: payGuardAddressSecurityTool,
   payGuardWalletScannerTool: payGuardWalletScannerTool,
   payGuardNearSecurityTool: payGuardNearSecurityTool,
+  payGuardO1AlphaDiscoveryTool: payGuardO1AlphaDiscoveryTool,
+  payGuardDiscoverO1AlphaTokens: payGuardDiscoverO1AlphaTokens,
   payGuardScanWalletHoldingsTool: payGuardScanWalletHoldingsTool,
   payGuardGetTokenBalanceTool: payGuardGetTokenBalanceTool,
   payGuardGetWalletPortfolioTool: payGuardGetWalletPortfolioTool,
@@ -161,6 +169,16 @@ function toAddressSecurityCJS(esmCode) {
     .replace(/^export\s+const\s+([a-zA-Z0-9_$]+)/gm, 'const $1')
     .replace(/^export\s+default\s+([a-zA-Z0-9_$]+);?/gm, '');
   cjs += `\nmodule.exports = { checkAddressSecurity, evaluateAddressSecurityData, clearAddressCache, getAddressCacheSize, isValidEvmAddress, normalizeChainId, SUPPORTED_CHAIN_ID, GOPLUS_ADDRESS_SECURITY_ENDPOINT, default: checkAddressSecurity };\n`;
+  return cjs;
+}
+
+function toO1AlphaClientCJS(esmCode) {
+  let cjs = esmCode
+    .replace(/^export\s+async\s+function\s+([a-zA-Z0-9_$]+)/gm, 'async function $1')
+    .replace(/^export\s+function\s+([a-zA-Z0-9_$]+)/gm, 'function $1')
+    .replace(/^export\s+const\s+([a-zA-Z0-9_$]+)/gm, 'const $1')
+    .replace(/^export\s+default\s+([a-zA-Z0-9_$]+);?/gm, '');
+  cjs += `\nmodule.exports = { O1_ALPHA_API_URL, O1_ALPHA_MAX_ADDRESSES, O1_ALPHA_DEFAULT_TIMEOUT_MS, fetchO1AlphaTokenAddresses };\n`;
   return cjs;
 }
 
@@ -230,6 +248,7 @@ await writeFile(destTokenSecurityCjs, toTokenSecurityCJS(tokenSecurityContent), 
 await writeFile(destAddressSecurityCjs, toAddressSecurityCJS(addressSecurityContent), 'utf8');
 await writeFile(destWalletScannerCjs, toWalletScannerCJS(walletScannerContent), 'utf8');
 await writeFile(destNearSecurityCjs, toNearSecurityCJS(nearSecurityContent), 'utf8');
+await writeFile(destO1AlphaClientCjs, toO1AlphaClientCJS(o1AlphaClientContent), 'utf8');
 
 // 4. Generate TypeScript declaration
 const dtsContent = `export interface PayGuardPlugin {
@@ -255,6 +274,7 @@ export declare const payGuardTokenSecurityTool: any;
 export declare const payGuardAddressSecurityTool: any;
 export declare const payGuardWalletScannerTool: any;
 export declare const payGuardNearSecurityTool: any;
+export declare const payGuardO1AlphaDiscoveryTool: any;
 export declare const payGuardScanWalletHoldingsTool: any;
 export declare const payGuardGetTokenBalanceTool: any;
 export declare const payGuardGetWalletPortfolioTool: any;
@@ -273,6 +293,7 @@ export declare function payGuardGetTokenBalance(input: any, options?: any): Prom
 export declare function payGuardGetWalletPortfolio(input: any, options?: any): Promise<any>;
 export declare function payGuardVerifyWalletScan(input: any, options?: any): Promise<any>;
 export declare function payGuardAnalyzeNearSecurity(input: any, options?: any): Promise<any>;
+export declare function payGuardDiscoverO1AlphaTokens(input?: any, options?: any): Promise<any>;
 export declare function startMcpServer(targetPlugin?: any): void;
 `;
 await writeFile(destDts, dtsContent, 'utf8');

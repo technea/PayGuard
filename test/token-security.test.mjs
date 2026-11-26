@@ -403,3 +403,58 @@ test('19. Address validation helper & Chain ID normalizer behave accurately', ()
   assert.equal(normalizeChainId('eip155:8453'), '8453');
   assert.equal(normalizeChainId(''), '');
 });
+
+test('20. GoPlus code 3 partial response fails closed as UNVERIFIED (never PASS)', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 3,
+    message: 'OK',
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        token_name: 'Partial Token',
+        token_symbol: 'PART',
+        buy_tax: '0',
+        sell_tax: '0',
+        is_open_source: '1',
+        is_in_dex: '1'
+      }
+    }
+  };
+
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+
+  assert.equal(res.verdict, 'UNVERIFIED');
+  assert.equal(res.riskLevel, 'UNKNOWN');
+  assert.equal(res.dataStatus, 'ERROR');
+  assert.deepEqual(res.reasonCodes, ['PROVIDER_ERROR_CODE']);
+});
+
+test('21. GoPlus code 1 with missing critical security fields fails closed as UNVERIFIED', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 1,
+    message: 'OK',
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        token_name: 'Metadata Only Token',
+        token_symbol: 'META',
+        total_supply: '1000000'
+      }
+    }
+  };
+
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+
+  assert.equal(res.verdict, 'UNVERIFIED');
+  assert.equal(res.riskLevel, 'UNKNOWN');
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.deepEqual(res.reasonCodes, ['INCOMPLETE_SECURITY_DATA']);
+});

@@ -44,7 +44,8 @@ jobs:
               'payguard_inspect_calldata',
               'payguard_check_token_security',
               'payguard_check_address_security',
-              'payguard_scan_wallet_tokens'
+              'payguard_scan_wallet_tokens',
+              'payguard_discover_o1_alpha_tokens'
             ];
             if (!p || !Array.isArray(p.tools) || p.tools.length < required.length) process.exit(1);
             const names = p.tools.map(t => t.name);
@@ -56,3 +57,118 @@ jobs:
             }
             console.log('Verified plugin exports:', names.join(', '));
           }).catch(error => { console.error(error); process.exit(1); })"
+  live-o1-alpha-smoke:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/feat/o1-alpha-token-discovery' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm ci
+      - name: Discover live Base Alpha tokens and screen with GoPlus
+        run: |
+          node --input-type=module <<'NODE'
+          import { payGuardDiscoverO1AlphaTokens } from './src/plugin.mjs';
+
+          const result = await payGuardDiscoverO1AlphaTokens({
+            networkId: 8453,
+            limit: 5,
+            screen: true
+          });
+
+          const PROVIDER_FAILURE_CODES = new Set([
+            'NETWORK_ERROR',
+            'REQUEST_TIMEOUT',
+            'RATE_LIMITED',
+            'UPSTREAM_ERROR',
+            'HTTP_ERROR',
+            'INVALID_RESPONSE_SIZE',
+            'MALFORMED_JSON',
+            'INVALID_PAYLOAD_STRUCTURE',
+            'OVERSIZED_RESPONSE',
+            'FETCH_UNAVAILABLE'
+          ]);
+          const INCOMPLETE_DATA_CODES = new Set([
+            'PROVIDER_ERROR_CODE',
+            'UNINDEXED_TOKEN',
+            'INCOMPLETE_SECURITY_DATA'
+          ]);
+
+          const tokens = (result.tokens ?? []).map(({ contractAddress, security }) => {
+            const verdict = security?.verdict ?? 'UNVERIFIED';
+            const riskLevel = security?.riskLevel ?? 'UNKNOWN';
+            const dataStatus = security?.dataStatus ?? 'UNKNOWN';
+            const reasonCodes = Array.isArray(security?.reasonCodes) ? security.reasonCodes : [];
+
+            let screeningOutcome = 'UNEXPECTED_FAILURE';
+            if (verdict === 'PASS' || verdict === 'REVIEW' || verdict === 'BLOCK') {
+              screeningOutcome = 'COMPLETE_SCREENING';
+            } else if (verdict === 'UNVERIFIED') {
+              if (reasonCodes.some(code => PROVIDER_FAILURE_CODES.has(code))) {
+                screeningOutcome = 'GOPLUS_PROVIDER_FAILURE';
+              } else if (reasonCodes.some(code => INCOMPLETE_DATA_CODES.has(code)) || dataStatus === 'EMPTY_RESULT' || dataStatus === 'INCOMPLETE') {
+                screeningOutcome = 'INCOMPLETE_SECURITY_DATA';
+              }
+            }
+
+            return {
+              contractAddress,
+              verdict,
+              riskLevel,
+              dataStatus,
+              reasonCodes,
+              screeningOutcome
+            };
+          });
+
+          const completeScreeningCount = tokens.filter(t => t.screeningOutcome === 'COMPLETE_SCREENING').length;
+          const incompleteDataCount = tokens.filter(t => t.screeningOutcome === 'INCOMPLETE_SECURITY_DATA').length;
+          const providerFailureCount = tokens.filter(t => t.screeningOutcome === 'GOPLUS_PROVIDER_FAILURE').length;
+          const unexpectedFailureCount = tokens.filter(t => t.screeningOutcome === 'UNEXPECTED_FAILURE').length;
+
+          const report = {
+            status: result.status,
+            networkId: result.networkId,
+            source: result.source,
+            counts: {
+              discovered: result.summary?.totalDiscovered ?? result.discovery?.count ?? result.count ?? 0,
+              screened: result.summary?.totalScreened ?? 0,
+              PASS: result.summary?.passCount ?? 0,
+              REVIEW: result.summary?.reviewCount ?? 0,
+              HIGH_RISK: result.summary?.highRiskCount ?? 0,
+              UNVERIFIED: result.summary?.unverifiedCount ?? 0
+            },
+            screeningBreakdown: {
+              completeScreeningCount,
+              incompleteDataCount,
+              providerFailureCount,
+              unexpectedFailureCount
+            },
+            tokens
+          };
+          console.log(JSON.stringify(report, null, 2));
+
+          if (result.status !== 'SUCCESS') {
+            console.error('Live o1 Alpha discovery failed.');
+            process.exitCode = 1;
+          } else if (!report.counts.screened || tokens.length === 0) {
+            console.error('o1 returned no valid Base Alpha contract addresses.');
+            process.exitCode = 1;
+          } else if (unexpectedFailureCount > 0) {
+            console.error('Screening failed due to an unexpected integration/runtime error.');
+            process.exitCode = 1;
+          } else if (completeScreeningCount === 0 && incompleteDataCount === 0 && providerFailureCount > 0) {
+            console.error('All GoPlus screening requests failed at the provider/API layer.');
+            process.exitCode = 1;
+          } else {
+            console.log(
+              `Live o1 discovery and GoPlus screening completed: ${report.counts.discovered} discovered, ` +
+              `${report.counts.screened} screened (PASS=${report.counts.PASS}, REVIEW=${report.counts.REVIEW}, ` +
+              `HIGH_RISK=${report.counts.HIGH_RISK}, UNVERIFIED=${report.counts.UNVERIFIED}).`
+            );
+          }
+          NODE
