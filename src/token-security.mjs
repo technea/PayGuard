@@ -576,6 +576,38 @@ export async function checkTokenSecurity({
     };
   }
 
+  // 10b. Fail closed if GoPlus returned metadata without any core security indicators
+  const hasAnySecurityIndicator = [
+    rawToken.is_honeypot,
+    rawToken.owner_change_balance,
+    rawToken.cannot_buy,
+    rawToken.cannot_sell_all,
+    rawToken.is_open_source,
+    rawToken.is_in_dex
+  ].some(value => value !== undefined && value !== null && value !== "");
+
+  if (!hasAnySecurityIndicator) {
+    return {
+      verdict: "UNVERIFIED",
+      riskLevel: "UNKNOWN",
+      chainId: normChain,
+      contractAddress: normAddress,
+      tokenName: typeof rawToken.token_name === "string" ? rawToken.token_name : null,
+      tokenSymbol: typeof rawToken.token_symbol === "string" ? rawToken.token_symbol : null,
+      findings: [
+        {
+          code: "INCOMPLETE_SECURITY_DATA",
+          severity: "medium",
+          message: "GoPlus returned no core security indicators; cannot verify token safety."
+        }
+      ],
+      reasonCodes: ["INCOMPLETE_SECURITY_DATA"],
+      provider: "goplus",
+      timestamp: now,
+      dataStatus: "INCOMPLETE"
+    };
+  }
+
   // 11. Deterministic Security Evaluation
   const evaluated = evaluateTokenSecurityData(rawToken, normChain, normAddress);
 

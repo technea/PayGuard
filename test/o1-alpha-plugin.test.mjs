@@ -91,3 +91,50 @@ test("keeps discovery successful but marks failed GoPlus screening UNVERIFIED", 
   assert.equal(result.summary.unverifiedCount, 1);
   assert.equal(result.summary.passCount, 0);
 });
+
+test("reports mixed PASS and GoPlus code 3 UNVERIFIED screening counts separately", async () => {
+  const fetchImpl = async url => {
+    const str = String(url);
+    if (str.includes("/alpha-tokens")) return response([ADDRESS, UNVERIFIED_ADDRESS]);
+    if (str.includes(ADDRESS)) {
+      return response({
+        code: 1,
+        message: "OK",
+        result: {
+          [ADDRESS]: {
+            token_name: "Alpha Complete",
+            token_symbol: "ACMP",
+            is_honeypot: "0",
+            is_open_source: "1",
+            is_in_dex: "1"
+          }
+        }
+      });
+    }
+    return response({
+      code: 3,
+      message: "OK",
+      result: {
+        [UNVERIFIED_ADDRESS]: {
+          token_name: "Alpha Partial",
+          token_symbol: "APRT",
+          is_open_source: "1",
+          is_in_dex: "1"
+        }
+      }
+    });
+  };
+
+  const result = await payGuardDiscoverO1AlphaTokens({ networkId: 8453 }, { fetchImpl });
+
+  assert.equal(result.status, "SUCCESS");
+  assert.equal(result.summary.totalDiscovered, 2);
+  assert.equal(result.summary.totalScreened, 2);
+  assert.equal(result.summary.passCount, 1);
+  assert.equal(result.summary.reviewCount, 0);
+  assert.equal(result.summary.highRiskCount, 0);
+  assert.equal(result.summary.unverifiedCount, 1);
+  assert.equal(result.tokens[0].security.verdict, "PASS");
+  assert.equal(result.tokens[1].security.verdict, "UNVERIFIED");
+  assert.deepEqual(result.tokens[1].security.reasonCodes, ["PROVIDER_ERROR_CODE"]);
+});
