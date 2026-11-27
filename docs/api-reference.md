@@ -313,3 +313,45 @@ Setting `PAYGUARD_REQUIRE_X402=true` makes the POST endpoints return a 402 chall
 
 > [!NOTE]
 > This mode is Partially Supported. The repository's tests cover the 402 challenge format built by `paybox.mjs`. The server-level gate and live facilitator settlement were not exercised in this documentation review.
+
+
+---
+
+## `POST /api/assess`
+
+Unified read-only Security Intelligence Engine endpoint. Orchestrates planning, bounded tool execution, cross-module correlation, independent security dimensions, and normalized findings.
+
+### Request Body
+
+At least one supported subject must be supplied:
+
+```json
+{
+  "url": "https://base.org",
+  "contractAddress": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "address": "0x2222222222222222222222222222222222222222",
+  "walletAddress": "0x3333333333333333333333333333333333333333",
+  "transaction": { "to": "0x...", "value": "0", "data": "0x..." },
+  "txHash": "0x...",
+  "chainId": 8453,
+  "verifyContract": true,
+  "intent": {},
+  "paymentRequirements": {}
+}
+```
+
+### Response Shape
+
+Returns `200 OK` with:
+- `schemaVersion`: `"payguard-evidence-v1"`
+- `assessmentSchemaVersion`: `"payguard-security-assessment-v1"`
+- `overallStatus`: `"VERIFIED" | "RISK_DETECTED" | "UNVERIFIED" | "NOT_CHECKED" | "ERROR"`
+- `dimensions`:
+  - `securityVerdict`: `"PASS" | "CAUTION" | "BLOCK" | "UNKNOWN"`
+  - `verificationStatus`: `"VERIFIED" | "UNVERIFIED" | "NOT_CHECKED"`
+  - `dataStatus`: `"FRESH" | "STALE" | "UNAVAILABLE"`
+  - `liquidityStatus`: `"HEALTHY" | "THIN" | "ZERO" | "UNKNOWN"`
+- `normalizedFindings`: Array of 10-field finding objects (`id`, `category`, `severity`, `status`, `description`, `evidence`, `source`, `method`, `timestamp`, `recommendedAction`)
+- `evidenceSources`, `plan`, `derivedChecks`, `findings`, `unresolved`, `evidence`, `limitations`, `metrics`
+
+> **Security Invariant:** Zero DEX liquidity (`NO_DEX_LIQUIDITY`) and unverified contract source code (`UNVERIFIED`) are tracked in their own independent dimensions (`liquidityStatus` and `verificationStatus`) and never escalate `securityVerdict` to `BLOCK` on their own.

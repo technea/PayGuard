@@ -64,9 +64,13 @@ test("scanBaseWalletTokens handles mock Blockscout responses and provider timeou
           result: {
             "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": {
               is_honeypot: "0",
+              owner_change_balance: "0",
+              cannot_buy: "0",
+              cannot_sell_all: "0",
               buy_tax: "0",
               sell_tax: "0",
               is_open_source: 1,
+              is_in_dex: "1",
               is_proxy: 1,
               token_name: "USD Coin",
               token_symbol: "USDC"
@@ -122,9 +126,13 @@ test("scanBaseWalletTokens flags impersonating custom token as HIGH RISK", async
           result: {
             [fakeUsdcAddress]: {
               is_honeypot: "0",
+              owner_change_balance: "0",
+              cannot_buy: "0",
+              cannot_sell_all: "0",
               buy_tax: "0",
               sell_tax: "0",
               is_open_source: 1,
+              is_in_dex: "1",
               token_name: "USD Coin Impersonator",
               token_symbol: "USDC"
             }

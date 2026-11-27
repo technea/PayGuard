@@ -112,3 +112,59 @@ test('transaction planning omits absent optional fields instead of creating unde
 test('planner rejects empty requests instead of inventing a scan target', () => {
   assert.throws(() => buildAssessmentPlan({}), /at least one supported subject/);
 });
+
+// ── New dimensions + normalizedFindings assertions ────────────────────────
+
+test('report shape includes dimensions object with 4 required fields', async () => {
+  const result = await runSecurityAssessment(
+    { url: 'https://base.org' },
+    {
+      invokeTool: async (name) => {
+        if (name === 'payguard_analyze_url') return { verdict: 'EXPECTED_DOMAIN_MATCH', riskLevel: 'LOW' };
+        return { verdict: 'PASS' };
+      },
+      totalTimeoutMs: 2_000
+    }
+  );
+  const { dimensions } = result.report;
+  assert.ok(dimensions, 'dimensions must be present in report');
+  assert.ok('securityVerdict' in dimensions, 'dimensions must have securityVerdict');
+  assert.ok('verificationStatus' in dimensions, 'dimensions must have verificationStatus');
+  assert.ok('dataStatus' in dimensions, 'dimensions must have dataStatus');
+  assert.ok('liquidityStatus' in dimensions, 'dimensions must have liquidityStatus');
+});
+
+test('report shape includes normalizedFindings array', async () => {
+  const result = await runSecurityAssessment(
+    { contractAddress: '0x1111111111111111111111111111111111111111' },
+    {
+      invokeTool: async () => ({ verdict: 'PASS', dataStatus: 'AVAILABLE', reasonCodes: [] }),
+      totalTimeoutMs: 2_000
+    }
+  );
+  assert.ok(Array.isArray(result.report.normalizedFindings), 'normalizedFindings must be array');
+});
+
+test('report includes assessmentSchemaVersion', async () => {
+  const result = await runSecurityAssessment(
+    { url: 'https://base.org' },
+    {
+      invokeTool: async () => ({ verdict: 'EXPECTED_DOMAIN_MATCH', riskLevel: 'LOW' }),
+      totalTimeoutMs: 2_000
+    }
+  );
+  assert.ok(typeof result.report.assessmentSchemaVersion === 'string',
+    'assessmentSchemaVersion must be a string');
+});
+
+test('report includes evidenceSources array', async () => {
+  const result = await runSecurityAssessment(
+    { url: 'https://base.org' },
+    {
+      invokeTool: async () => ({ verdict: 'EXPECTED_DOMAIN_MATCH', riskLevel: 'LOW' }),
+      totalTimeoutMs: 2_000
+    }
+  );
+  assert.ok(Array.isArray(result.report.evidenceSources),
+    'evidenceSources must be array');
+});

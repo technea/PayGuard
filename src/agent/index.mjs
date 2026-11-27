@@ -26,3 +26,14 @@ export { validatePlannerOutput, getPlannerOutputSchemaErrors, PlannerOutputValid
 export { dispatchValidatedPlannerOutput } from "./planner-dispatcher.mjs";
 
 export { mapPlannerToolInput, createPlannerExecutorAdapter, compilePayGuardToolInputSchemas, validatePlannerToolCallInputs, PlannerToolInputValidationError } from "./planner-executor-adapter.mjs";
+export {
+  SECURITY_ASSESSMENT_SCHEMA_VERSION,
+  SECURITY_ASSESSMENT_JSON_SCHEMA,
+  SECURITY_VERDICTS,
+  VERIFICATION_STATUSES,
+  DATA_STATUSES,
+  LIQUIDITY_STATUSES,
+  deriveSecurityDimensions,
+  buildNormalizedFindings,
+  validateSecurityAssessment
+} from "./dimensions.mjs";

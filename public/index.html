@@ -1745,6 +1745,13 @@
                             body: JSON.stringify({ url: query })
                         });
                         if (res.ok) apiResult = await res.json();
+                    } else if (activeMod === 'auto' && /^0x[0-9a-fA-F]{64}$/.test(query)) {
+                        const res = await fetch('/api/assess', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ txHash: query, chainId: 8453 })
+                        });
+                        if (res.ok) apiResult = await res.json();
                     } else if (activeMod === 'calldata' || (activeMod === 'auto' && query.startsWith('0x') && query.length > 42)) {
                         const res = await fetch('/api/inspect-calldata', {
                             method: 'POST',
@@ -1753,10 +1760,10 @@
                         });
                         if (res.ok) apiResult = await res.json();
                     } else if (activeMod === 'token') {
-                        const res = await fetch('/api/token-security', {
+                        const res = await fetch('/api/assess', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ address: query, chainId: 8453 })
+                            body: JSON.stringify({ contractAddress: query, chainId: 8453, verifyContract: true })
                         });
                         if (res.ok) apiResult = await res.json();
                     } else if (activeMod === 'address' || (activeMod === 'auto' && query.startsWith('0x') && query.length === 42)) {
@@ -1828,6 +1835,46 @@
     // Deterministic Security Evaluator (Covers all 8 shifted security modules)
     function evaluateTarget(query, activeMod, apiResult) {
         const lower = query.toLowerCase();
+
+        // If Unified Security Intelligence Engine (/api/assess) returned dimensions
+        if (apiResult && apiResult.dimensions) {
+            const dims = apiResult.dimensions;
+            const isCrit = dims.securityVerdict === 'BLOCK';
+            const isWarn = dims.securityVerdict === 'CAUTION' || dims.securityVerdict === 'UNKNOWN';
+            const score = isCrit ? 95 : (isWarn ? 55 : 5);
+            const vectors = [
+                {
+                    tag: dims.securityVerdict === 'BLOCK' ? 'CRIT' : (dims.securityVerdict === 'PASS' ? 'PASS' : 'WARN'),
+                    text: `Security Verdict: ${dims.securityVerdict}`
+                },
+                {
+                    tag: dims.verificationStatus === 'VERIFIED' ? 'PASS' : 'WARN',
+                    text: `Contract Verification: ${dims.verificationStatus}`
+                },
+                {
+                    tag: dims.liquidityStatus === 'HEALTHY' ? 'PASS' : 'WARN',
+                    text: `Liquidity Status: ${dims.liquidityStatus}`
+                },
+                {
+                    tag: dims.dataStatus === 'FRESH' ? 'PASS' : 'WARN',
+                    text: `Data Status: ${dims.dataStatus}`
+                },
+                ...((apiResult.normalizedFindings || []).map(f => ({
+                    tag: f.severity === 'CRITICAL' || f.severity === 'HIGH' ? 'CRIT' : (f.severity === 'INFORMATIONAL' || f.severity === 'LOW' ? 'PASS' : 'WARN'),
+                    text: `[${f.severity}] ${f.description}${f.recommendedAction ? ' — ' + f.recommendedAction : ''}`
+                })))
+            ];
+            return {
+                target: query,
+                type: (activeMod === 'auto' && /^0x[0-9a-fA-F]{64}$/.test(query)) ? 'TX INSPECTOR' : (activeMod.toUpperCase() + ' // ASSESS'),
+                verdict: isCrit ? 'CRITICAL' : (isWarn ? 'WARNING' : 'SAFE'),
+                score,
+                summary: apiResult.summary || 'Evaluated through PayGuard Security Intelligence Engine.',
+                vectors,
+                action: isCrit ? 'BLOCK TRANSACTION EXECUTION' : (isWarn ? 'REVIEW BEFORE PROCEEDING' : 'ADVISORY CHECKS PASSED'),
+                explanation: `Assessment Schema: ${apiResult.assessmentSchemaVersion || 'v1'} | Sources: ${(apiResult.evidenceSources || []).join(', ') || 'multi-source'}`
+            };
+        }
 
         // If API returned a direct verdict, map it directly
         if (apiResult && apiResult.verdict) {

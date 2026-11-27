@@ -48,6 +48,7 @@ test('1. Valid Base USDC-style response returns PASS with expected metadata and 
         transfer_pausable: '0',
         owner_change_balance: '0',
         is_open_source: '1',
+        is_in_dex: '1',
         is_proxy: '1',
         is_mintable: '0',
         trust_list: '1'
@@ -329,7 +330,12 @@ test('18. In-memory cache hit avoids repeat fetch; error responses are not cache
     result: {
       [MOCK_USDC_ADDRESS.toLowerCase()]: {
         token_name: 'Cacheable Token',
-        is_honeypot: '0'
+        is_honeypot: '0',
+        owner_change_balance: '0',
+        cannot_buy: '0',
+        cannot_sell_all: '0',
+        is_open_source: '1',
+        is_in_dex: '1'
       }
     }
   };
@@ -402,4 +408,169 @@ test('19. Address validation helper & Chain ID normalizer behave accurately', ()
   assert.equal(normalizeChainId('8453'), '8453');
   assert.equal(normalizeChainId('eip155:8453'), '8453');
   assert.equal(normalizeChainId(''), '');
+});
+
+// ── Regression tests: Partial GoPlus data must never produce false PASS ──
+
+test('20. All six core indicators missing returns UNVERIFIED with INCOMPLETE dataStatus', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 1,
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        token_name: 'Metadata Only',
+        token_symbol: 'META'
+      }
+    }
+  };
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+  assert.equal(res.verdict, 'UNVERIFIED');
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.ok(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'));
+  assert.equal(getTokenCacheSize(), 0, 'Incomplete data must not be cached');
+});
+
+test('21. Only is_honeypot:"0" present returns UNVERIFIED with INCOMPLETE dataStatus (never PASS)', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 1,
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        is_honeypot: '0'
+      }
+    }
+  };
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+  assert.equal(res.verdict, 'UNVERIFIED');
+  assert.notEqual(res.verdict, 'PASS');
+  assert.notEqual(res.verdict, 'BLOCK');
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.ok(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'));
+});
+
+test('22. Only is_open_source:"1" present returns UNVERIFIED with INCOMPLETE dataStatus (never PASS)', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 1,
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        is_open_source: '1'
+      }
+    }
+  };
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+  assert.equal(res.verdict, 'UNVERIFIED');
+  assert.notEqual(res.verdict, 'PASS');
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.ok(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'));
+});
+
+test('23. Several core indicators present but others missing returns UNVERIFIED with INCOMPLETE dataStatus', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 1,
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        is_honeypot: '0',
+        cannot_buy: '0',
+        is_open_source: '1'
+        // missing owner_change_balance, cannot_sell_all, is_in_dex
+      }
+    }
+  };
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+  assert.equal(res.verdict, 'UNVERIFIED');
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.ok(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'));
+});
+
+test('24. All six required indicators present with safe values returns PASS and AVAILABLE', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 1,
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        is_honeypot: '0',
+        owner_change_balance: '0',
+        cannot_buy: '0',
+        cannot_sell_all: '0',
+        is_open_source: '1',
+        is_in_dex: '1'
+      }
+    }
+  };
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+  assert.equal(res.verdict, 'PASS');
+  assert.equal(res.dataStatus, 'AVAILABLE');
+  assert.equal(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'), false);
+});
+
+test('25. Confirmed honeypot with other indicators missing preserves BLOCK and HONEYPOT_DETECTED', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 1,
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        is_honeypot: '1'
+      }
+    }
+  };
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+  assert.equal(res.verdict, 'BLOCK');
+  assert.equal(res.riskLevel, 'CRITICAL');
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.ok(res.reasonCodes.includes('HONEYPOT_DETECTED'));
+  assert.ok(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'));
+  assert.ok(res.findings.some(f => f.code === 'INCOMPLETE_SECURITY_DATA'));
+  assert.equal(getTokenCacheSize(), 0, 'Incomplete BLOCK response must not be cached');
+});
+
+test('26. Missing indicators combined with an actual high-risk finding preserves BLOCK', async () => {
+  clearTokenCache();
+  const mockPayload = {
+    code: 1,
+    result: {
+      [MOCK_USDC_ADDRESS.toLowerCase()]: {
+        is_honeypot: '0',
+        owner_change_balance: '1'
+        // missing cannot_buy, cannot_sell_all, is_open_source, is_in_dex
+      }
+    }
+  };
+  const res = await checkTokenSecurity({
+    chainId: MOCK_CHAIN_ID,
+    contractAddress: MOCK_USDC_ADDRESS,
+    fetchImpl: createMockFetch(200, mockPayload)
+  });
+  assert.equal(res.verdict, 'BLOCK');
+  assert.equal(res.riskLevel, 'CRITICAL');
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.ok(res.reasonCodes.includes('OWNER_CAN_CHANGE_BALANCE'));
+  assert.ok(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'));
+  assert.ok(res.findings.some(f => f.code === 'INCOMPLETE_SECURITY_DATA'));
+  assert.equal(getTokenCacheSize(), 0, 'Incomplete BLOCK response must not be cached');
 });

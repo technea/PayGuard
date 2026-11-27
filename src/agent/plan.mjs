@@ -34,7 +34,26 @@ export function buildAssessmentPlan(input) {
       contractAddress: input.contractAddress,
       ...(has(input, "chainId") ? { chainId: input.chainId } : {})
     }));
+    if (input.verifyContract === true) {
+      tasks.push(Object.freeze({
+        toolName: "payguard_verify_contract",
+        input: {
+          contractAddress: input.contractAddress,
+          ...(has(input, "chainId") ? { chainId: input.chainId } : {})
+        },
+        required: false,
+        skipReason: null
+      }));
+    }
     subject.checksRequested.push("token");
+  }
+
+  if (has(input, "txHash")) {
+    tasks.push(task("payguard_inspect_tx_hash", {
+      txHash: input.txHash,
+      ...(has(input, "chainId") ? { chainId: input.chainId } : {})
+    }));
+    subject.checksRequested.push("txHash");
   }
 
   if (has(input, "address")) {

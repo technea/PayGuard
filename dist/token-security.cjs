@@ -576,11 +576,46 @@ async function checkTokenSecurity({
     };
   }
 
-  // 11. Deterministic Security Evaluation
+  // 10b. Evaluate deterministic security signals first so confirmed high-risk/BLOCK findings are never suppressed
   const evaluated = evaluateTokenSecurityData(rawToken, normChain, normAddress);
 
+  // 10c. Require all six core GoPlus security indicators unless a confirmed BLOCK risk was already detected
+  const REQUIRED_SECURITY_INDICATORS = [
+    "is_honeypot",
+    "owner_change_balance",
+    "cannot_buy",
+    "cannot_sell_all",
+    "is_open_source",
+    "is_in_dex"
+  ];
+  const missingIndicators = REQUIRED_SECURITY_INDICATORS.filter(field => {
+    const value = rawToken[field];
+    return value === undefined || value === null || value === "";
+  });
+
+  if (missingIndicators.length > 0) {
+    // Preserve confirmed malicious verdicts, but disclose incomplete evidence and never cache it.
+    return {
+      ...evaluated,
+      verdict: evaluated.verdict === "BLOCK" ? "BLOCK" : "UNVERIFIED",
+      riskLevel: evaluated.verdict === "BLOCK" ? evaluated.riskLevel : "UNKNOWN",
+      findings: [
+        ...evaluated.findings,
+        {
+          code: "INCOMPLETE_SECURITY_DATA",
+          severity: "medium",
+          message: `GoPlus response is missing required core security indicators (${missingIndicators.join(", ")}); cannot fully verify token safety.`
+        }
+      ],
+      reasonCodes: [...new Set([...evaluated.reasonCodes, "INCOMPLETE_SECURITY_DATA"])],
+      provider: "goplus",
+      timestamp: now,
+      dataStatus: "INCOMPLETE"
+    };
+  }
+
   // 12. In-memory Cache Store
-  // Only cache available evaluations, never transient errors
+  // Only cache complete evaluations, never incomplete or transient responses.
   tokenCache.set(cacheKey, {
     timestamp: now,
     result: evaluated

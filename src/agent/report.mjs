@@ -7,6 +7,11 @@
 import { EVIDENCE_SCHEMA_VERSION } from "./constants.mjs";
 import { aggregateEvidence } from "./aggregate.mjs";
 import { cloneJsonValue } from "./canonical-json.mjs";
+import {
+  SECURITY_ASSESSMENT_SCHEMA_VERSION,
+  buildNormalizedFindings,
+  deriveSecurityDimensions
+} from "./dimensions.mjs";
 
 const SUMMARY_BY_STATUS = Object.freeze({
   VERIFIED: "All required checks completed without detecting a risk. This is not a guarantee that the interaction is safe.",
@@ -20,16 +25,23 @@ export function buildEvidenceReport(subject, records, options = {}) {
   const aggregate = aggregateEvidence(records);
   const findings = records.filter(record => record?.status === "RISK_DETECTED");
   const unresolved = records.filter(record => ["ERROR", "UNVERIFIED", "NOT_CHECKED"].includes(record?.status));
+  const dimensions = deriveSecurityDimensions(records);
+  const normalizedFindings = buildNormalizedFindings(records);
+  const evidenceSources = [...new Set(records.map(r => r?.rawOutput?.provider || r?.rawOutput?.source || r?.source).filter(Boolean))];
 
   return {
     schemaVersion: EVIDENCE_SCHEMA_VERSION,
+    assessmentSchemaVersion: SECURITY_ASSESSMENT_SCHEMA_VERSION,
     investigationId: options.investigationId || null,
     createdAt: options.createdAt || new Date().toISOString(),
     subject: subject && typeof subject === "object" ? cloneJsonValue(subject) : { type: "unknown", value: null },
     overallStatus: aggregate.overallStatus,
+    dimensions,
     degraded: aggregate.degraded,
     summary: SUMMARY_BY_STATUS[aggregate.overallStatus],
     findings: findings.map(record => ({ evidenceId: record.id, source: record.source, reason: record.reason })),
+    normalizedFindings,
+    evidenceSources,
     unresolved: unresolved.map(record => ({ evidenceId: record.id, source: record.source, status: record.status, reason: record.reason, required: record.required !== false })),
     evidence: cloneJsonValue(records),
     limitations: [
