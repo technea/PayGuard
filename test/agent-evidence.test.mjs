@@ -17,9 +17,9 @@ import { fixtures } from './fixtures/agent-tool-results.mjs';
 
 const tool = 'payguard_check_token_security';
 
-test('catalog contains exactly the seven existing read-only tools', () => {
+test('catalog contains the nine read-only tools', () => {
   const entries = listAgentCompatibleTools();
-  assert.equal(entries.length, 7);
+  assert.equal(entries.length, 9);
   assert.ok(entries.every(entry => entry.access === 'READ_ONLY'));
 });
 

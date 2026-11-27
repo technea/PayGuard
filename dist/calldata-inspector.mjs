@@ -17,9 +17,11 @@ export const UINT256_MAX = (1n << 256n) - 1n; // 2^256 - 1
 
 // Standard 4-byte ERC-20 Function Selectors
 export const SELECTORS = Object.freeze({
-  ERC20_APPROVE: "0x095ea7b3",      // approve(address,uint256)
-  ERC20_TRANSFER: "0xa9059cbb",     // transfer(address,uint256)
-  ERC20_TRANSFER_FROM: "0x23b872dd" // transferFrom(address,address,uint256)
+  ERC20_APPROVE: "0x095ea7b3",            // approve(address,uint256)
+  ERC20_TRANSFER: "0xa9059cbb",           // transfer(address,uint256)
+  ERC20_TRANSFER_FROM: "0x23b872dd",      // transferFrom(address,address,uint256)
+  ERC20_INCREASE_ALLOWANCE: "0x39509351", // increaseAllowance(address,uint256)
+  ERC20_PERMIT: "0xd505accf"              // permit(address,address,uint256,uint256,uint8,bytes32,bytes32)
 });
 
 const ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/;
@@ -441,6 +443,86 @@ export function inspectCalldata(tx, policy = {}) {
         from,
         to,
         amount: amount.toString(),
+        rawData,
+        cleanCalldata,
+        attribution
+      }
+    };
+  }
+
+  // ----------------------------------------------------
+  // Operation D: EIP-2612 permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+  // Expected length: 10 + 7 * 64 = 458 characters (228 bytes)
+  // ----------------------------------------------------
+  if (selector === SELECTORS.ERC20_PERMIT) {
+    if (payload.length !== 448) {
+      return {
+        verdict: "BLOCK",
+        riskLevel: "HIGH",
+        operation: "ERC20_PERMIT",
+        reasons: [`Malformed permit() calldata length: expected 228 bytes, got ${cleanCalldata.length / 2 - 1}`],
+        checks: [...checks, { id: "calldata_decode", status: "FAIL", detail: "Invalid parameter payload size" }],
+        details: { selector, expectedBytes: 228, rawData, cleanCalldata, attribution }
+      };
+    }
+
+    const owner = sliceAddress(payload.slice(0, 64));
+    const spender = sliceAddress(payload.slice(64, 128));
+    const rawAmount = parseBigIntHex(payload.slice(128, 192));
+    const deadline = parseBigIntHex(payload.slice(192, 256));
+
+    if (!owner || !spender || rawAmount === null || deadline === null) {
+      return {
+        verdict: "BLOCK",
+        riskLevel: "HIGH",
+        operation: "ERC20_PERMIT",
+        reasons: ["Failed to decode valid owner, spender, value, or deadline in permit()"],
+        checks: [...checks, { id: "calldata_decode", status: "FAIL", detail: "ABI decoding error" }],
+        details: null
+      };
+    }
+
+    const isUnlimited = rawAmount === UINT256_MAX;
+    if (isUnlimited) {
+      riskFactors.push("UNLIMITED_ALLOWANCE_UINT256_MAX");
+      checks.push({ id: "allowance_size", status: "WARN", detail: "Permit grants maximum possible token allowance (2^256 - 1)" });
+    }
+
+    if (Array.isArray(policy.allowedSpenders) && policy.allowedSpenders.length > 0) {
+      const allowed = policy.allowedSpenders.map(a => typeof a === "string" ? a.toLowerCase() : "");
+      if (!allowed.includes(spender)) {
+        riskFactors.push("SPENDER_NOT_IN_ALLOWLIST");
+        checks.push({ id: "spender_policy", status: "FAIL", detail: `Permit spender ${spender} is not in allowedSpenders policy` });
+      }
+    }
+
+    if (policy.maxAllowance !== undefined && policy.maxAllowance !== null) {
+      try {
+        const maxLimit = BigInt(policy.maxAllowance);
+        if (rawAmount > maxLimit) {
+          riskFactors.push("ALLOWANCE_EXCEEDS_POLICY_MAX");
+          checks.push({ id: "allowance_limit", status: "FAIL", detail: `Permit value ${rawAmount} exceeds configured policy limit ${maxLimit}` });
+        }
+      } catch {
+        // Ignored invalid limit
+      }
+    }
+
+    const isBlocked = checks.some(c => c.status === "FAIL");
+    const hasWarn = checks.some(c => c.status === "WARN");
+    return {
+      verdict: isBlocked ? "BLOCK" : hasWarn ? "REVIEW" : "PASS",
+      riskLevel: isBlocked ? "HIGH" : hasWarn ? "MEDIUM" : "LOW",
+      operation: "ERC20_PERMIT",
+      reasons: riskFactors,
+      checks,
+      details: {
+        tokenContract: target,
+        owner,
+        spender,
+        allowance: rawAmount.toString(),
+        deadline: deadline.toString(),
+        isUnlimited,
         rawData,
         cleanCalldata,
         attribution

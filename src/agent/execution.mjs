@@ -6,6 +6,8 @@
  */
 
 import { plugin } from "../plugin.mjs";
+import { checkContractVerification } from "../contract-verification.mjs";
+import { inspectTransactionHash } from "../tx-inspector.mjs";
 import { createErrorEvidence, createNotCheckedEvidence } from "./evidence-record.mjs";
 import { normalizeToolResult } from "./normalize-result.mjs";
 import { cloneJsonValue, canonicalJson } from "./canonical-json.mjs";
@@ -54,9 +56,14 @@ export async function executeAssessmentPlan(plan, options = {}) {
     perToolTimeoutMs: boundedInteger(options.perToolTimeoutMs, DEFAULT_EXECUTION_LIMITS.perToolTimeoutMs, 1, 30_000),
     totalTimeoutMs: boundedInteger(options.totalTimeoutMs, DEFAULT_EXECUTION_LIMITS.totalTimeoutMs, 1, 60_000)
   };
+  const defaultInvokeTool = (name, args) => {
+    if (name === "payguard_verify_contract") return checkContractVerification(args);
+    if (name === "payguard_inspect_tx_hash") return inspectTransactionHash(args);
+    return plugin.invokeTool(name, args);
+  };
   const invokeTool = typeof options.invokeTool === "function"
     ? options.invokeTool
-    : plugin.invokeTool.bind(plugin);
+    : defaultInvokeTool;
 
   const records = new Array(plan.tasks.length);
   const deadline = Date.now() + limits.totalTimeoutMs;

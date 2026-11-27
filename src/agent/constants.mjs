@@ -33,5 +33,7 @@ export const TOOL_CATALOG = Object.freeze({
   payguard_inspect_calldata: Object.freeze({ category: "transaction-inspection", title: "Calldata inspection" }),
   payguard_check_token_security: Object.freeze({ category: "token-security", title: "Token security" }),
   payguard_check_address_security: Object.freeze({ category: "address-security", title: "Address reputation" }),
-  payguard_scan_wallet_tokens: Object.freeze({ category: "wallet-security", title: "Wallet token scan" })
+  payguard_scan_wallet_tokens: Object.freeze({ category: "wallet-security", title: "Wallet token scan" }),
+  payguard_verify_contract: Object.freeze({ category: "contract-verification", title: "Contract source verification" }),
+  payguard_inspect_tx_hash: Object.freeze({ category: "transaction-inspection", title: "Transaction hash inspection" })
 });

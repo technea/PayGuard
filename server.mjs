@@ -13,6 +13,7 @@ import {
   payGuardAnalyzeNearSecurity
 } from "./src/plugin.mjs";
 import { handleMcpHttpRequest } from "./src/mcp/streamable-http.mjs";
+import { runSecurityAssessment } from "./src/agent/orchestrator.mjs";
 import { BAZAAR_DISCOVERY_METADATA, build402Challenge, verifyPaymentProof } from "./paybox.mjs";
 
 import path from "node:path";
@@ -155,6 +156,7 @@ function routeLabel(path) {
   if (path === "/api/address-security") return "address_security";
   if (path === "/api/scan-wallet-tokens") return "scan_wallet_tokens";
   if (path === "/api/near-security") return "near_security";
+  if (path === "/api/assess") return "assess";
   if (path === "/mcp") return "mcp";
   if (path === "/api/capabilities") return "capabilities";
   if (path === "/whitepaper" || path === "/faq" || path === "/docs" || path.startsWith("/docs/")) return "docs";
@@ -299,6 +301,37 @@ const routes = new Map([
     const result = await payGuardAnalyzeNearSecurity(input);
     recordVerdict("near_security", result.verdict);
     return result;
+  }],
+  ["/api/assess", async input => {
+    if (!input || typeof input !== "object" || Array.isArray(input)) {
+      const error = new Error("Assessment request body must be a JSON object.");
+      error.statusCode = 400;
+      throw error;
+    }
+    const assessmentInput = {
+      ...input,
+      ...(Object.hasOwn(input, "contractAddress") && input.verifyContract === undefined ? { verifyContract: true } : {})
+    };
+    let assessment;
+    try {
+      assessment = await runSecurityAssessment(assessmentInput, {
+        maxInputChars: 64_000,
+        totalTimeoutMs: 20_000
+      });
+    } catch (err) {
+      if (err instanceof TypeError || err instanceof RangeError) {
+        const error = new Error(err.message);
+        error.statusCode = 400;
+        throw error;
+      }
+      throw err;
+    }
+    recordVerdict("assess", assessment.report?.dimensions?.securityVerdict || assessment.report?.overallStatus || "UNKNOWN");
+    return {
+      plan: assessment.plan,
+      derivedChecks: assessment.derivedChecks,
+      ...assessment.report
+    };
   }]
 ]);
 

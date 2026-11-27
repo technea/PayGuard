@@ -223,3 +223,4 @@ export default {
   ERC8021_MIN_SUFFIX_BYTES,
   extractERC8021Suffix
 };
+

@@ -263,3 +263,79 @@ test("16. transfer() with malformed suffix fails closed with BLOCK because suffi
   assert.ok(result.reasons.some(r => r.includes("Malformed transfer() calldata length")));
   assert.equal(result.details.attribution.formatValid, false);
 });
+
+// ── EIP-2612 permit() tests (Operation D) ────────────────────────────────
+
+test("17. permit() with uint256_max allowance returns REVIEW with UNLIMITED_ALLOWANCE_UINT256_MAX", () => {
+  // permit(owner, spender, value, deadline, v, r, s) — 7 params × 32 bytes = 224 bytes payload
+  const OWNER   = "0xaaaa000000000000000000000000000000000001";
+  const SPENDER_ADDR = "0xbbbb000000000000000000000000000000000002";
+  const payload =
+    padAddress(OWNER) +
+    padAddress(SPENDER_ADDR) +
+    padUint256(UINT256_MAX) +      // value
+    padUint256(9999999999n) +      // deadline
+    padUint256(27n) +              // v (uint8 padded to 32 bytes)
+    "ab".repeat(32) +              // r (bytes32)
+    "cd".repeat(32);               // s (bytes32)
+  const calldata = SELECTORS.ERC20_PERMIT + payload;
+  const result = inspectCalldata({ to: TOKEN, data: calldata });
+
+  assert.equal(result.operation, "ERC20_PERMIT");
+  assert.equal(result.verdict, "REVIEW");
+  assert.ok(result.reasons.includes("UNLIMITED_ALLOWANCE_UINT256_MAX"),
+    `Expected UNLIMITED_ALLOWANCE_UINT256_MAX in ${JSON.stringify(result.reasons)}`);
+  assert.equal(result.details.isUnlimited, true);
+});
+
+test("18. permit() with limited allowance returns PASS", () => {
+  const OWNER   = "0xaaaa000000000000000000000000000000000001";
+  const SPENDER_ADDR = "0xbbbb000000000000000000000000000000000002";
+  const payload =
+    padAddress(OWNER) +
+    padAddress(SPENDER_ADDR) +
+    padUint256(1_000_000n) +       // limited allowance
+    padUint256(9999999999n) +      // deadline
+    padUint256(28n) +
+    "ef".repeat(32) +
+    "12".repeat(32);
+  const calldata = SELECTORS.ERC20_PERMIT + payload;
+  const result = inspectCalldata({ to: TOKEN, data: calldata });
+
+  assert.equal(result.operation, "ERC20_PERMIT");
+  assert.equal(result.verdict, "PASS");
+  assert.equal(result.details.isUnlimited, false);
+  assert.equal(result.details.allowance, "1000000");
+});
+
+test("19. permit() with wrong payload length returns BLOCK (malformed)", () => {
+  // Only 6 params instead of 7 → too short
+  const payload = "00".repeat(192); // 192 bytes instead of 224
+  const calldata = SELECTORS.ERC20_PERMIT + payload;
+  const result = inspectCalldata({ to: TOKEN, data: calldata });
+
+  assert.equal(result.operation, "ERC20_PERMIT");
+  assert.equal(result.verdict, "BLOCK");
+  assert.ok(result.reasons.some(r => r.includes("Malformed permit()")),
+    `Expected Malformed permit() in ${JSON.stringify(result.reasons)}`);
+});
+
+test("20. permit() with spender not in policy allowedSpenders returns BLOCK", () => {
+  const OWNER   = "0xaaaa000000000000000000000000000000000001";
+  const UNKNOWN = "0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddead";
+  const payload =
+    padAddress(OWNER) +
+    padAddress(UNKNOWN) +
+    padUint256(100_000_000n) +
+    padUint256(9999999999n) +
+    padUint256(27n) +
+    "aa".repeat(32) +
+    "bb".repeat(32);
+  const calldata = SELECTORS.ERC20_PERMIT + payload;
+  const policy = { allowedSpenders: ["0x111111125421ca6dc452d289314280a0f8842a65"] };
+  const result = inspectCalldata({ to: TOKEN, data: calldata }, policy);
+
+  assert.equal(result.operation, "ERC20_PERMIT");
+  assert.equal(result.verdict, "BLOCK");
+  assert.ok(result.reasons.includes("SPENDER_NOT_IN_ALLOWLIST"));
+});
