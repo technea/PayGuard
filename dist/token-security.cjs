@@ -593,20 +593,18 @@ async function checkTokenSecurity({
     return value === undefined || value === null || value === "";
   });
 
-  if (missingIndicators.length > 0 && evaluated.verdict !== "BLOCK") {
+  if (missingIndicators.length > 0) {
+    // Preserve confirmed malicious verdicts, but disclose incomplete evidence and never cache it.
     return {
-      verdict: "UNVERIFIED",
-      riskLevel: "UNKNOWN",
-      chainId: normChain,
-      contractAddress: normAddress,
-      tokenName: evaluated.tokenName,
-      tokenSymbol: evaluated.tokenSymbol,
+      ...evaluated,
+      verdict: evaluated.verdict === "BLOCK" ? "BLOCK" : "UNVERIFIED",
+      riskLevel: evaluated.verdict === "BLOCK" ? evaluated.riskLevel : "UNKNOWN",
       findings: [
         ...evaluated.findings,
         {
           code: "INCOMPLETE_SECURITY_DATA",
           severity: "medium",
-          message: `GoPlus response is missing required core security indicators (${missingIndicators.join(", ")}); cannot verify token safety.`
+          message: `GoPlus response is missing required core security indicators (${missingIndicators.join(", ")}); cannot fully verify token safety.`
         }
       ],
       reasonCodes: [...new Set([...evaluated.reasonCodes, "INCOMPLETE_SECURITY_DATA"])],
@@ -617,7 +615,7 @@ async function checkTokenSecurity({
   }
 
   // 12. In-memory Cache Store
-  // Only cache available evaluations, never transient errors
+  // Only cache complete evaluations, never incomplete or transient responses.
   tokenCache.set(cacheKey, {
     timestamp: now,
     result: evaluated
