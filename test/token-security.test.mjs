@@ -144,6 +144,9 @@ test('5. Owner balance modification indicator flags BLOCK with critical risk', a
   assert.equal(res.verdict, 'BLOCK');
   assert.equal(res.riskLevel, 'CRITICAL');
   assert.ok(res.reasonCodes.includes('OWNER_CAN_CHANGE_BALANCE'));
+  assert.ok(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'));
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.equal(getTokenCacheSize(), 0, 'Incomplete BLOCK responses must not be cached');
 });
 
 test('6. Unverified source code flags REVIEW rather than blocking outright', async () => {
@@ -543,6 +546,9 @@ test('25. Confirmed honeypot with other indicators missing preserves BLOCK and H
   assert.equal(res.verdict, 'BLOCK');
   assert.equal(res.riskLevel, 'CRITICAL');
   assert.ok(res.reasonCodes.includes('HONEYPOT_DETECTED'));
+  assert.ok(res.reasonCodes.includes('INCOMPLETE_SECURITY_DATA'));
+  assert.equal(res.dataStatus, 'INCOMPLETE');
+  assert.equal(getTokenCacheSize(), 0, 'Incomplete BLOCK responses must not be cached');
 });
 
 test('26. Missing indicators combined with an actual high-risk finding preserves BLOCK', async () => {
