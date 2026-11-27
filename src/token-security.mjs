@@ -576,40 +576,45 @@ export async function checkTokenSecurity({
     };
   }
 
-  // 10b. Fail closed if GoPlus returned metadata without any core security indicators
-  const hasAnySecurityIndicator = [
-    rawToken.is_honeypot,
-    rawToken.owner_change_balance,
-    rawToken.cannot_buy,
-    rawToken.cannot_sell_all,
-    rawToken.is_open_source,
-    rawToken.is_in_dex
-  ].some(value => value !== undefined && value !== null && value !== "");
+  // 10b. Evaluate deterministic security signals first so confirmed high-risk/BLOCK findings are never suppressed
+  const evaluated = evaluateTokenSecurityData(rawToken, normChain, normAddress);
 
-  if (!hasAnySecurityIndicator) {
+  // 10c. Require all six core GoPlus security indicators unless a confirmed BLOCK risk was already detected
+  const REQUIRED_SECURITY_INDICATORS = [
+    "is_honeypot",
+    "owner_change_balance",
+    "cannot_buy",
+    "cannot_sell_all",
+    "is_open_source",
+    "is_in_dex"
+  ];
+  const missingIndicators = REQUIRED_SECURITY_INDICATORS.filter(field => {
+    const value = rawToken[field];
+    return value === undefined || value === null || value === "";
+  });
+
+  if (missingIndicators.length > 0 && evaluated.verdict !== "BLOCK") {
     return {
       verdict: "UNVERIFIED",
       riskLevel: "UNKNOWN",
       chainId: normChain,
       contractAddress: normAddress,
-      tokenName: typeof rawToken.token_name === "string" ? rawToken.token_name : null,
-      tokenSymbol: typeof rawToken.token_symbol === "string" ? rawToken.token_symbol : null,
+      tokenName: evaluated.tokenName,
+      tokenSymbol: evaluated.tokenSymbol,
       findings: [
+        ...evaluated.findings,
         {
           code: "INCOMPLETE_SECURITY_DATA",
           severity: "medium",
-          message: "GoPlus returned no core security indicators; cannot verify token safety."
+          message: `GoPlus response is missing required core security indicators (${missingIndicators.join(", ")}); cannot verify token safety.`
         }
       ],
-      reasonCodes: ["INCOMPLETE_SECURITY_DATA"],
+      reasonCodes: [...new Set([...evaluated.reasonCodes, "INCOMPLETE_SECURITY_DATA"])],
       provider: "goplus",
       timestamp: now,
       dataStatus: "INCOMPLETE"
     };
   }
-
-  // 11. Deterministic Security Evaluation
-  const evaluated = evaluateTokenSecurityData(rawToken, normChain, normAddress);
 
   // 12. In-memory Cache Store
   // Only cache available evaluations, never transient errors
